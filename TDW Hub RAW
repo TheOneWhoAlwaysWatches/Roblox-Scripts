@@ -164,7 +164,7 @@ local Scripts = {
         function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Lag", true))() 
         end, -- Anti Lag - 9
         function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/God%20Mode.lua", true))() 
-        end -- God Mode - 11
+        end -- God Mode - 10
     },
         
     ["Misc Scripts"] = {
@@ -222,8 +222,7 @@ pagedButton("Main", "Kill Aura", UDim2.new(0, 330, 0, 60), 6)
 pagedButton("Main", "Loopbring V2", UDim2.new(0, 10, 0, 110), 7)
 pagedButton("Main", "Infinite Yeild", UDim2.new(0, 170, 0, 110), 8)
 pagedButton("Main", "Anti Lag V2", UDim2.new(0, 330, 0, 110), 9)
-pagedButton("Main", "Auto Build Base", UDim2.new(0, 10, 0, 160), 10)
-pagedButton("Main", "God Mode", UDim2.new(0, 170, 0, 160), 11)
+pagedButton("Main", "God Mode", UDim2.new(0, 170, 0, 160), 10)
 
 --// Misc Scripts buttons
 pagedButton("Misc Scripts", "Auto Build Base", UDim2.new(0, 10, 0, 10), 1)

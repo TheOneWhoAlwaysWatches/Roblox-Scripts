@@ -1,0 +1,70 @@
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Tycoons = workspace:WaitForChild("Tycoons")
+local RunService = game:GetService("RunService")
+
+local BASE_ORDER = {"Stone", "Robotic", "Storm", "Magic", "Spike", "Strong", "Web", "Insanity", "Dark", "Giant"}
+local claimed = false
+
+local function fireTouch(part, target)
+    firetouchinterest(part, target, 0)
+    firetouchinterest(part, target, 1)
+end
+
+local function getRoot()
+    return LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+end
+
+local function claimBase(name)
+    local tycoon = Tycoons:FindFirstChild(name)
+    local door = tycoon and tycoon:FindFirstChild("Door")
+    local root = getRoot()
+    if not (door and root) then return end
+
+    for _, part in ipairs(door:GetChildren()) do
+        if part:IsA("BasePart") then
+            fireTouch(root, part)
+        end
+    end
+end
+
+local function isUnclaimed(name)
+    local tycoon = Tycoons:FindFirstChild(name)
+    local owner = tycoon and tycoon:FindFirstChild("isim")
+    return owner and not Players:FindFirstChild(owner.Value)
+end
+
+local function tryClaimAll()
+    for _, base in ipairs(BASE_ORDER) do
+        if claimed then return end
+        if isUnclaimed(base) then
+            claimBase(base)
+
+            local tycoon = Tycoons:FindFirstChild(base)
+            local owner = tycoon and tycoon:FindFirstChild("isim")
+
+            if owner then
+                for _ = 1, 10 do -- retry up to 10 times
+                    if Players:FindFirstChild(owner.Value) == LocalPlayer then
+                        claimed = true
+                        break
+                    end
+                    task.wait(0.1)
+                end
+            end
+        end
+    end
+end
+
+-- Clear rejoin bug: reset state on spawn
+LocalPlayer.CharacterAdded:Connect(function(char)
+    claimed = false
+    char:WaitForChild("HumanoidRootPart", 5)
+end)
+
+-- Loop until base is claimed
+RunService.Heartbeat:Connect(function()
+    if not claimed and getRoot() then
+        tryClaimAll()
+    end
+end)

@@ -1,0 +1,129 @@
+-- ConfiguraciÃ³n
+local auraRange = 20
+local auraSize = Vector3.new(30, 30, 30)
+
+-- ConfiguraciÃ³n de conexiones
+local connections = getgenv().configs and getgenv().configs.connection
+if connections then
+    local Disable = configs.Disable
+    for _, v in ipairs(connections) do
+        v:Disconnect()
+    end
+    Disable:Fire()
+    Disable:Destroy()
+    table.clear(configs)
+end
+
+-- CreaciÃ³n de eventos
+local Disable = Instance.new("BindableEvent")
+getgenv().configs = {
+    connections = {},
+    Disable = Disable,
+    Size = auraSize,
+    DeathCheck = false -- Desactiva cualquier verificaciÃ³n de invulnerabilidad
+}
+
+-- Variables de servicio
+local Players = cloneref(game:GetService("Players"))
+local RunService = cloneref(game:GetService("RunService"))
+local lp = Players.LocalPlayer
+local Run = true
+local Ignorelist = OverlapParams.new()
+Ignorelist.FilterType = Enum.RaycastFilterType.Include
+
+-- Funciones auxiliares
+local function getchar(plr)
+    return (plr or lp).Character
+end
+
+local function gethumanoid(plr)
+    local char = plr:IsA("Model") and plr or getchar(plr)
+    return char and char:FindFirstChildWhichIsA("Humanoid")
+end
+
+local function GetTouchInterest(Tool)
+    return Tool and Tool:FindFirstChildWhichIsA("TouchTransmitter", true)
+end
+
+local function GetCharacters(LocalPlayerChar)
+    local Characters = {}
+    for _, v in ipairs(Players:GetPlayers()) do
+        local character = getchar(v)
+        if character and character ~= LocalPlayerChar then
+            table.insert(Characters, character)
+        end
+    end
+    return Characters
+end
+
+local function AutoActivateTool(Tool)
+    if Tool:IsDescendantOf(workspace) then
+        Tool:Activate()
+    end
+end
+
+-- ConexiÃ³n para desactivar
+table.insert(getgenv().configs.connections, Disable.Event:Connect(function()
+    Run = false
+end))
+
+-- FunciÃ³n para aplicar daÃ±o sin lÃ­mites
+local function ApplyDamage(Tools, Characters, TouchPart)
+    local InstancesInBox = workspace:GetPartBoundsInBox(
+        TouchPart.CFrame,
+        TouchPart.Size + getgenv().configs.Size,
+        Ignorelist
+    )
+
+    local totalDamage = #Tools -- DaÃ±o combinado basado en las herramientas
+    for _, v in ipairs(InstancesInBox) do
+        local Character = v:FindFirstAncestorWhichIsA("Model")
+        if Character and table.find(Characters, Character) then
+            for _ = 1, totalDamage do
+                firetouchinterest(TouchPart, v, 1) -- Activa el contacto
+                firetouchinterest(TouchPart, v, 0) -- Finaliza el contacto
+            end
+        end
+    end
+end
+
+-- FunciÃ³n principal
+local function OnCharacterSpawned()
+    local char = getchar()
+    local Tools = {}
+    local Characters = GetCharacters(char)
+    Ignorelist.FilterDescendantsInstances = Characters
+
+    for _, tool in ipairs(char:GetChildren()) do
+        if tool:IsA("Tool") and GetTouchInterest(tool) then
+            table.insert(Tools, tool)
+            local TouchPart = GetTouchInterest(tool).Parent
+            AutoActivateTool(tool)
+            ApplyDamage(Tools, Characters, TouchPart)
+        end
+    end
+end
+
+-- Detectar cuando el jugador aparece (respawnea)
+lp.CharacterAdded:Connect(OnCharacterSpawned)
+
+-- LÃ³gica principal
+while Run do
+    local char = getchar()
+    local humanoid = gethumanoid(char)
+    if humanoid then
+        local Tools = {}
+        local Characters = GetCharacters(char)
+        Ignorelist.FilterDescendantsInstances = Characters
+
+        for _, tool in ipairs(char:GetChildren()) do
+            if tool:IsA("Tool") and GetTouchInterest(tool) then
+                table.insert(Tools, tool)
+                local TouchPart = GetTouchInterest(tool).Parent
+                AutoActivateTool(tool)
+                ApplyDamage(Tools, Characters, TouchPart)
+            end
+        end
+    end
+    RunService.Heartbeat:Wait(0.001) -- MÃ¡xima frecuencia para respuestas instantÃ¡neas
+end

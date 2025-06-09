@@ -160,7 +160,8 @@ local Scripts = {
         end, -- Kill Aura - 6
         function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Loopbring%20V3.lua", true))() 
         end, -- Loopbring - 7
-        function() loadstring(game:HttpGet("https://pastebin.com/raw/6rrhy0P1", true))() end, -- Infinite Yeild - 8
+        function() loadstring(game:HttpGet("https://pastebin.com/raw/6rrhy0P1", true))() 
+        end, -- Infinite Yeild - 8
         function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Lag", true))() 
         end, -- Anti Lag - 9
         function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/God%20Mode.lua", true))() 

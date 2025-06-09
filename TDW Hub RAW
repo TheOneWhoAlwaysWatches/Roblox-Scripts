@@ -146,28 +146,44 @@ end
 --// Script Functions organized by page
 local Scripts = {
     ["Main"] = {
-        function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Base%20V2", true))() end, -- Get Base - 1
-        function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Use%20Tools%20V4.lua", true))() end, -- Use Tools - 2
-        function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Tools%20V3.lua", true))() end, -- Get Tools - 3
-        function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/God%20Cooldown", true))() end, -- God Cooldown - 4
-        function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V2.lua", true))() end, -- Respawn - 5
-        function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20Aura", true))() end, -- Kill Aura - 6
-        function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Loopbring%20V3.lua", true))() end, -- Loopbring - 7
+        function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Base%20V2", true))() 
+        end, -- Get Base - 1
+        function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Use%20Tools%20V4.lua", true))() 
+        end, -- Use Tools - 2
+        function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Tools%20V3.lua", true))() 
+        end, -- Get Tools - 3
+        function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/God%20Cooldown", true))() 
+        end, -- God Cooldown - 4
+        function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V2.lua", true))() 
+        end, -- Respawn - 5
+        function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20Aura", true))() 
+        end, -- Kill Aura - 6
+        function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Loopbring%20V3.lua", true))() 
+        end, -- Loopbring - 7
         function() loadstring(game:HttpGet("https://pastebin.com/raw/6rrhy0P1", true))() end, -- Infinite Yeild - 8
-        function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Lag", true))() end, -- Anti Lag - 9
-        function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/God%20Mode.lua", true))() end -- God Mode - 11
+        function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Lag", true))() 
+        end, -- Anti Lag - 9
+        function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/God%20Mode.lua", true))() 
+        end -- God Mode - 11
     },
         
     ["Misc Scripts"] = {
-        function() loadstring(game:HttpGet("https://pastebin.com/raw/w1DW0m31",true))() end, -- Chat Spy - 1
-        function() loadstring(game:HttpGet("https://pastebin.com/raw/eCpipCTH",true))() end, -- Emote Gui - 2
-        function() loadstring(game:HttpGet("https://pastefy.app/xjoCsunl/raw",true))() end -- Ragdoll Tools - 3
+        function() loadstring(game:HttpGet("https://pastebin.com/raw/w1DW0m31",true))() 
+        end, -- Chat Spy - 1
+        function() loadstring(game:HttpGet("https://pastebin.com/raw/eCpipCTH",true))() 
+        end, -- Emote Gui - 2
+        function() loadstring(game:HttpGet("https://pastefy.app/xjoCsunl/raw",true))() 
+        end -- Ragdoll Tools - 3
     },
     ["Other Hubs"] = {
-        function() loadstring(game:HttpGet("https://pastefy.app/kwOI1DmM/raw",true))() end, -- CTLM Hub V1 - 1
-        function() loadstring(game:HttpGet("https://pastefy.app/UbJgpOeQ/raw",true))() end, -- CTLM Hub V2 - 2
-        function() loadstring(game:HttpGet("https://pastefy.app/xhFiwEWy/raw",true))() end, -- Destroyer Hub - 3
-        function() loadstring(game:HttpGet("https://raw.githubusercontent.com/3dsonsuce/acrylix/main/Acrylix",true))() end -- Acrylix - 4
+        function() loadstring(game:HttpGet("https://pastefy.app/kwOI1DmM/raw",true))() 
+        end, -- CTLM Hub V1 - 1
+        function() loadstring(game:HttpGet("https://pastefy.app/UbJgpOeQ/raw",true))() 
+        end, -- CTLM Hub V2 - 2
+        function() loadstring(game:HttpGet("https://pastefy.app/xhFiwEWy/raw",true))() 
+        end, -- Destroyer Hub - 3
+        function() loadstring(game:HttpGet("https://raw.githubusercontent.com/3dsonsuce/acrylix/main/Acrylix",true))() 
+        end -- Acrylix - 4
     }
 }
 
@@ -197,7 +213,7 @@ local function pagedButton(pageName, label, pos, scriptIndex)
 end
 
 --// Main Scripts buttons
-pagedButton("Main", "Get Base V2", UDim2.new(0, 10, 0, 10), 1)
+pagedButton("Main", "Get Base V3", UDim2.new(0, 10, 0, 10), 1)
 pagedButton("Main", "Use Tools V5", UDim2.new (0, 170, 0, 10), 2)
 pagedButton("Main", "Get Tools", UDim2.new(0, 330, 0, 10), 3)
 pagedButton("Main", "God Cooldown", UDim2.new(0, 10, 0, 60), 4)

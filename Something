@@ -1,0 +1,109 @@
+--[[
+🔁 Auto-Claim Base Script for:
+- Super Power Tycoon (SPT)
+- Mega Power Tycoon (MPT)
+
+Handles:
+✅ PlaceId detection
+✅ Game-specific base order
+✅ Smart claiming with retry
+✅ Rejoin-safe & frame-optimized
+--]]
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
+local Tycoons = workspace:WaitForChild("Tycoons")
+
+-- Place IDs
+local SPT_PLACE_ID = 5142372758
+local MPT_PLACE_ID = 10065006658
+
+-- Game-specific base priorities
+local BASE_ORDERS = {
+    [SPT_PLACE_ID] = {
+        "Stone", "Robotic", "Storm", "Magic", "Spike",
+        "Strong", "Web", "Insanity", "Dark", "Giant"
+    },
+    [MPT_PLACE_ID] = {
+        "Frozen", "Hyper", "Kong", "Magma", "Mecha",
+        "Nuclear", "Shadow", "Thunder", "Toxic", "Void"
+    }
+}
+
+-- Determine current game type
+local currentPlaceId = game.PlaceId
+local BASE_ORDER = BASE_ORDERS[currentPlaceId]
+if not BASE_ORDER then
+    warn("⚠ Unsupported PlaceId: No base list defined.")
+    return
+end
+
+local claimed = false
+
+-- == Utilities == --
+local function fireTouch(part, target)
+    firetouchinterest(part, target, 0)
+    firetouchinterest(part, target, 1)
+end
+
+local function getRoot()
+    return LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+end
+
+local function claimBase(name)
+    local tycoon = Tycoons:FindFirstChild(name)
+    local door = tycoon and tycoon:FindFirstChild("Door")
+    local root = getRoot()
+    if not (door and root) then return end
+
+    for _, part in ipairs(door:GetChildren()) do
+        if part:IsA("BasePart") then
+            fireTouch(root, part)
+        end
+    end
+end
+
+local function isUnclaimed(name)
+    local tycoon = Tycoons:FindFirstChild(name)
+    local owner = tycoon and tycoon:FindFirstChild("isim")
+    return owner and not Players:FindFirstChild(owner.Value)
+end
+
+local function tryClaimAll()
+    for _, base in ipairs(BASE_ORDER) do
+        if claimed then return end
+        if isUnclaimed(base) then
+            claimBase(base)
+
+            local tycoon = Tycoons:FindFirstChild(base)
+            local owner = tycoon and tycoon:FindFirstChild("isim")
+
+            if owner then
+                for _ = 1, 10 do -- retry for up to 1 second
+                    if Players:FindFirstChild(owner.Value) == LocalPlayer then
+                        claimed = true
+                        print("✅ Claimed base:", base)
+                        break
+                    end
+                    task.wait(0.1)
+                end
+            end
+        end
+    end
+end
+
+-- == Resilience Logic == --
+
+-- Reset state on respawn
+LocalPlayer.CharacterAdded:Connect(function(char)
+    claimed = false
+    char:WaitForChild("HumanoidRootPart", 5)
+end)
+
+-- Try every frame until claimed
+RunService.Heartbeat:Connect(function()
+    if not claimed and getRoot() then
+        tryClaimAll()
+    end
+end)

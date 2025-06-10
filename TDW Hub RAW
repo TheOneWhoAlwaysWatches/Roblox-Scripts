@@ -6,6 +6,7 @@ local whitelist = {
     [5054998059] = true, -- mjendeub (Alt)
   	[3429553477] = true, -- Dyllan144335 (Alt)
     [8407911841] = true, -- Void (Star)
+    [8646139977] = true, -- Stars Alt
     [1548866917] = true, -- Timmy
     [8551057429] = true, -- Timmy Alt
     [1799483953] = true, -- Sword

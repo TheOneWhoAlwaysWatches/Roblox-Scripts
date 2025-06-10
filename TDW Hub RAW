@@ -100,12 +100,12 @@ local function createPage(name)
 end
 
 --// Create Pages with custom names
-createPage("Main")
-createPage("Misc Scripts")
-createPage("Other Hubs")
 createPage("Tips")
+createPage("Main")
+createPage("Misc")
+createPage("Alternative Hubs")
 
-local pageOrder = {"Tips", "Main", "Misc Scripts", "Other Hubs"}
+local pageOrder = {"Tips", "Main", "Misc", "Alternative Hubs"}
 local buttonIndex = 0
 
 for _, name in ipairs(pageOrder) do

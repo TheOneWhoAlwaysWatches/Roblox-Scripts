@@ -105,7 +105,7 @@ createPage("Misc Scripts")
 createPage("Other Hubs")
 createPage("Tips")
 
-local pageOrder = {"Main", "Misc Scripts", "Other Hubs"}
+local pageOrder = {"Main", "Tips", "Misc Scripts", "Other Hubs"}
 local buttonIndex = 0
 
 for _, name in ipairs(pageOrder) do
@@ -168,6 +168,7 @@ local Scripts = {
         function() loadstring(game:HttpGet("https://pastefy.app/xjoCsunl/raw",true))() 
         end -- Ragdoll Tools - 3
     },
+    
     ["Other Hubs"] = {
         function() loadstring(game:HttpGet("https://pastefy.app/kwOI1DmM/raw",true))() 
         end, -- CTLM Hub V1 - 1
@@ -179,6 +180,25 @@ local Scripts = {
         end -- Acrylix - 4
     }
 }
+
+local tips = {
+    "Tip 1 --> Dont use God Mode if you have Respawn activated",
+    "Tip 2 --> Dont use No Cooldown with Insta Kill",
+    "Tip 3 --> Inf axe smash is inside Acrylix..",
+    "Tip 4 --> Dont die :]"
+}
+
+for i, tipText in ipairs(tips) do
+    local tipLabel = Instance.new("TextLabel", Pages["Tips"])
+    tipLabel.Size = UDim2.new(1, -20, 0, 30)
+    tipLabel.Position = UDim2.new(0, 10, 0, (i - 1) * 35)
+    tipLabel.BackgroundTransparency = 1
+    tipLabel.Text = tipText
+    tipLabel.Font = Enum.Font.Arcade
+    tipLabel.TextScaled = true
+    tipLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+    tipLabel.TextXAlignment = Enum.TextXAlignment.Left
+end
 
 --// Button Factory using Scripts table
 local function pagedButton(pageName, label, pos, scriptIndex)
@@ -209,7 +229,7 @@ end
 pagedButton("Main", "Get Base V3", UDim2.new(0, 10, 0, 10), 1)
 pagedButton("Main", "Use Tools V5", UDim2.new (0, 170, 0, 10), 2)
 pagedButton("Main", "Get Tools", UDim2.new(0, 330, 0, 10), 3)
-pagedButton("Main", "Insta-Kill", UDim2.new(0, 10, 0 60), 4)
+pagedButton("Main", "Insta-Kill", UDim2.new(0, 10, 0, 60), 4)
 pagedButton("Main", "No Cooldown", UDim2.new(0, 170, 0, 60), 5)
 pagedButton("Main", "Respawn V3", UDim2.new(0, 330, 0, 60), 6)
 pagedButton("Main", "Kill Aura", UDim2.new(0, 10, 0, 110), 7)
@@ -219,13 +239,12 @@ pagedButton("Main", "Anti Lag V2", UDim2.new(0, 10, 0, 160), 10)
 pagedButton("Main", "God Mode", UDim2.new(0, 170, 0, 160), 11)
 
 --// Misc Scripts buttons
-pagedButton("Misc Scripts", "Auto Build Base", UDim2.new(0, 10, 0, 10), 1)
-pagedButton("Misc Scripts", "Chat Spy", UDim2.new(0, 170, 0, 10), 2)
-pagedButton("Misc Scripts", "Emote GUI", UDim2.new(0, 330, 0, 10), 3)
-pagedButton("Misc Scripts", "Ragdoll Tools", UDim2.new(0, 10, 0, 60), 4)
+pagedButton("Misc Scripts", "Chat Spy", UDim2.new(0, 170, 0, 10), 1)
+pagedButton("Misc Scripts", "Emote GUI", UDim2.new(0, 330, 0, 10), 2)
+pagedButton("Misc Scripts", "Ragdoll Tools", UDim2.new(0, 10, 0, 60), 3)
 
 --// Other Hubs buttons
 pagedButton("Other Hubs", "CTLM Hub V1", UDim2.new(0, 10, 0, 10), 1)
 pagedButton("Other Hubs", "CTLM Hub V2", UDim2.new(0, 170, 0, 10), 2)
 pagedButton("Other Hubs", "Destroyer Hub", UDim2.new(0, 330, 0, 10), 3)
-pagedButton("Other Hubs", "Acrylix", UDim2.new(o, 10, 0, 60), 4)
+pagedButton("Other Hubs", "Acrylix", UDim2.new(0, 10, 0, 60), 4)

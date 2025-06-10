@@ -184,18 +184,6 @@ local Scripts = {
     "Tip 3 --> Inf axe smash is inside Acrylix.."
     "Tip 4 --> Dont die :]"
     }
-
-    for i, tipText in ipairs(tips) do
-        local tipLabel = Instance.new("TextLabel", Pages["Tips"])
-        tipLabel.Size = UDim2.new(1, -20, 0, 30)
-        tipLabel.Position = UDim2.new(0, 10, 0, (i - 1) * 35)
-        tipLabel.BackgroundTransparency = 1
-        tipLabel.Text = tipText
-        tipLabel.Font = Enum.Font.Arcade
-        tipLabel.TextScaled = true
-        tipLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
-        tipLabel.TextXAlignment = Enum.TextXAlignment.Left
-    end
 }
 
 --// Button Factory using Scripts table
@@ -247,3 +235,17 @@ pagedButton("Other Hubs", "CTLM Hub V1", UDim2.new(0, 10, 0, 10), 1)
 pagedButton("Other Hubs", "CTLM Hub V2", UDim2.new(0, 170, 0, 10), 2)
 pagedButton("Other Hubs", "Destroyer Hub", UDim2.new(0, 330, 0, 10), 3)
 pagedButton("Other Hubs", "Acrylix", UDim2.new(o, 10, 0, 60), 4)
+
+
+--// Tips
+for i, tipText in ipairs(tips) do
+    local tipLabel = Instance.new("TextLabel", Pages["Tips"])
+    tipLabel.Size = UDim2.new(1, -20, 0, 30)
+    tipLabel.Position = UDim2.new(0, 10, 0, (i - 1) * 35)
+    tipLabel.BackgroundTransparency = 1
+    tipLabel.Text = tipText
+    tipLabel.Font = Enum.Font.Arcade
+    tipLabel.TextScaled = true
+    tipLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+    tipLabel.TextXAlignment = Enum.TextXAlignment.Left
+end

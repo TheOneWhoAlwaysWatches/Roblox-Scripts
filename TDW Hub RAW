@@ -184,8 +184,9 @@ local Scripts = {
 local tips = {
     "Tip 1 --> Dont use God Mode if you have Respawn activated",
     "Tip 2 --> Dont use No Cooldown with Insta Kill",
-    "Tip 3 --> Inf axe smash is inside Acrylix..",
-    "Tip 4 --> Dont die :]"
+    "Tip 3 --> Dont use Insta Kill Aura with Normal Aura",
+    "Tip 4 --> Inf axe smash is inside Acrylix..",
+    "Tip 5 --> Dont trust random exploiters trying to give you scripts, they could be dangerous!!"
 }
 
 for i, tipText in ipairs(tips) do

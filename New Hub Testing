@@ -1,0 +1,314 @@
+-- Infernal Tech (Sci-Fi Demonic) Hub UI
+-- Author: TheOneWhoAlwaysWatches
+-- Description: A demonic-tech themed script hub with glitch effects, neon styles, page system, and animated intro
+
+--// SERVICES
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local mouse = player:GetMouse()
+
+--// STARTING UI CONTAINER
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "TDW_Hub"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.IgnoreGuiInset = true
+ScreenGui.Parent = player:WaitForChild("PlayerGui")
+
+--// OPENING LINE ANIMATION
+local OpeningLine = Instance.new("Frame")
+OpeningLine.Size = UDim2.new(0, 0, 0, 4)
+OpeningLine.Position = UDim2.new(0.5, 0, 0.5, 0)
+OpeningLine.AnchorPoint = Vector2.new(0.5, 0.5)
+OpeningLine.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+OpeningLine.BorderSizePixel = 0
+OpeningLine.Parent = ScreenGui
+
+TweenService:Create(OpeningLine, TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+    Size = UDim2.new(0, 300, 0, 4)
+}):Play()
+
+wait(0.6)
+
+-- Vertical expansion
+TweenService:Create(OpeningLine, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+    Size = UDim2.new(0, 300, 0, 400)
+}):Play()
+
+wait(0.5)
+OpeningLine:Destroy()
+
+--// MAIN HUB FRAME
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 600, 0, 400)
+MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+MainFrame.BackgroundColor3 = Color3.fromRGB(10, 0, 10)
+MainFrame.BorderSizePixel = 0
+MainFrame.Parent = ScreenGui
+
+-- Border gradient effect
+local Border = Instance.new("UIStroke", MainFrame)
+Border.Thickness = 2
+Border.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+Border.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(80, 0, 0)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(180, 0, 0)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(80, 0, 0))
+}
+
+--// TOP HEADER
+local Header = Instance.new("TextLabel")
+Header.Size = UDim2.new(1, 0, 0, 40)
+Header.Position = UDim2.new(0, 0, 0, 0)
+Header.BackgroundColor3 = Color3.fromRGB(30, 0, 0)
+Header.BorderSizePixel = 0
+Header.Text = "The Demonic Warriors Hub"
+Header.TextColor3 = Color3.fromRGB(255, 0, 0)
+Header.Font = Enum.Font.Arcade
+Header.TextScaled = true
+Header.Parent = MainFrame
+
+--// PAGE BUTTONS PANEL
+local PageButtons = Instance.new("Frame")
+PageButtons.Name = "PageButtons"
+PageButtons.Size = UDim2.new(0, 120, 1, -40)
+PageButtons.Position = UDim2.new(0, 0, 0, 40)
+PageButtons.BackgroundColor3 = Color3.fromRGB(20, 0, 0)
+PageButtons.BorderSizePixel = 0
+PageButtons.Parent = MainFrame
+
+--// UICorner on MainFrame + Buttons
+local function applyCorner(inst, radius)
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, radius or 8)
+    corner.Parent = inst
+end
+
+applyCorner(MainFrame, 12)
+applyCorner(PageButtons, 0)
+applyCorner(Header, 0)
+
+--// IMPORT AND RUN THE OLD PAGE/BUTTON LOGIC
+-- Will be inserted below in this same script after visuals are done
+
+-- Placeholder note
+local Note = Instance.new("TextLabel", MainFrame)
+Note.Size = UDim2.new(0, 200, 0, 25)
+Note.Position = UDim2.new(1, -210, 1, -30)
+Note.BackgroundTransparency = 1
+Note.TextColor3 = Color3.fromRGB(255, 0, 0)
+Note.Text = "TDW Hub Loaded"
+Note.TextScaled = true
+Note.Font = Enum.Font.Arcade
+Note.TextXAlignment = Enum.TextXAlignment.Right
+
+--// Dragify function
+local function makeDraggable(frame)
+    local dragging = false
+    local dragInput, mousePos, framePos
+
+    frame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            mousePos = input.Position
+            framePos = frame.Position
+
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+
+    frame.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement then
+            dragInput = input
+        end
+    end)
+
+    game:GetService("UserInputService").InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local delta = input.Position - mousePos
+            frame.Position = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
+        end
+    end)
+end
+
+makeDraggable(MainFrame)
+
+--// Page Buttons Frame
+local PageButtons = Instance.new("Frame", MainFrame)
+PageButtons.Size = UDim2.new(0, 120, 1, -40)
+PageButtons.Position = UDim2.new(0, 0, 0, 40)
+PageButtons.BackgroundTransparency = 1
+
+--// Page Table
+local Pages = {}
+local currentPage = nil
+
+--// Page Creation Function
+local function createPage(name)
+    local Page = Instance.new("Frame", MainFrame)
+    Page.Size = UDim2.new(1, -135, 1, -40)
+    Page.Position = UDim2.new(0, 130, 0, 40)
+    Page.BackgroundTransparency = 1
+    Page.Visible = (currentPage == nil)
+    Page.Name = name
+    Pages[name] = Page
+    if not currentPage then currentPage = name end
+    return Page
+end
+
+--// Create Pages with custom names
+createPage("Tips")
+createPage("Main")
+createPage("Misc")
+createPage("Alternative Hubs")
+
+local pageOrder = {"Tips", "Main", "Misc", "Alternative Hubs"}
+local buttonIndex = 0
+
+for _, name in ipairs(pageOrder) do
+    local page = Pages[name]
+    local btn = Instance.new("TextButton", PageButtons)
+    btn.Size = UDim2.new(1, -20, 0, 40)
+    btn.Position = UDim2.new(0, 10, 0, buttonIndex * 50)
+    btn.Text = name
+    btn.TextColor3 = Color3.fromRGB(255, 0, 0)
+    btn.Font = Enum.Font.Arcade
+    btn.TextScaled = true
+    btn.BackgroundColor3 = Color3.fromRGB(30, 0, 0)
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 8)
+    corner.Parent = btn
+
+    btn.MouseButton1Click:Connect(function()
+        for pageName, frame in pairs(Pages) do
+            frame.Visible = (pageName == name)
+        end
+        currentPage = name
+    end)
+
+    buttonIndex += 1
+end
+
+--// Script Functions organized by page
+local Scripts = {
+    ["Main"] = {
+        function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Something",true))() 
+        end, -- Get Base - 1
+        function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Use%20Tools%20V4.lua", true))() 
+        end, -- Use Tools - 2
+        function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Tools%20V3.lua", true))() 
+        end, -- Get Tools - 3
+        function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/One%20Shot%20Aura.lua", true))()
+        end, -- Hit Spammer - 4
+        function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V5.lua", true))() 
+        end, -- No Cooldown - 5
+        function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V2.lua", true))() 
+        end, -- Respawn - 6
+        function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20Aura", true))() 
+        end, -- Kill Aura - 7
+        function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Loopbring%20V3.lua", true))() 
+        end, -- Loopbring - 8
+        function() loadstring(game:HttpGet("https://pastebin.com/raw/6rrhy0P1", true))() 
+        end, -- Infinite Yeild - 9
+        function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Lag", true))() 
+        end, -- Anti Lag - 10
+        function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/God%20Mode.lua", true))() 
+        end -- God Mode - 11
+    },
+        
+    ["Misc"] = {
+        function() loadstring(game:HttpGet("https://pastebin.com/raw/w1DW0m31",true))() 
+        end, -- Chat Spy - 1
+        function() loadstring(game:HttpGet("https://pastebin.com/raw/eCpipCTH",true))() 
+        end, -- Emote Gui - 2
+        function() loadstring(game:HttpGet("https://pastefy.app/xjoCsunl/raw",true))() 
+        end -- Ragdoll Tools - 3
+    },
+    
+    ["Alternative Hubs"] = {
+        function() loadstring(game:HttpGet("https://pastefy.app/kwOI1DmM/raw",true))() 
+        end, -- CTLM Hub V1 - 1
+        function() loadstring(game:HttpGet("https://pastefy.app/UbJgpOeQ/raw",true))() 
+        end, -- CTLM Hub V2 - 2
+        function() loadstring(game:HttpGet("https://pastefy.app/xhFiwEWy/raw",true))() 
+        end, -- Destroyer Hub - 3
+        function() loadstring(game:HttpGet("https://raw.githubusercontent.com/3dsonsuce/acrylix/main/Acrylix",true))() 
+        end -- Acrylix - 4
+    }
+}
+
+local tips = {
+    "Tip 1 --> Dont use God Mode if you have Respawn activated",
+    "Tip 2 --> Dont use No Cooldown with Insta Kill",
+    "Tip 3 --> Dont use Insta Kill Aura with Normal Aura",
+    "Tip 4 --> Inf axe smash is inside Acrylix..",
+    "Tip 5 --> Dont trust random exploiters trying to give you scripts, they could be dangerous!!"
+}
+
+for i, tipText in ipairs(tips) do
+    local tipLabel = Instance.new("TextLabel", Pages["Tips"])
+    tipLabel.Size = UDim2.new(1, -20, 0, 30)
+    tipLabel.Position = UDim2.new(0, 10, 0, (i - 1) * 35)
+    tipLabel.BackgroundTransparency = 1
+    tipLabel.Text = tipText
+    tipLabel.Font = Enum.Font.Arcade
+    tipLabel.TextScaled = true
+    tipLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+    tipLabel.TextXAlignment = Enum.TextXAlignment.Left
+end
+
+--// Button Factory using Scripts table
+local function pagedButton(pageName, label, pos, scriptIndex)
+    local btn = Instance.new("TextButton", Pages[pageName])
+    btn.Size = UDim2.new(0, 150, 0, 40)
+    btn.Position = pos
+    btn.Text = label
+    btn.Font = Enum.Font.Arcade
+    btn.TextColor3 = Color3.fromRGB(255, 0, 0)
+    btn.TextScaled = true
+    btn.BackgroundColor3 = Color3.fromRGB(20, 0, 0)
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 8)
+    corner.Parent = btn
+
+    btn.MouseButton1Click:Connect(function()
+        local pageScripts = Scripts[pageName]
+        if pageScripts and pageScripts[scriptIndex] then
+            pageScripts[scriptIndex]()
+        else
+            print("Script not found for button:", label)
+        end
+    end)
+end
+
+--// Main Scripts buttons
+pagedButton("Main", "Get Base V3", UDim2.new(0, 10, 0, 10), 1)
+pagedButton("Main", "Use Tools V5", UDim2.new (0, 170, 0, 10), 2)
+pagedButton("Main", "Get Tools", UDim2.new(0, 330, 0, 10), 3)
+pagedButton("Main", "Insta Kill Aura", UDim2.new(0, 10, 0, 60), 4)
+pagedButton("Main", "No Cooldown", UDim2.new(0, 170, 0, 60), 5)
+pagedButton("Main", "Respawn V3", UDim2.new(0, 330, 0, 60), 6)
+pagedButton("Main", "Normal Aura", UDim2.new(0, 10, 0, 110), 7)
+pagedButton("Main", "Loopbring V2", UDim2.new(0, 170, 0, 110), 8)
+pagedButton("Main", "Infinite Yeild", UDim2.new(0, 330, 0, 110), 9)
+pagedButton("Main", "Anti Lag V2", UDim2.new(0, 10, 0, 160), 10)
+pagedButton("Main", "God Mode", UDim2.new(0, 170, 0, 160), 11)
+
+--// Misc Scripts buttons
+pagedButton("Misc Scripts", "Chat Spy", UDim2.new(0, 10, 0, 10), 1)
+pagedButton("Misc Scripts", "Emote GUI", UDim2.new(0, 170, 0, 10), 2)
+pagedButton("Misc Scripts", "Ragdoll Tools", UDim2.new(0, 330, 0, 60), 3)
+
+--// Other Hubs buttons
+pagedButton("Other Hubs", "CTLM Hub V1", UDim2.new(0, 10, 0, 10), 1)
+pagedButton("Other Hubs", "CTLM Hub V2", UDim2.new(0, 170, 0, 10), 2)
+pagedButton("Other Hubs", "Destroyer Hub", UDim2.new(0, 330, 0, 10), 3)
+pagedButton("Other Hubs", "Acrylix", UDim2.new(0, 10, 0, 60), 4)

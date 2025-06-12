@@ -4,7 +4,7 @@ local whitelist = {
     [2522193455] = true, -- Inf God (Alt)
     [5146822757] = true, -- Monkey (Alt)
     [5054998059] = true, -- mjendeub (Alt)
-    [3429553477] = true, -- Dyllan144335 (Alt)
+  	[3429553477] = true, -- Dyllan144335 (Alt)
     [8407911841] = true, -- Void (Star)
     [8646139977] = true, -- Stars Alt
     [1548866917] = true, -- Timmy
@@ -15,6 +15,7 @@ local whitelist = {
     [2901968025] = true, -- Eggy Alt
     [1513169967] = true, -- Eggy Main
     [7641469342] = true, -- Eggy Other Alt
+    [2723560456] = true, -- XSOORX
 }
 
 local player = game.Players.LocalPlayer

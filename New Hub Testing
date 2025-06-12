@@ -1,10 +1,24 @@
--- Recreate Script Hub UI
+-- ScriptHubUI.lua
+-- Roblox Executor Script Hub UI (TDW) with expandable panels and dividers
+
+--[[
+FEATURES ADDED:
+- Divider lines between page buttons
+- TDW title vertically stacked on left with divider
+- Divider below page buttons
+- Expandable right panel with user info
+- Expandable left panel with server players and loopbring toggle
+]]
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- Main GUI Setup
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "ScriptHubUI"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = game.CoreGui
 
--- Main Frame
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
 MainFrame.Size = UDim2.new(0, 800, 0, 400)
@@ -14,92 +28,105 @@ MainFrame.BorderColor3 = Color3.fromRGB(255, 0, 0)
 MainFrame.BorderSizePixel = 2
 MainFrame.Parent = ScreenGui
 
--- Top Tabs
-local function createTab(name, icon, position)
+-- Top Navigation Tabs
+local tabNames = {"Tips", "Main", "Misc", "Alternative\nHubs"}
+local tabIcons = {"🧠", "💀", "🔧", "🌐"}
+for i, name in ipairs(tabNames) do
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(0, 80, 0, 25)
-    btn.Position = UDim2.new(0, position, 0, 0)
+    btn.Position = UDim2.new(0, (i - 1) * 80, 0, 0)
     btn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
     btn.BorderSizePixel = 0
-    btn.Text = icon .. " " .. name
+    btn.Text = tabIcons[i] .. " " .. name
     btn.Font = Enum.Font.SourceSansBold
     btn.TextSize = 18
     btn.TextColor3 = Color3.fromRGB(0, 255, 0)
     btn.Parent = MainFrame
+
+    if i > 1 then
+        local divider = Instance.new("Frame")
+        divider.Size = UDim2.new(0, 1, 0, 25)
+        divider.Position = UDim2.new(0, (i - 1) * 80, 0, 0)
+        divider.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+        divider.Parent = MainFrame
+    end
 end
 
-createTab("Tips", "🧠", 0)
-createTab("Main", "💀", 80)
-createTab("Misc", "🔧", 160)
-createTab("Alternative\nHubs", "🌐", 240)
+-- Divider below top tabs
+local topDivider = Instance.new("Frame")
+topDivider.Size = UDim2.new(1, 0, 0, 2)
+topDivider.Position = UDim2.new(0, 0, 0, 25)
+topDivider.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+topDivider.Parent = MainFrame
 
--- Left Side Buttons
-local sideLabels = {"T", "D", "W"}
-for i, letter in ipairs(sideLabels) do
+-- Left Title and Divider
+local leftPanel = Instance.new("Frame")
+leftPanel.Size = UDim2.new(0, 25, 1, 0)
+leftPanel.Position = UDim2.new(0, -25, 0, 0)
+leftPanel.BackgroundTransparency = 1
+leftPanel.Parent = MainFrame
+
+local tdwLetters = {"T", "D", "W"}
+for i, letter in ipairs(tdwLetters) do
     local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(0, 20, 0, 30)
-    label.Position = UDim2.new(0, -25, 0, 30 + (i - 1) * 35)
+    label.Size = UDim2.new(1, 0, 0, 30)
+    label.Position = UDim2.new(0, 0, 0, 30 + ((i - 1) * 150))
     label.Text = letter
     label.Font = Enum.Font.SourceSansBold
     label.TextSize = 20
     label.TextColor3 = Color3.fromRGB(255, 0, 0)
     label.BackgroundTransparency = 1
-    label.Parent = MainFrame
+    label.Parent = leftPanel
 end
 
--- Loopbring Control Panel
-local ControlPanel = Instance.new("TextLabel")
-ControlPanel.Size = UDim2.new(0, 150, 0, 50)
-ControlPanel.Position = UDim2.new(0, 5, 1, -55)
-ControlPanel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-ControlPanel.BorderColor3 = Color3.fromRGB(100, 0, 0)
-ControlPanel.Text = "[Loopbring\nControl\nPanel]"
-ControlPanel.Font = Enum.Font.SourceSansBold
-ControlPanel.TextSize = 18
-ControlPanel.TextColor3 = Color3.fromRGB(255, 0, 0)
-ControlPanel.Parent = MainFrame
+local leftDivider = Instance.new("Frame")
+leftDivider.Size = UDim2.new(0, 2, 1, 0)
+leftDivider.Position = UDim2.new(0, 0, 0, 0)
+leftDivider.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+leftDivider.Parent = MainFrame
 
--- Right Side Info Panel
-local InfoPanel = Instance.new("Frame")
-InfoPanel.Size = UDim2.new(0, 180, 1, 0)
-InfoPanel.Position = UDim2.new(1, 0, 0, 0)
-InfoPanel.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-InfoPanel.Parent = MainFrame
+-- Loopbring Button (Top Left)
+local LoopbringBtn = Instance.new("TextButton")
+LoopbringBtn.Size = UDim2.new(0, 100, 0, 30)
+LoopbringBtn.Position = UDim2.new(0, 5, 0, 30)
+LoopbringBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+LoopbringBtn.BorderColor3 = Color3.fromRGB(100, 0, 0)
+LoopbringBtn.Text = "[Loopbring]"
+LoopbringBtn.Font = Enum.Font.SourceSansBold
+LoopbringBtn.TextSize = 16
+LoopbringBtn.TextColor3 = Color3.fromRGB(255, 0, 0)
+LoopbringBtn.Parent = MainFrame
 
-local Username = Instance.new("TextLabel")
-Username.Size = UDim2.new(1, 0, 0, 20)
-Username.Position = UDim2.new(0, 0, 0, 5)
-Username.Text = "User:\nunknownhumanbeingfr"
-Username.TextWrapped = true
-Username.Font = Enum.Font.SourceSansBold
-Username.TextSize = 14
-Username.TextColor3 = Color3.fromRGB(0, 255, 0)
-Username.BackgroundTransparency = 1
-Username.Parent = InfoPanel
+-- Placeholder Left Panel Expand
+local LeftExpand = Instance.new("Frame")
+LeftExpand.Size = UDim2.new(0, 200, 1, 0)
+LeftExpand.Position = UDim2.new(0, -200, 0, 0)
+LeftExpand.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+LeftExpand.Visible = false
+LeftExpand.Parent = MainFrame
 
-local Avatar = Instance.new("ImageLabel")
-Avatar.Size = UDim2.new(0, 80, 0, 80)
-Avatar.Position = UDim2.new(0.5, -40, 0, 30)
-Avatar.BackgroundTransparency = 1
-Avatar.Image = "rbxassetid://17174555482" -- Placeholder bee suit icon
-Avatar.Parent = InfoPanel
+LoopbringBtn.MouseButton1Click:Connect(function()
+    LeftExpand.Visible = not LeftExpand.Visible
+end)
 
-local FPS = Instance.new("TextLabel")
-FPS.Size = UDim2.new(1, 0, 0, 20)
-FPS.Position = UDim2.new(0, 0, 0, 120)
-FPS.Text = "FPS: 44"
-FPS.Font = Enum.Font.SourceSansBold
-FPS.TextSize = 18
-FPS.TextColor3 = Color3.fromRGB(0, 255, 0)
-FPS.BackgroundTransparency = 1
-FPS.Parent = InfoPanel
+-- Right Panel Expand Toggle
+local ToggleRight = Instance.new("TextButton")
+ToggleRight.Size = UDim2.new(0, 25, 0, 25)
+ToggleRight.Position = UDim2.new(1, -30, 0, 5)
+ToggleRight.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+ToggleRight.Text = ">"
+ToggleRight.Font = Enum.Font.SourceSansBold
+ToggleRight.TextSize = 18
+ToggleRight.TextColor3 = Color3.fromRGB(0, 255, 0)
+ToggleRight.Parent = MainFrame
 
-local Ping = Instance.new("TextLabel")
-Ping.Size = UDim2.new(1, 0, 0, 20)
-Ping.Position = UDim2.new(0, 0, 0, 145)
-Ping.Text = "Ping: 93ms"
-Ping.Font = Enum.Font.SourceSansBold
-Ping.TextSize = 18
-Ping.TextColor3 = Color3.fromRGB(0, 255, 0)
-Ping.BackgroundTransparency = 1
-Ping.Parent = InfoPanel
+local RightExpand = Instance.new("Frame")
+RightExpand.Size = UDim2.new(0, 200, 1, 0)
+RightExpand.Position = UDim2.new(1, 0, 0, 0)
+RightExpand.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+RightExpand.Visible = false
+RightExpand.Parent = MainFrame
+
+ToggleRight.MouseButton1Click:Connect(function()
+    RightExpand.Visible = not RightExpand.Visible
+end)

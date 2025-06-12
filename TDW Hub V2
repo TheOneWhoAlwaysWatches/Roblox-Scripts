@@ -1,300 +1,206 @@
---// TDW Hub Base UI (Reddish-Black Hacker Theme)
+-- ScriptHubUI.lua
+-- Roblox Executor Script Hub UI (TDW) with expandable panels and dividers
+
+--[[
+FEATURES ADDED:
+- Divider lines between page buttons
+- TDW title vertically stacked on left with divider
+- Divider below page buttons
+- Expandable right panel with user info
+- Expandable left panel with server players and loopbring toggle
+]]
 
 local Players = game:GetService("Players")
-local UserInputService = game:GetService("UserInputService")
+local StatsService = game:GetService("Stats")
 local RunService = game:GetService("RunService")
-local HttpService = game:GetService("HttpService")
-local player = Players.LocalPlayer
+local LocalPlayer = Players.LocalPlayer
 
---// Helper: Make GUI Draggable
-local function makeDraggable(gui)
-	local dragToggle, dragInput, dragStart, startPos
-	gui.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			dragToggle = true
-			dragStart = input.Position
-			startPos = gui.Position
-			input.Changed:Connect(function()
-				if input.UserInputState == Enum.UserInputState.End then
-					dragToggle = false
-				end
-			end)
-		end
-	end)
-	gui.InputChanged:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseMovement then
-			dragInput = input
-		end
-	end)
-	UserInputService.InputChanged:Connect(function(input)
-		if input == dragInput and dragToggle then
-			local delta = input.Position - dragStart
-			gui.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-		end
-	end)
-end
-
---// GUI Setup
-local gui = Instance.new("ScreenGui")
-gui.Name = "TDW_Hub"
-gui.ResetOnSpawn = false
-gui.Parent = game:GetService("CoreGui")
-
---// Main Frame
-local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 600, 0, 400)
-mainFrame.Position = UDim2.new(0.5, -300, 0.5, -200)
-mainFrame.BackgroundColor3 = Color3.fromRGB(20, 10, 10)
-mainFrame.BorderSizePixel = 0
-mainFrame.Active = true
-mainFrame.Draggable = false
-mainFrame.Parent = gui
-makeDraggable(mainFrame)
-
---// Binary BG
-local binaryBG = Instance.new("TextLabel")
-binaryBG.Size = UDim2.new(1, 0, 1, 0)
-binaryBG.BackgroundTransparency = 1
-binaryBG.TextColor3 = Color3.fromRGB(255, 0, 0)
-binaryBG.TextTransparency = 0.7
-binaryBG.Font = Enum.Font.Code
-binaryBG.TextSize = 12
-binaryBG.Text = "010101001010110101001010011101..."
-binaryBG.TextWrapped = true
-binaryBG.TextXAlignment = Enum.TextXAlignment.Center
-binaryBG.TextYAlignment = Enum.TextYAlignment.Center
-binaryBG.ZIndex = 0
-binaryBG.Parent = mainFrame
-
---// Top Navigation Bar
-local navBar = Instance.new("Frame")
-navBar.Size = UDim2.new(1, 0, 0, 40)
-navBar.BackgroundColor3 = Color3.fromRGB(30, 0, 0)
-navBar.BorderSizePixel = 0
-navBar.ZIndex = 2
-navBar.Parent = mainFrame
-
-local pageButtons = {}
-local pages = {}
-
-local pageNames = {
-	{"💀", "Main"},
-	{"🔧", "Misc"},
-	{"🌐", "Other Hubs"},
-}
-
-local activePage = nil
-
-for i, data in ipairs(pageNames) do
-	local icon, name = unpack(data)
-	local btn = Instance.new("TextButton")
-	btn.Size = UDim2.new(0, 140, 1, 0)
-	btn.Position = UDim2.new(0, (i - 1) * 145, 0, 0)
-	btn.BackgroundColor3 = Color3.fromRGB(50, 0, 0)
-	btn.Text = icon .. "  " .. name
-	btn.Font = Enum.Font.Code
-	btn.TextColor3 = Color3.fromRGB(255, 50, 50)
-	btn.TextSize = 16
-	btn.Parent = navBar
-	pageButtons[name] = btn
-
-	local page = Instance.new("Frame")
-	page.Size = UDim2.new(1, -40, 1, -40)
-	page.Position = UDim2.new(0, 40, 0, 40)
-	page.BackgroundTransparency = 1
-	page.Visible = false
-	page.Parent = mainFrame
-	pages[name] = page
-
-	btn.MouseButton1Click:Connect(function()
-		if activePage then pages[activePage].Visible = false end
-		activePage = name
-		pages[name].Visible = true
-	end)
-
-	local sep = Instance.new("Frame")
-	sep.Size = UDim2.new(0, 1, 1, -10)
-	sep.Position = UDim2.new(0, (i * 145) - 5, 0, 5)
-	sep.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
-	sep.BorderSizePixel = 0
-	sep.Parent = navBar
-end
-
---// Vertical TDW Label
-local tdwFrame = Instance.new("Frame")
-tdwFrame.Size = UDim2.new(0, 40, 1, -40)
-tdwFrame.Position = UDim2.new(0, 0, 0, 40)
-tdwFrame.BackgroundColor3 = Color3.fromRGB(20, 0, 0)
-tdwFrame.Parent = mainFrame
-
-for i, char in ipairs({"T", "D", "W"}) do
-	local lbl = Instance.new("TextLabel")
-	lbl.Size = UDim2.new(1, 0, 0, 40)
-	lbl.Position = UDim2.new(0, 0, 0, (i - 1) * 40)
-	lbl.Text = char
-	lbl.Font = Enum.Font.Code
-	lbl.TextColor3 = Color3.fromRGB(255, 0, 0)
-	lbl.BackgroundTransparency = 1
-	lbl.TextSize = 28
-	lbl.Parent = tdwFrame
-end
-
---// Floating Toggle Button
-local toggleBtn = Instance.new("TextButton")
-toggleBtn.Size = UDim2.new(0, 120, 0, 40)
-toggleBtn.Position = UDim2.new(0, 20, 0.5, -20)
-toggleBtn.Text = "Toggle TDW Hub"
-toggleBtn.BackgroundColor3 = Color3.fromRGB(60, 0, 0)
-toggleBtn.Font = Enum.Font.Code
-toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-toggleBtn.TextSize = 14
-toggleBtn.Parent = gui
-makeDraggable(toggleBtn)
-
-local open = true
-toggleBtn.MouseButton1Click:Connect(function()
-	open = not open
-	mainFrame.Visible = open
-end)
-
---// Loopbring Panel (Left Side)
-local loopBtn = Instance.new("TextButton")
-loopBtn.Size = UDim2.new(0, 30, 0, 30)
-loopBtn.Position = UDim2.new(0, 5, 0, 5)
-loopBtn.Text = "L"
-loopBtn.TextColor3 = Color3.new(1, 0, 0)
-loopBtn.BackgroundColor3 = Color3.fromRGB(50, 0, 0)
-loopBtn.Font = Enum.Font.Code
-loopBtn.TextSize = 18
-loopBtn.Parent = mainFrame
-
-local loopPanel = Instance.new("Frame")
-loopPanel.Size = UDim2.new(0, 140, 1, -40)
-loopPanel.Position = UDim2.new(0, -140, 0, 40)
-loopPanel.BackgroundColor3 = Color3.fromRGB(30, 0, 0)
-loopPanel.Visible = false
-loopPanel.Parent = mainFrame
-
-local loopList = Instance.new("TextLabel")
-loopList.Size = UDim2.new(1, 0, 1, 0)
-loopList.BackgroundTransparency = 1
-loopList.TextColor3 = Color3.fromRGB(255, 0, 0)
-loopList.Font = Enum.Font.Code
-loopList.TextSize = 14
-loopList.TextXAlignment = Enum.TextXAlignment.Left
-loopList.TextYAlignment = Enum.TextYAlignment.Top
-loopList.TextWrapped = true
-loopList.Text = ""
-loopList.Parent = loopPanel
-
-local function updateLoopPanel()
-	local names = {}
-	for _, plr in ipairs(Players:GetPlayers()) do
-		table.insert(names, "- " .. plr.Name)
-	end
-	loopList.Text = table.concat(names, "\n")
-end
-
-Players.PlayerAdded:Connect(updateLoopPanel)
-Players.PlayerRemoving:Connect(updateLoopPanel)
-updateLoopPanel()
-
-loopBtn.MouseButton1Click:Connect(function()
-	loopPanel.Visible = not loopPanel.Visible
-end)
-
---// User Info Panel (Right Side)
-local infoBtn = Instance.new("TextButton")
-infoBtn.Size = UDim2.new(0, 30, 0, 30)
-infoBtn.Position = UDim2.new(1, -35, 0, 5)
-infoBtn.Text = "I"
-infoBtn.TextColor3 = Color3.new(0, 1, 0)
-infoBtn.BackgroundColor3 = Color3.fromRGB(0, 30, 0)
-infoBtn.Font = Enum.Font.Code
-infoBtn.TextSize = 18
-infoBtn.Parent = mainFrame
-
-local infoPanel = Instance.new("Frame")
-infoPanel.Size = UDim2.new(0, 140, 1, -40)
-infoPanel.Position = UDim2.new(1, 0, 0, 40)
-infoPanel.BackgroundColor3 = Color3.fromRGB(0, 20, 0)
-infoPanel.Visible = false
-infoPanel.Parent = mainFrame
-
-local userLbl = Instance.new("TextLabel")
-userLbl.Size = UDim2.new(1, 0, 0, 40)
-userLbl.Position = UDim2.new(0, 0, 0, 0)
-userLbl.Text = "User: " .. player.Name
-userLbl.Font = Enum.Font.Code
-userLbl.TextColor3 = Color3.fromRGB(0, 255, 0)
-userLbl.TextSize = 14
-userLbl.BackgroundTransparency = 1
-userLbl.Parent = infoPanel
-
-local fpsLbl = Instance.new("TextLabel")
-fpsLbl.Size = UDim2.new(1, 0, 0, 30)
-fpsLbl.Position = UDim2.new(0, 0, 0, 40)
-fpsLbl.Font = Enum.Font.Code
-fpsLbl.TextColor3 = Color3.fromRGB(0, 255, 0)
-fpsLbl.TextSize = 14
-fpsLbl.BackgroundTransparency = 1
-fpsLbl.Text = "FPS: ..."
-fpsLbl.Parent = infoPanel
-
-local pingLbl = Instance.new("TextLabel")
-pingLbl.Size = UDim2.new(1, 0, 0, 30)
-pingLbl.Position = UDim2.new(0, 0, 0, 70)
-pingLbl.Font = Enum.Font.Code
-pingLbl.TextColor3 = Color3.fromRGB(0, 255, 0)
-pingLbl.TextSize = 14
-pingLbl.BackgroundTransparency = 1
-pingLbl.Text = "Ping: ..."
-pingLbl.Parent = infoPanel
-
-infoBtn.MouseButton1Click:Connect(function()
-	infoPanel.Visible = not infoPanel.Visible
-end)
-
+-- FPS and Ping tracking
+local fps = 0
+local lastTime = tick()
 RunService.RenderStepped:Connect(function()
-	local ping = math.random(40, 90) -- Replace with real ping if desired
-	fpsLbl.Text = "FPS: " .. math.floor(1 / RunService.RenderStepped:Wait())
-	pingLbl.Text = "Ping: " .. ping .. "ms"
+	local now = tick()
+	fps = 1 / (now - lastTime)
+	lastTime = now
 end)
 
---// SCRIPT BUTTON SYSTEM (Example)
-local Scripts = {
-	["Main"] = {
-		["Speed Boost"] = function() print("Speed!") end,
-		["Jump Boost"] = function() print("Jump!") end
-	},
-	["Misc"] = {
-		["Gravity Off"] = function() print("Gravity disabled.") end
-	},
-	["Other Hubs"] = {
-		["Open Another Hub"] = function() print("Opening...") end
-	}
-}
+local function getFPS()
+	return math.floor(fps + 0.5)
+end
 
-for pageName, scriptList in pairs(Scripts) do
-	local container = pages[pageName]
-	local y = 10
-	for name, func in pairs(scriptList) do
-		local btn = Instance.new("TextButton")
-		btn.Size = UDim2.new(0, 200, 0, 30)
-		btn.Position = UDim2.new(0, 10, 0, y)
-		btn.BackgroundColor3 = Color3.fromRGB(60, 0, 0)
-		btn.TextColor3 = Color3.fromRGB(255, 0, 0)
-		btn.Font = Enum.Font.Code
-		btn.TextSize = 14
-		btn.Text = name
-		btn.Parent = container
-		btn.MouseButton1Click:Connect(func)
-		y = y + 35
+local function getPing()
+	local pingValue = StatsService.Network.ServerStatsItem["Data Ping"]:GetValue()
+	return math.floor(pingValue + 0.5)
+end
+
+-- Main GUI Setup
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "ScriptHubUI"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = game.CoreGui
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 800, 0, 400)
+MainFrame.Position = UDim2.new(0.5, -400, 0.5, -200)
+MainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+MainFrame.BorderColor3 = Color3.fromRGB(255, 0, 0)
+MainFrame.BorderSizePixel = 2
+MainFrame.Parent = ScreenGui
+
+-- Loopbring Button (Top Left)
+local LoopbringBtn = Instance.new("TextButton")
+LoopbringBtn.Size = UDim2.new(0, 100, 0, 25)
+LoopbringBtn.Position = UDim2.new(0, 0, 0, 0)
+LoopbringBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+LoopbringBtn.BorderColor3 = Color3.fromRGB(100, 0, 0)
+LoopbringBtn.Text = "[Loopbring]"
+LoopbringBtn.Font = Enum.Font.SourceSansBold
+LoopbringBtn.TextSize = 16
+LoopbringBtn.TextColor3 = Color3.fromRGB(255, 0, 0)
+LoopbringBtn.Parent = MainFrame
+
+-- Divider between Loopbring and nav tabs
+local loopNavDivider = Instance.new("Frame")
+loopNavDivider.Size = UDim2.new(0, 2, 0, 25)
+loopNavDivider.Position = UDim2.new(0, 100, 0, 0)
+loopNavDivider.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+loopNavDivider.Parent = MainFrame
+
+-- Top Navigation Tabs
+local tabNames = {"Tips", "Main", "Misc", "Hubs"}
+local tabIcons = {"🧠", "💀", "🔧", "🌐"}
+for i, name in ipairs(tabNames) do
+	local btn = Instance.new("TextButton")
+	btn.Size = UDim2.new(0, 80, 0, 25)
+	btn.Position = UDim2.new(0, 100 + ((i - 1) * 80), 0, 0)
+	btn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	btn.BorderSizePixel = 0
+	btn.Text = tabIcons[i] .. " " .. name
+	btn.Font = Enum.Font.SourceSansBold
+	btn.TextSize = 18
+	btn.TextColor3 = Color3.fromRGB(0, 255, 0)
+	btn.Parent = MainFrame
+
+	if i > 1 then
+		local divider = Instance.new("Frame")
+		divider.Size = UDim2.new(0, 1, 0, 25)
+		divider.Position = UDim2.new(0, 100 + ((i - 1) * 80), 0, 0)
+		divider.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+		divider.Parent = MainFrame
 	end
 end
 
--- Set default visible page
-pages["Main"].Visible = true
-activePage = "Main"
+-- Divider below top tabs
+local topDivider = Instance.new("Frame")
+topDivider.Size = UDim2.new(1, 0, 0, 2)\ntopDivider.Position = UDim2.new(0, 0, 0, 25)\ntopDivider.BackgroundColor3 = Color3.fromRGB(255, 0, 0)\ntopDivider.Parent = MainFrame
 
-print("[TDW Hub] UI loaded successfully.")
+-- Left Title and Divider
+local leftPanel = Instance.new("Frame")
+leftPanel.Size = UDim2.new(0, 25, 1, 0)
+leftPanel.Position = UDim2.new(0, -25, 0, 0)
+leftPanel.BackgroundTransparency = 1
+leftPanel.Parent = MainFrame
+
+local tdwLetters = {"T", "D", "W"}
+for i, letter in ipairs(tdwLetters) do
+	local label = Instance.new("TextLabel")
+	label.Size = UDim2.new(1, 0, 0, 30)
+	label.Position = UDim2.new(0, 0, 0, 30 + ((i - 1) * 150))
+	label.Text = letter
+	label.Font = Enum.Font.SourceSansBold
+	label.TextSize = 20
+	label.TextColor3 = Color3.fromRGB(255, 0, 0)
+	label.BackgroundTransparency = 1
+	label.Parent = leftPanel
+end
+
+local leftDivider = Instance.new("Frame")
+leftDivider.Size = UDim2.new(0, 2, 1, 0)
+leftDivider.Position = UDim2.new(0, 0, 0, 0)
+leftDivider.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+leftDivider.Parent = MainFrame
+
+-- Placeholder Left Panel Expand
+local LeftExpand = Instance.new("Frame")
+LeftExpand.Name = "LeftExpandPanel"
+LeftExpand.Size = UDim2.new(0, 200, 1, 0)
+LeftExpand.Position = UDim2.new(0, -200, 0, 0)
+LeftExpand.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+LeftExpand.Visible = false
+LeftExpand.Parent = MainFrame
+
+LoopbringBtn.MouseButton1Click:Connect(function()
+	LeftExpand.Visible = not LeftExpand.Visible
+end)
+
+-- Right Panel Expand Toggle
+local ToggleRight = Instance.new("TextButton")
+ToggleRight.Size = UDim2.new(0, 25, 0, 25)
+ToggleRight.Position = UDim2.new(1, -30, 0, 5)
+ToggleRight.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+ToggleRight.Text = ">"
+ToggleRight.Font = Enum.Font.SourceSansBold
+ToggleRight.TextSize = 18
+ToggleRight.TextColor3 = Color3.fromRGB(0, 255, 0)
+ToggleRight.Parent = MainFrame
+
+local RightExpand = Instance.new("Frame")
+RightExpand.Name = "RightExpandPanel"
+RightExpand.Size = UDim2.new(0, 200, 1, 0)
+RightExpand.Position = UDim2.new(1, 0, 0, 0)
+RightExpand.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+RightExpand.Visible = false
+RightExpand.Parent = MainFrame
+
+ToggleRight.MouseButton1Click:Connect(function()
+	RightExpand.Visible = not RightExpand.Visible
+end)
+
+-- Add user info elements to RightExpand
+local UsernameLabel = Instance.new("TextLabel")
+UsernameLabel.Size = UDim2.new(1, 0, 0, 30)
+UsernameLabel.Position = UDim2.new(0, 0, 0, 10)
+UsernameLabel.Text = "User: " .. LocalPlayer.Name
+UsernameLabel.Font = Enum.Font.SourceSans
+UsernameLabel.TextSize = 18
+UsernameLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+UsernameLabel.BackgroundTransparency = 1
+UsernameLabel.Parent = RightExpand
+
+local Avatar = Instance.new("ImageLabel")
+Avatar.Size = UDim2.new(0, 60, 0, 60)
+Avatar.Position = UDim2.new(0.5, -30, 0, 40)
+Avatar.BackgroundTransparency = 1
+Avatar.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. LocalPlayer.UserId .. "&width=150&height=150&format=png"
+Avatar.Parent = RightExpand
+
+local FPSLabel = Instance.new("TextLabel")
+FPSLabel.Size = UDim2.new(1, 0, 0, 20)
+FPSLabel.Position = UDim2.new(0, 0, 0, 110)
+FPSLabel.Text = "FPS: 0"
+FPSLabel.Font = Enum.Font.SourceSans
+FPSLabel.TextSize = 16
+FPSLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+FPSLabel.BackgroundTransparency = 1
+FPSLabel.Parent = RightExpand
+
+local PingLabel = Instance.new("TextLabel")
+PingLabel.Size = UDim2.new(1, 0, 0, 20)
+PingLabel.Position = UDim2.new(0, 0, 0, 130)
+PingLabel.Text = "Ping: 0ms"
+PingLabel.Font = Enum.Font.SourceSans
+PingLabel.TextSize = 16
+PingLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+PingLabel.BackgroundTransparency = 1
+PingLabel.Parent = RightExpand
+
+-- Update stats live
+RunService.RenderStepped:Connect(function()
+	if RightExpand.Visible then
+		FPSLabel.Text = "FPS: " .. getFPS()
+		PingLabel.Text = "Ping: " .. getPing() .. "ms"
+	end
+end)
+
+-- Placeholder loopbring functionality and data fetching scripts will be added next...

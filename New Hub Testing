@@ -48,13 +48,32 @@ MainFrame.BorderColor3 = Color3.fromRGB(255, 0, 0)
 MainFrame.BorderSizePixel = 2
 MainFrame.Parent = ScreenGui
 
+-- Loopbring Button (Top Left)
+local LoopbringBtn = Instance.new("TextButton")
+LoopbringBtn.Size = UDim2.new(0, 100, 0, 25)
+LoopbringBtn.Position = UDim2.new(0, 0, 0, 0)
+LoopbringBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+LoopbringBtn.BorderColor3 = Color3.fromRGB(100, 0, 0)
+LoopbringBtn.Text = "[Loopbring]"
+LoopbringBtn.Font = Enum.Font.SourceSansBold
+LoopbringBtn.TextSize = 16
+LoopbringBtn.TextColor3 = Color3.fromRGB(255, 0, 0)
+LoopbringBtn.Parent = MainFrame
+
+-- Divider between Loopbring and nav tabs
+local loopNavDivider = Instance.new("Frame")
+loopNavDivider.Size = UDim2.new(0, 2, 0, 25)
+loopNavDivider.Position = UDim2.new(0, 100, 0, 0)
+loopNavDivider.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+loopNavDivider.Parent = MainFrame
+
 -- Top Navigation Tabs
 local tabNames = {"Tips", "Main", "Misc", "Hubs"}
 local tabIcons = {"🧠", "💀", "🔧", "🌐"}
 for i, name in ipairs(tabNames) do
 	local btn = Instance.new("TextButton")
 	btn.Size = UDim2.new(0, 80, 0, 25)
-	btn.Position = UDim2.new(0, (i - 1) * 80, 0, 0)
+	btn.Position = UDim2.new(0, 100 + ((i - 1) * 80), 0, 0)
 	btn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 	btn.BorderSizePixel = 0
 	btn.Text = tabIcons[i] .. " " .. name
@@ -66,7 +85,7 @@ for i, name in ipairs(tabNames) do
 	if i > 1 then
 		local divider = Instance.new("Frame")
 		divider.Size = UDim2.new(0, 1, 0, 25)
-		divider.Position = UDim2.new(0, (i - 1) * 80, 0, 0)
+		divider.Position = UDim2.new(0, 100 + ((i - 1) * 80), 0, 0)
 		divider.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 		divider.Parent = MainFrame
 	end
@@ -74,10 +93,7 @@ end
 
 -- Divider below top tabs
 local topDivider = Instance.new("Frame")
-topDivider.Size = UDim2.new(1, 0, 0, 2)
-topDivider.Position = UDim2.new(0, 0, 0, 25)
-topDivider.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-topDivider.Parent = MainFrame
+topDivider.Size = UDim2.new(1, 0, 0, 2)\ntopDivider.Position = UDim2.new(0, 0, 0, 25)\ntopDivider.BackgroundColor3 = Color3.fromRGB(255, 0, 0)\ntopDivider.Parent = MainFrame
 
 -- Left Title and Divider
 local leftPanel = Instance.new("Frame")
@@ -104,18 +120,6 @@ leftDivider.Size = UDim2.new(0, 2, 1, 0)
 leftDivider.Position = UDim2.new(0, 0, 0, 0)
 leftDivider.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 leftDivider.Parent = MainFrame
-
--- Loopbring Button (Top Left)
-local LoopbringBtn = Instance.new("TextButton")
-LoopbringBtn.Size = UDim2.new(0, 100, 0, 30)
-LoopbringBtn.Position = UDim2.new(0, 5, 0, 30)
-LoopbringBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-LoopbringBtn.BorderColor3 = Color3.fromRGB(100, 0, 0)
-LoopbringBtn.Text = "[Loopbring]"
-LoopbringBtn.Font = Enum.Font.SourceSansBold
-LoopbringBtn.TextSize = 16
-LoopbringBtn.TextColor3 = Color3.fromRGB(255, 0, 0)
-LoopbringBtn.Parent = MainFrame
 
 -- Placeholder Left Panel Expand
 local LeftExpand = Instance.new("Frame")

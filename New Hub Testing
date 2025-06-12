@@ -1,140 +1,105 @@
---// TDW Hub Base UI (Reddish-Black Hacker Theme)
+-- Recreate Script Hub UI
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "ScriptHubUI"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = game.CoreGui
 
-local Players = game:GetService("Players")
-local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
-local player = Players.LocalPlayer
+-- Main Frame
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 800, 0, 400)
+MainFrame.Position = UDim2.new(0.5, -400, 0.5, -200)
+MainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+MainFrame.BorderColor3 = Color3.fromRGB(255, 0, 0)
+MainFrame.BorderSizePixel = 2
+MainFrame.Parent = ScreenGui
 
---// Helper: Make GUI Draggable
-local function makeDraggable(gui)
-	local dragToggle, dragInput, dragStart, startPos
-	gui.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			dragToggle = true
-			dragStart = input.Position
-			startPos = gui.Position
-			input.Changed:Connect(function()
-				if input.UserInputState == Enum.UserInputState.End then
-					dragToggle = false
-				end
-			end)
-		end
-	end)
-	gui.InputChanged:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseMovement then
-			dragInput = input
-		end
-	end)
-	UserInputService.InputChanged:Connect(function(input)
-		if input == dragInput and dragToggle then
-			local delta = input.Position - dragStart
-			gui.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-		end
-	end)
+-- Top Tabs
+local function createTab(name, icon, position)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0, 80, 0, 25)
+    btn.Position = UDim2.new(0, position, 0, 0)
+    btn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    btn.BorderSizePixel = 0
+    btn.Text = icon .. " " .. name
+    btn.Font = Enum.Font.SourceSansBold
+    btn.TextSize = 18
+    btn.TextColor3 = Color3.fromRGB(0, 255, 0)
+    btn.Parent = MainFrame
 end
 
---// Main ScreenGui
-local gui = Instance.new("ScreenGui")
-gui.Name = "TDW_Hub"
-gui.ResetOnSpawn = false
-gui.Parent = game:GetService("CoreGui")
+createTab("Tips", "🧠", 0)
+createTab("Main", "💀", 80)
+createTab("Misc", "🔧", 160)
+createTab("Alternative\nHubs", "🌐", 240)
 
---// Main Frame
-local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 600, 0, 400)
-mainFrame.Position = UDim2.new(0.5, -300, 0.5, -200)
-mainFrame.BackgroundColor3 = Color3.fromRGB(20, 10, 10)
-mainFrame.BorderSizePixel = 0
-mainFrame.Active = true
-mainFrame.Draggable = false
-mainFrame.Parent = gui
-makeDraggable(mainFrame)
-
---// Background Binary Animation (TextLabel simulation)
-local binaryBG = Instance.new("TextLabel")
-binaryBG.Size = UDim2.new(1, 0, 1, 0)
-binaryBG.BackgroundTransparency = 1
-binaryBG.TextColor3 = Color3.fromRGB(255, 0, 0)
-binaryBG.TextTransparency = 0.7
-binaryBG.Font = Enum.Font.Code
-binaryBG.TextSize = 12
-binaryBG.Text = "010101001010110101001010011101..." -- Add animation later
-binaryBG.TextWrapped = true
-binaryBG.TextXAlignment = Enum.TextXAlignment.Center
-binaryBG.TextYAlignment = Enum.TextYAlignment.Center
-binaryBG.ZIndex = 0
-binaryBG.Parent = mainFrame
-
---// Top Navigation Bar
-local navBar = Instance.new("Frame")
-navBar.Size = UDim2.new(1, 0, 0, 40)
-navBar.BackgroundColor3 = Color3.fromRGB(30, 0, 0)
-navBar.BorderSizePixel = 0
-navBar.ZIndex = 2
-navBar.Parent = mainFrame
-
-local pageNames = {
-	{"💀", "Main"},
-	{"🔧", "Misc"},
-	{"⚡", "Other Hubs"},
-}
-
-for i, data in ipairs(pageNames) do
-	local btn = Instance.new("TextButton")
-	btn.Size = UDim2.new(0, 140, 1, 0)
-	btn.Position = UDim2.new(0, (i - 1) * 145, 0, 0)
-	btn.BackgroundColor3 = Color3.fromRGB(50, 0, 0)
-	btn.Text = data[1] .. "  " .. data[2]
-	btn.Font = Enum.Font.Code
-	btn.TextColor3 = Color3.fromRGB(255, 50, 50)
-	btn.TextSize = 16
-	btn.Parent = navBar
-
-	local sep = Instance.new("Frame")
-	sep.Size = UDim2.new(0, 1, 1, -10)
-	sep.Position = UDim2.new(0, (i * 145) - 5, 0, 5)
-	sep.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
-	sep.BorderSizePixel = 0
-	sep.Parent = navBar
+-- Left Side Buttons
+local sideLabels = {"T", "D", "W"}
+for i, letter in ipairs(sideLabels) do
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(0, 20, 0, 30)
+    label.Position = UDim2.new(0, -25, 0, 30 + (i - 1) * 35)
+    label.Text = letter
+    label.Font = Enum.Font.SourceSansBold
+    label.TextSize = 20
+    label.TextColor3 = Color3.fromRGB(255, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Parent = MainFrame
 end
 
---// Vertical TDW Label
-local tdwFrame = Instance.new("Frame")
-tdwFrame.Size = UDim2.new(0, 40, 1, -40)
-tdwFrame.Position = UDim2.new(0, 0, 0, 40)
-tdwFrame.BackgroundColor3 = Color3.fromRGB(20, 0, 0)
-tdwFrame.Parent = mainFrame
+-- Loopbring Control Panel
+local ControlPanel = Instance.new("TextLabel")
+ControlPanel.Size = UDim2.new(0, 150, 0, 50)
+ControlPanel.Position = UDim2.new(0, 5, 1, -55)
+ControlPanel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+ControlPanel.BorderColor3 = Color3.fromRGB(100, 0, 0)
+ControlPanel.Text = "[Loopbring\nControl\nPanel]"
+ControlPanel.Font = Enum.Font.SourceSansBold
+ControlPanel.TextSize = 18
+ControlPanel.TextColor3 = Color3.fromRGB(255, 0, 0)
+ControlPanel.Parent = MainFrame
 
-local letters = {"T", "D", "W"}
-for i, char in ipairs(letters) do
-	local lbl = Instance.new("TextLabel")
-	lbl.Size = UDim2.new(1, 0, 0, 40)
-	lbl.Position = UDim2.new(0, 0, 0, (i - 1) * 40)
-	lbl.Text = char
-	lbl.Font = Enum.Font.Code
-	lbl.TextColor3 = Color3.fromRGB(255, 0, 0)
-	lbl.BackgroundTransparency = 1
-	lbl.TextSize = 28
-	lbl.Parent = tdwFrame
-end
+-- Right Side Info Panel
+local InfoPanel = Instance.new("Frame")
+InfoPanel.Size = UDim2.new(0, 180, 1, 0)
+InfoPanel.Position = UDim2.new(1, 0, 0, 0)
+InfoPanel.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+InfoPanel.Parent = MainFrame
 
---// Floating Toggle Button
-local toggleBtn = Instance.new("TextButton")
-toggleBtn.Size = UDim2.new(0, 120, 0, 40)
-toggleBtn.Position = UDim2.new(0, 20, 0.5, -20)
-toggleBtn.Text = "Toggle TDW Hub"
-toggleBtn.BackgroundColor3 = Color3.fromRGB(60, 0, 0)
-toggleBtn.Font = Enum.Font.Code
-toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-toggleBtn.TextSize = 14
-toggleBtn.Parent = gui
-makeDraggable(toggleBtn)
+local Username = Instance.new("TextLabel")
+Username.Size = UDim2.new(1, 0, 0, 20)
+Username.Position = UDim2.new(0, 0, 0, 5)
+Username.Text = "User:\nunknownhumanbeingfr"
+Username.TextWrapped = true
+Username.Font = Enum.Font.SourceSansBold
+Username.TextSize = 14
+Username.TextColor3 = Color3.fromRGB(0, 255, 0)
+Username.BackgroundTransparency = 1
+Username.Parent = InfoPanel
 
---// Toggle Functionality
-local open = true
-toggleBtn.MouseButton1Click:Connect(function()
-	open = not open
-	mainFrame.Visible = open
-end)
+local Avatar = Instance.new("ImageLabel")
+Avatar.Size = UDim2.new(0, 80, 0, 80)
+Avatar.Position = UDim2.new(0.5, -40, 0, 30)
+Avatar.BackgroundTransparency = 1
+Avatar.Image = "rbxassetid://17174555482" -- Placeholder bee suit icon
+Avatar.Parent = InfoPanel
 
-print("[TDW Hub] UI loaded successfully.")
+local FPS = Instance.new("TextLabel")
+FPS.Size = UDim2.new(1, 0, 0, 20)
+FPS.Position = UDim2.new(0, 0, 0, 120)
+FPS.Text = "FPS: 44"
+FPS.Font = Enum.Font.SourceSansBold
+FPS.TextSize = 18
+FPS.TextColor3 = Color3.fromRGB(0, 255, 0)
+FPS.BackgroundTransparency = 1
+FPS.Parent = InfoPanel
+
+local Ping = Instance.new("TextLabel")
+Ping.Size = UDim2.new(1, 0, 0, 20)
+Ping.Position = UDim2.new(0, 0, 0, 145)
+Ping.Text = "Ping: 93ms"
+Ping.Font = Enum.Font.SourceSansBold
+Ping.TextSize = 18
+Ping.TextColor3 = Color3.fromRGB(0, 255, 0)
+Ping.BackgroundTransparency = 1
+Ping.Parent = InfoPanel

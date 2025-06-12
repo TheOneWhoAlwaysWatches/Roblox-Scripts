@@ -242,12 +242,12 @@ pagedButton("Main", "Anti Lag V2", UDim2.new(0, 10, 0, 160), 10)
 pagedButton("Main", "God Mode", UDim2.new(0, 170, 0, 160), 11)
 
 --// Misc Scripts buttons
-pagedButton("Misc Scripts", "Chat Spy", UDim2.new(0, 10, 0, 10), 1)
-pagedButton("Misc Scripts", "Emote GUI", UDim2.new(0, 170, 0, 10), 2)
-pagedButton("Misc Scripts", "Ragdoll Tools", UDim2.new(0, 330, 0, 60), 3)
+pagedButton("Misc", "Chat Spy", UDim2.new(0, 10, 0, 10), 1)
+pagedButton("Misc", "Emote GUI", UDim2.new(0, 170, 0, 10), 2)
+pagedButton("Misc", "Ragdoll Tools", UDim2.new(0, 330, 0, 60), 3)
 
 --// Other Hubs buttons
-pagedButton("Other Hubs", "CTLM Hub V1", UDim2.new(0, 10, 0, 10), 1)
-pagedButton("Other Hubs", "CTLM Hub V2", UDim2.new(0, 170, 0, 10), 2)
-pagedButton("Other Hubs", "Destroyer Hub", UDim2.new(0, 330, 0, 10), 3)
-pagedButton("Other Hubs", "Acrylix", UDim2.new(0, 10, 0, 60), 4)
+pagedButton("Alternative Hubs", "CTLM Hub V1", UDim2.new(0, 10, 0, 10), 1)
+pagedButton("Alternative Hubs", "CTLM Hub V2", UDim2.new(0, 170, 0, 10), 2)
+pagedButton("Alternative Hubs", "Destroyer Hub", UDim2.new(0, 330, 0, 10), 3)
+pagedButton("Alternative Hubs", "Acrylix", UDim2.new(0, 10, 0, 60), 4)

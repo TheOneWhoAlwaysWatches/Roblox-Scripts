@@ -16,8 +16,9 @@ MainFrame.Parent = ScreenGui
 
 -- LoopBring Button
 local LoopBringButton = Instance.new("TextButton")
+LoopBringButton.Name = "LoopBringButton"
 LoopBringButton.Size = UDim2.new(0, 100, 0, 25)
-LoopBringButton.Position = UDim2.new(0, 0, 0, 0)
+LoopBringButton.Position = UDim2.new(0, 2, 0, 2)
 LoopBringButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 LoopBringButton.BorderColor3 = Color3.fromRGB(255, 0, 0)
 LoopBringButton.Text = "[LoopBring]"
@@ -55,7 +56,6 @@ local function createTab(name, icon, position)
     btn.TextColor3 = Color3.fromRGB(0, 255, 0)
     btn.Parent = MainFrame
 
-    -- Divider Line between buttons
     local divider = Instance.new("Frame")
     divider.Size = UDim2.new(0, 1, 1, 0)
     divider.Position = UDim2.new(1, 0, 0, 0)
@@ -72,15 +72,15 @@ createTab("Hubs", "🌐", 350)
 -- TDW Title
 local TDWFrame = Instance.new("Frame")
 TDWFrame.Size = UDim2.new(0, 30, 1, -26)
-TDWFrame.Position = UDim2.new(0, 35, 0, 26) -- Adjusted position (moved right)
+TDWFrame.Position = UDim2.new(0, 0, 0, 26)
 TDWFrame.BackgroundTransparency = 1
 TDWFrame.Parent = MainFrame
 
 local sideLabels = {"T", "D", "W"}
 for i, letter in ipairs(sideLabels) do
     local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(0, 30, 0, 50)
-    label.Position = UDim2.new(0, 0, 0, (i - 1) * 100 + 30)
+    label.Size = UDim2.new(0, 30, 0, 30)
+    label.Position = UDim2.new(0, 0, 0, (i - 1) * 80 + 30)
     label.Text = letter
     label.Font = Enum.Font.SourceSansBold
     label.TextSize = 30
@@ -93,28 +93,8 @@ end
 local InfoPanel = Instance.new("Frame")
 InfoPanel.Size = UDim2.new(0, 180, 1, 0)
 InfoPanel.Position = UDim2.new(1, 0, 0, 0)
-InfoPanel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-InfoPanel.BorderColor3 = Color3.fromRGB(255, 0, 0)
-InfoPanel.BorderSizePixel = 2
-InfoPanel.Visible = true
+InfoPanel.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
 InfoPanel.Parent = MainFrame
-
--- Toggle InfoPanel button
-local ToggleInfoButton = Instance.new("TextButton")
-ToggleInfoButton.Size = UDim2.new(0, 20, 0, 20)
-ToggleInfoButton.Position = UDim2.new(1, -20, 0, 0)
-ToggleInfoButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-ToggleInfoButton.BorderColor3 = Color3.fromRGB(255, 0, 0)
-ToggleInfoButton.Text = ">"
-ToggleInfoButton.Font = Enum.Font.SourceSansBold
-ToggleInfoButton.TextSize = 14
-ToggleInfoButton.TextColor3 = Color3.fromRGB(255, 0, 0)
-ToggleInfoButton.Parent = MainFrame
-
-ToggleInfoButton.MouseButton1Click:Connect(function()
-    InfoPanel.Visible = not InfoPanel.Visible
-    ToggleInfoButton.Text = InfoPanel.Visible and ">" or "<"
-end)
 
 local Username = Instance.new("TextLabel")
 Username.Size = UDim2.new(1, 0, 0, 20)
@@ -154,59 +134,176 @@ Ping.TextColor3 = Color3.fromRGB(0, 255, 0)
 Ping.BackgroundTransparency = 1
 Ping.Parent = InfoPanel
 
--- LoopBring Panel
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local bringTargets = {}
+local distance = 2
+
+local function updateTeleportation()
+	local char = LocalPlayer.Character
+	local root = char and char:FindFirstChild("HumanoidRootPart")
+	if not root then return end
+	for _, name in ipairs(bringTargets) do
+		local targetPlayer = Players:FindFirstChild(name)
+		if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+			local target = targetPlayer.Character.HumanoidRootPart
+			target.CFrame = CFrame.new(root.Position + root.CFrame.LookVector * distance, root.Position) * CFrame.Angles(0, math.rad(180), 0)
+		end
+	end
+end
+
+function loopBring(name)
+	if table.find(bringTargets, name) then return end
+	table.insert(bringTargets, name)
+	coroutine.wrap(function()
+		while table.find(bringTargets, name) do
+			updateTeleportation()
+			task.wait(0.05)
+		end
+	end)()
+end
+
+function stopBring(name)
+	local i = table.find(bringTargets, name)
+	if i then table.remove(bringTargets, i) end
+end
+
+-- Placeholder GUI components to prevent runtime errors
 local LoopBringPanel = Instance.new("Frame")
-LoopBringPanel.Size = UDim2.new(0, 200, 1, -26)
-LoopBringPanel.Position = UDim2.new(0, -200, 0, 26)
-LoopBringPanel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-LoopBringPanel.BorderColor3 = Color3.fromRGB(255, 0, 0)
-LoopBringPanel.BorderSizePixel = 2
+LoopBringPanel.Name = "LoopBringPanel"
+LoopBringPanel.Size = UDim2.new(0, 220, 0, 210)
+LoopBringPanel.Position = UDim2.new(0, 110, 0, 40)
+LoopBringPanel.BackgroundColor3 = Color3.fromRGB(25, 5, 5)
+LoopBringPanel.BorderColor3 = Color3.fromRGB(200, 0, 0)
+LoopBringPanel.BorderSizePixel = 1
 LoopBringPanel.Visible = false
 LoopBringPanel.Parent = MainFrame
 
--- Distance Manager
-local DistanceLabel = Instance.new("TextLabel")
-DistanceLabel.Size = UDim2.new(1, 0, 0, 30)
-DistanceLabel.Position = UDim2.new(0, 0, 0, 0)
-DistanceLabel.Text = "Distance: 5"
-DistanceLabel.Font = Enum.Font.SourceSansBold
-DistanceLabel.TextSize = 16
-DistanceLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
-DistanceLabel.BackgroundTransparency = 1
-DistanceLabel.Parent = LoopBringPanel
+local function createDummy(name)
+	local btn = Instance.new("TextButton")
+	btn.Name = name
+	btn.Text = name
+	btn.Size = UDim2.new(0, 100, 0, 25)
+	btn.Parent = LoopBringPanel
+	return btn
+end
 
-local PlusButton = Instance.new("TextButton")
-PlusButton.Size = UDim2.new(0, 30, 0, 30)
-PlusButton.Position = UDim2.new(1, -60, 0, 0)
-PlusButton.Text = "+"
-PlusButton.Font = Enum.Font.SourceSansBold
-PlusButton.TextSize = 18
-PlusButton.TextColor3 = Color3.fromRGB(0, 255, 0)
-PlusButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-PlusButton.BorderColor3 = Color3.fromRGB(255, 0, 0)
-PlusButton.Parent = LoopBringPanel
+local function createDummyLabel(name)
+	local lbl = Instance.new("TextLabel")
+	lbl.Name = name
+	lbl.Text = name
+	lbl.Size = UDim2.new(0, 100, 0, 25)
+	lbl.Parent = LoopBringPanel
+	return lbl
+end
 
-local MinusButton = Instance.new("TextButton")
-MinusButton.Size = UDim2.new(0, 30, 0, 30)
-MinusButton.Position = UDim2.new(1, -30, 0, 0)
-MinusButton.Text = "-"
-MinusButton.Font = Enum.Font.SourceSansBold
-MinusButton.TextSize = 18
-MinusButton.TextColor3 = Color3.fromRGB(0, 255, 0)
-MinusButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-MinusButton.BorderColor3 = Color3.fromRGB(255, 0, 0)
-MinusButton.Parent = LoopBringPanel
+local dropdownButton = createDummy("DropdownButton")
+local dropdownFrame = Instance.new("Frame")
+dropdownFrame.Name = "DropdownFrame"
+dropdownFrame.Size = UDim2.new(0, 200, 0, 100)
+dropdownFrame.Visible = false
+dropdownFrame.Parent = LoopBringPanel
 
-local currentDistance = 5
-PlusButton.MouseButton1Click:Connect(function()
-    currentDistance += 1
-    DistanceLabel.Text = "Distance: " .. currentDistance
+local scroll = Instance.new("ScrollingFrame")
+scroll.Name = "ScrollingFrame"
+scroll.Size = UDim2.new(1, 0, 1, 0)
+scroll.Parent = dropdownFrame
+
+local bringAllButton = createDummy("BringAllButton")
+local removeAllButton = createDummy("RemoveAllButton")
+local distanceLabel = createDummyLabel("DistanceLabel")
+local plusButton = createDummy("PlusButton")
+local minusButton = createDummy("MinusButton")
+local titleBar = Instance.new("Frame")
+titleBar.Name = "TitleBar"
+titleBar.Size = UDim2.new(1, 0, 0, 26)
+titleBar.Parent = LoopBringPanel
+local arrowButton = createDummy("ArrowButton")
+arrowButton.Parent = titleBar
+arrowButton.Position = UDim2.new(1, -36, 0, 4)
+
+-- Helper function
+local function createPlayerButton(playerName)
+	local btn = Instance.new("TextButton")
+	btn.Size = UDim2.new(1, -8, 0, 26)
+	btn.Text = playerName
+	btn.TextScaled = true
+	btn.Font = Enum.Font.Gotham
+	btn.BackgroundColor3 = Color3.fromRGB(40, 0, 0)
+	btn.TextColor3 = table.find(bringTargets, playerName) and Color3.new(1, 1, 1) or Color3.fromRGB(0, 255, 0)
+	btn.AutoButtonColor = true
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 6)
+	corner.Parent = btn
+	if table.find(bringTargets, playerName) then
+		local grad = Instance.new("UIGradient")
+		grad.Color = ColorSequence.new{
+			ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
+			ColorSequenceKeypoint.new(1, Color3.fromRGB(120, 0, 0))
+		}
+		grad.Rotation = 45
+		grad.Parent = btn
+	end
+	btn.MouseButton1Click:Connect(function()
+		if table.find(bringTargets, playerName) then
+			stopBring(playerName)
+		else
+			loopBring(playerName)
+		end
+		updatePlayerList()
+	end)
+	btn.Parent = scroll
+end
+
+function updatePlayerList()
+	for _, child in ipairs(scroll:GetChildren()) do
+		if child:IsA("TextButton") then
+			child:Destroy()
+		end
+	end
+	for _, p in ipairs(Players:GetPlayers()) do
+		if p ~= LocalPlayer then
+			createPlayerButton(p.Name)
+		end
+	end
+	scroll.CanvasSize = UDim2.new(0, 0, 0, #Players:GetPlayers() * 28)
+end
+
+dropdownButton.MouseButton1Click:Connect(function()
+	dropdownFrame.Visible = not dropdownFrame.Visible
+	if dropdownFrame.Visible then updatePlayerList() end
 end)
-MinusButton.MouseButton1Click:Connect(function()
-    currentDistance = math.max(1, currentDistance - 1)
-    DistanceLabel.Text = "Distance: " .. currentDistance
+
+bringAllButton.MouseButton1Click:Connect(function()
+	for _, p in ipairs(Players:GetPlayers()) do
+		if p ~= LocalPlayer then loopBring(p.Name) end
+	end
+	updatePlayerList()
 end)
+
+removeAllButton.MouseButton1Click:Connect(function()
+	bringTargets = {}
+	updatePlayerList()
+end)
+
+plusButton.MouseButton1Click:Connect(function()
+	distance += 1
+	distanceLabel.Text = "Distance: " .. distance
+end)
+
+minusButton.MouseButton1Click:Connect(function()
+	distance = math.max(1, distance - 1)
+	distanceLabel.Text = "Distance: " .. distance
+end)
+
+Players.PlayerAdded:Connect(updatePlayerList)
+Players.PlayerRemoving:Connect(function(p)
+	stopBring(p.Name)
+	updatePlayerList()
+end)
+
+distanceLabel.Text = "Distance: " .. distance
 
 LoopBringButton.MouseButton1Click:Connect(function()
-    LoopBringPanel.Visible = not LoopBringPanel.Visible
+	LoopBringPanel.Visible = not LoopBringPanel.Visible
 end)

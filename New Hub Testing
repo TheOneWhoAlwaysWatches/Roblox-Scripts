@@ -67,7 +67,7 @@ end
 createTab("Tips", "🧠", 110)
 createTab("Main", "💀", 190)
 createTab("Misc", "🔧", 270)
-createTab("Alternative\nHubs", "🌐", 350)
+createTab("Hubs", "🌐", 350)
 
 -- TDW Title
 local TDWFrame = Instance.new("Frame")

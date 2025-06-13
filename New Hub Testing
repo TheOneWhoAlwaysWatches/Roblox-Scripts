@@ -68,10 +68,10 @@ local function createTab(name, icon, position)
     divider.Parent = MainFrame
 end
 
-createTab("Tips", "\xf5de", 0)
-createTab("Main", "\u{1F480}", 80)
-createTab("Misc", "\u{1F527}", 160)
-createTab("Alternative\nHubs", "\u{1F310}", 240)
+createTab("Tips", "🧠", 0)
+createTab("Main", "💀", 80)
+createTab("Misc", "🔧", 160)
+createTab("Hubs", "🌐", 240)
 
 -- TDW Title Section
 local TitleFrame = Instance.new("Frame")

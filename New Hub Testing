@@ -26,6 +26,14 @@ local function createTab(name, icon, position)
     btn.TextSize = 18
     btn.TextColor3 = Color3.fromRGB(0, 255, 0)
     btn.Parent = MainFrame
+
+    -- Divider line between tabs
+    local divider = Instance.new("Frame")
+    divider.Size = UDim2.new(0, 1, 1, 0)
+    divider.Position = UDim2.new(1, 0, 0, 0)
+    divider.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
+    divider.BorderSizePixel = 0
+    divider.Parent = btn
 end
 
 createTab("Tips", "🧠", 0)
@@ -33,7 +41,15 @@ createTab("Main", "💀", 80)
 createTab("Misc", "🔧", 160)
 createTab("Alternative\nHubs", "🌐", 240)
 
--- Left Side Buttons
+-- Divider below tabs
+local topDivider = Instance.new("Frame")
+topDivider.Size = UDim2.new(1, 0, 0, 1)
+topDivider.Position = UDim2.new(0, 0, 0, 25)
+topDivider.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+topDivider.BorderSizePixel = 0
+topDivider.Parent = MainFrame
+
+-- Left Side Title TDW
 local sideLabels = {"T", "D", "W"}
 for i, letter in ipairs(sideLabels) do
     local label = Instance.new("TextLabel")
@@ -47,23 +63,43 @@ for i, letter in ipairs(sideLabels) do
     label.Parent = MainFrame
 end
 
--- Loopbring Control Panel
-local ControlPanel = Instance.new("TextLabel")
-ControlPanel.Size = UDim2.new(0, 150, 0, 50)
-ControlPanel.Position = UDim2.new(0, 5, 1, -55)
-ControlPanel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-ControlPanel.BorderColor3 = Color3.fromRGB(100, 0, 0)
-ControlPanel.Text = "[Loopbring\nControl\nPanel]"
-ControlPanel.Font = Enum.Font.SourceSansBold
-ControlPanel.TextSize = 18
-ControlPanel.TextColor3 = Color3.fromRGB(255, 0, 0)
-ControlPanel.Parent = MainFrame
+-- Divider between TDW and scripts panel
+local tdwDivider = Instance.new("Frame")
+tdwDivider.Size = UDim2.new(0, 1, 1, -25)
+tdwDivider.Position = UDim2.new(0, -5, 0, 25)
+tdwDivider.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+tdwDivider.BorderSizePixel = 0
+tdwDivider.Parent = MainFrame
+
+-- Loopbring Control Panel (button at top left)
+local LoopBringButton = Instance.new("TextButton")
+LoopBringButton.Size = UDim2.new(0, 100, 0, 25)
+LoopBringButton.Position = UDim2.new(0, 5, 0, 30)
+LoopBringButton.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+LoopBringButton.BorderColor3 = Color3.fromRGB(255, 0, 0)
+LoopBringButton.Text = "[LoopBring]"
+LoopBringButton.Font = Enum.Font.SourceSansBold
+LoopBringButton.TextSize = 16
+LoopBringButton.TextColor3 = Color3.fromRGB(255, 0, 0)
+LoopBringButton.Parent = MainFrame
+
+-- Right Panel Toggle Button
+local InfoToggle = Instance.new("TextButton")
+InfoToggle.Size = UDim2.new(0, 25, 0, 25)
+InfoToggle.Position = UDim2.new(1, -30, 0, 5)
+InfoToggle.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+InfoToggle.Text = ">"
+InfoToggle.Font = Enum.Font.SourceSansBold
+InfoToggle.TextSize = 16
+InfoToggle.TextColor3 = Color3.fromRGB(0, 255, 0)
+InfoToggle.Parent = MainFrame
 
 -- Right Side Info Panel
 local InfoPanel = Instance.new("Frame")
 InfoPanel.Size = UDim2.new(0, 180, 1, 0)
 InfoPanel.Position = UDim2.new(1, 0, 0, 0)
 InfoPanel.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+InfoPanel.Visible = false
 InfoPanel.Parent = MainFrame
 
 local Username = Instance.new("TextLabel")
@@ -81,7 +117,7 @@ local Avatar = Instance.new("ImageLabel")
 Avatar.Size = UDim2.new(0, 80, 0, 80)
 Avatar.Position = UDim2.new(0.5, -40, 0, 30)
 Avatar.BackgroundTransparency = 1
-Avatar.Image = "rbxassetid://17174555482" -- Placeholder bee suit icon
+Avatar.Image = "rbxassetid://17174555482"
 Avatar.Parent = InfoPanel
 
 local FPS = Instance.new("TextLabel")
@@ -103,3 +139,10 @@ Ping.TextSize = 18
 Ping.TextColor3 = Color3.fromRGB(0, 255, 0)
 Ping.BackgroundTransparency = 1
 Ping.Parent = InfoPanel
+
+-- Info Toggle logic
+InfoToggle.MouseButton1Click:Connect(function()
+    InfoPanel.Visible = not InfoPanel.Visible
+end)
+
+-- Placeholder: expand mini GUI from left with player list and loopbring function here

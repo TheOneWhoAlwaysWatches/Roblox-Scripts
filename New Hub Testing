@@ -1,9 +1,78 @@
--- Existing script untouched except where changes are requested
+-- Recreate Script Hub UI
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "ScriptHubUI"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = game.CoreGui
 
--- Repositioned TDW Letters
+-- Main Frame
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 800, 0, 400)
+MainFrame.Position = UDim2.new(0.5, -400, 0.5, -200)
+MainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+MainFrame.BorderColor3 = Color3.fromRGB(255, 0, 0)
+MainFrame.BorderSizePixel = 2
+MainFrame.Parent = ScreenGui
+
+-- LoopBring Button
+local LoopBringButton = Instance.new("TextButton")
+LoopBringButton.Size = UDim2.new(0, 100, 0, 25)
+LoopBringButton.Position = UDim2.new(0, 0, 0, 0)
+LoopBringButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+LoopBringButton.BorderColor3 = Color3.fromRGB(255, 0, 0)
+LoopBringButton.Text = "[LoopBring]"
+LoopBringButton.Font = Enum.Font.SourceSansBold
+LoopBringButton.TextSize = 14
+LoopBringButton.TextColor3 = Color3.fromRGB(255, 0, 0)
+LoopBringButton.Parent = MainFrame
+
+-- Divider under LoopBring and Tabs
+local TopDivider = Instance.new("Frame")
+TopDivider.Size = UDim2.new(1, 0, 0, 1)
+TopDivider.Position = UDim2.new(0, 0, 0, 26)
+TopDivider.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+TopDivider.BorderSizePixel = 0
+TopDivider.Parent = MainFrame
+
+-- Left Divider Line for LoopBring
+local LeftDivider = Instance.new("Frame")
+LeftDivider.Size = UDim2.new(0, 2, 1, -26)
+LeftDivider.Position = UDim2.new(0, 100, 0, 26)
+LeftDivider.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+LeftDivider.BorderSizePixel = 0
+LeftDivider.Parent = MainFrame
+
+-- Top Tabs
+local function createTab(name, icon, position)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0, 80, 0, 25)
+    btn.Position = UDim2.new(0, position, 0, 0)
+    btn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    btn.BorderSizePixel = 0
+    btn.Text = icon .. " " .. name
+    btn.Font = Enum.Font.SourceSansBold
+    btn.TextSize = 18
+    btn.TextColor3 = Color3.fromRGB(0, 255, 0)
+    btn.Parent = MainFrame
+
+    -- Divider Line between buttons
+    local divider = Instance.new("Frame")
+    divider.Size = UDim2.new(0, 1, 1, 0)
+    divider.Position = UDim2.new(1, 0, 0, 0)
+    divider.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    divider.BorderSizePixel = 0
+    divider.Parent = btn
+end
+
+createTab("Tips", "🧠", 110)
+createTab("Main", "💀", 190)
+createTab("Misc", "🔧", 270)
+createTab("Hubs", "🌐", 350)
+
+-- TDW Title
 local TDWFrame = Instance.new("Frame")
 TDWFrame.Size = UDim2.new(0, 30, 1, -26)
-TDWFrame.Position = UDim2.new(0, 5, 0, 26) -- Adjusted slightly to the right
+TDWFrame.Position = UDim2.new(0, 35, 0, 26) -- Adjusted position (moved right)
 TDWFrame.BackgroundTransparency = 1
 TDWFrame.Parent = MainFrame
 
@@ -20,26 +89,72 @@ for i, letter in ipairs(sideLabels) do
     label.Parent = TDWFrame
 end
 
--- Toggle Button for InfoPanel
-local InfoToggle = Instance.new("TextButton")
-InfoToggle.Size = UDim2.new(0, 25, 0, 25)
-InfoToggle.Position = UDim2.new(1, -205, 0, 0)
-InfoToggle.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-InfoToggle.BorderColor3 = Color3.fromRGB(255, 0, 0)
-InfoToggle.Text = ">"
-InfoToggle.Font = Enum.Font.SourceSansBold
-InfoToggle.TextSize = 18
-InfoToggle.TextColor3 = Color3.fromRGB(0, 255, 0)
-InfoToggle.Parent = MainFrame
+-- Right Side Info Panel
+local InfoPanel = Instance.new("Frame")
+InfoPanel.Size = UDim2.new(0, 180, 1, 0)
+InfoPanel.Position = UDim2.new(1, 0, 0, 0)
+InfoPanel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+InfoPanel.BorderColor3 = Color3.fromRGB(255, 0, 0)
+InfoPanel.BorderSizePixel = 2
+InfoPanel.Visible = true
+InfoPanel.Parent = MainFrame
 
-local infoVisible = true
-InfoToggle.MouseButton1Click:Connect(function()
-    infoVisible = not infoVisible
-    InfoPanel.Visible = infoVisible
-    InfoToggle.Text = infoVisible and ">" or "<"
+-- Toggle InfoPanel button
+local ToggleInfoButton = Instance.new("TextButton")
+ToggleInfoButton.Size = UDim2.new(0, 20, 0, 20)
+ToggleInfoButton.Position = UDim2.new(1, -20, 0, 0)
+ToggleInfoButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+ToggleInfoButton.BorderColor3 = Color3.fromRGB(255, 0, 0)
+ToggleInfoButton.Text = ">"
+ToggleInfoButton.Font = Enum.Font.SourceSansBold
+ToggleInfoButton.TextSize = 14
+ToggleInfoButton.TextColor3 = Color3.fromRGB(255, 0, 0)
+ToggleInfoButton.Parent = MainFrame
+
+ToggleInfoButton.MouseButton1Click:Connect(function()
+    InfoPanel.Visible = not InfoPanel.Visible
+    ToggleInfoButton.Text = InfoPanel.Visible and ">" or "<"
 end)
 
--- LoopBring Expandable Panel
+local Username = Instance.new("TextLabel")
+Username.Size = UDim2.new(1, 0, 0, 20)
+Username.Position = UDim2.new(0, 0, 0, 5)
+Username.Text = "User:\nunknownhumanbeingfr"
+Username.TextWrapped = true
+Username.Font = Enum.Font.SourceSansBold
+Username.TextSize = 14
+Username.TextColor3 = Color3.fromRGB(0, 255, 0)
+Username.BackgroundTransparency = 1
+Username.Parent = InfoPanel
+
+local Avatar = Instance.new("ImageLabel")
+Avatar.Size = UDim2.new(0, 80, 0, 80)
+Avatar.Position = UDim2.new(0.5, -40, 0, 30)
+Avatar.BackgroundTransparency = 1
+Avatar.Image = "rbxassetid://17174555482"
+Avatar.Parent = InfoPanel
+
+local FPS = Instance.new("TextLabel")
+FPS.Size = UDim2.new(1, 0, 0, 20)
+FPS.Position = UDim2.new(0, 0, 0, 120)
+FPS.Text = "FPS: 44"
+FPS.Font = Enum.Font.SourceSansBold
+FPS.TextSize = 18
+FPS.TextColor3 = Color3.fromRGB(0, 255, 0)
+FPS.BackgroundTransparency = 1
+FPS.Parent = InfoPanel
+
+local Ping = Instance.new("TextLabel")
+Ping.Size = UDim2.new(1, 0, 0, 20)
+Ping.Position = UDim2.new(0, 0, 0, 145)
+Ping.Text = "Ping: 93ms"
+Ping.Font = Enum.Font.SourceSansBold
+Ping.TextSize = 18
+Ping.TextColor3 = Color3.fromRGB(0, 255, 0)
+Ping.BackgroundTransparency = 1
+Ping.Parent = InfoPanel
+
+-- LoopBring Panel
 local LoopBringPanel = Instance.new("Frame")
 LoopBringPanel.Size = UDim2.new(0, 200, 1, -26)
 LoopBringPanel.Position = UDim2.new(0, -200, 0, 26)
@@ -50,63 +165,47 @@ LoopBringPanel.Visible = false
 LoopBringPanel.Parent = MainFrame
 
 -- Distance Manager
+local DistanceLabel = Instance.new("TextLabel")
+DistanceLabel.Size = UDim2.new(1, 0, 0, 30)
+DistanceLabel.Position = UDim2.new(0, 0, 0, 0)
+DistanceLabel.Text = "Distance: 5"
+DistanceLabel.Font = Enum.Font.SourceSansBold
+DistanceLabel.TextSize = 16
+DistanceLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+DistanceLabel.BackgroundTransparency = 1
+DistanceLabel.Parent = LoopBringPanel
+
 local PlusButton = Instance.new("TextButton")
-PlusButton.Size = UDim2.new(0, 25, 0, 25)
-PlusButton.Position = UDim2.new(0, 5, 0, 5)
+PlusButton.Size = UDim2.new(0, 30, 0, 30)
+PlusButton.Position = UDim2.new(1, -60, 0, 0)
 PlusButton.Text = "+"
-PlusButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-PlusButton.BorderColor3 = Color3.fromRGB(255, 0, 0)
-PlusButton.TextColor3 = Color3.fromRGB(0, 255, 0)
 PlusButton.Font = Enum.Font.SourceSansBold
 PlusButton.TextSize = 18
+PlusButton.TextColor3 = Color3.fromRGB(0, 255, 0)
+PlusButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+PlusButton.BorderColor3 = Color3.fromRGB(255, 0, 0)
 PlusButton.Parent = LoopBringPanel
 
 local MinusButton = Instance.new("TextButton")
-MinusButton.Size = UDim2.new(0, 25, 0, 25)
-MinusButton.Position = UDim2.new(0, 35, 0, 5)
+MinusButton.Size = UDim2.new(0, 30, 0, 30)
+MinusButton.Position = UDim2.new(1, -30, 0, 0)
 MinusButton.Text = "-"
-MinusButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-MinusButton.BorderColor3 = Color3.fromRGB(255, 0, 0)
-MinusButton.TextColor3 = Color3.fromRGB(0, 255, 0)
 MinusButton.Font = Enum.Font.SourceSansBold
 MinusButton.TextSize = 18
+MinusButton.TextColor3 = Color3.fromRGB(0, 255, 0)
+MinusButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+MinusButton.BorderColor3 = Color3.fromRGB(255, 0, 0)
 MinusButton.Parent = LoopBringPanel
 
-local LoopBringScroll = Instance.new("ScrollingFrame")
-LoopBringScroll.Size = UDim2.new(1, -10, 1, -40)
-LoopBringScroll.Position = UDim2.new(0, 5, 0, 35)
-LoopBringScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
-LoopBringScroll.ScrollBarThickness = 6
-LoopBringScroll.BackgroundTransparency = 1
-LoopBringScroll.Parent = LoopBringPanel
-
-local playerButtons = {}
-local function updatePlayerList()
-    for _, btn in pairs(playerButtons) do btn:Destroy() end
-    table.clear(playerButtons)
-
-    local y = 0
-    for _, player in ipairs(game.Players:GetPlayers()) do
-        local btn = Instance.new("TextButton")
-        btn.Size = UDim2.new(1, -10, 0, 25)
-        btn.Position = UDim2.new(0, 0, 0, y)
-        btn.Text = player.Name
-        btn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-        btn.BorderColor3 = Color3.fromRGB(255, 0, 0)
-        btn.TextColor3 = Color3.fromRGB(0, 255, 0)
-        btn.Font = Enum.Font.SourceSansBold
-        btn.TextSize = 14
-        btn.Parent = LoopBringScroll
-        y = y + 30
-        table.insert(playerButtons, btn)
-        -- TODO: add multiple selection handling & loopbring logic later
-    end
-    LoopBringScroll.CanvasSize = UDim2.new(0, 0, 0, y)
-end
-
-game.Players.PlayerAdded:Connect(updatePlayerList)
-game.Players.PlayerRemoving:Connect(updatePlayerList)
-updatePlayerList()
+local currentDistance = 5
+PlusButton.MouseButton1Click:Connect(function()
+    currentDistance += 1
+    DistanceLabel.Text = "Distance: " .. currentDistance
+end)
+MinusButton.MouseButton1Click:Connect(function()
+    currentDistance = math.max(1, currentDistance - 1)
+    DistanceLabel.Text = "Distance: " .. currentDistance
+end)
 
 LoopBringButton.MouseButton1Click:Connect(function()
     LoopBringPanel.Visible = not LoopBringPanel.Visible

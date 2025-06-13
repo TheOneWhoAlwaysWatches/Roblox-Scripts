@@ -1,4 +1,4 @@
--- Recreate Script Hub UI with updates
+-- Recreate Script Hub UI
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "ScriptHubUI"
 ScreenGui.ResetOnSpawn = false
@@ -15,24 +15,32 @@ MainFrame.BorderSizePixel = 2
 MainFrame.Parent = ScreenGui
 
 -- LoopBring Button
-local LoopBringBtn = Instance.new("TextButton")
-LoopBringBtn.Size = UDim2.new(0, 80, 0, 25)
-LoopBringBtn.Position = UDim2.new(0, 0, 0, 0)
-LoopBringBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-LoopBringBtn.BorderColor3 = Color3.fromRGB(255, 0, 0)
-LoopBringBtn.Text = "[LoopBring]"
-LoopBringBtn.Font = Enum.Font.SourceSansBold
-LoopBringBtn.TextSize = 14
-LoopBringBtn.TextColor3 = Color3.fromRGB(255, 0, 0)
-LoopBringBtn.Parent = MainFrame
+local LoopBringButton = Instance.new("TextButton")
+LoopBringButton.Size = UDim2.new(0, 100, 0, 25)
+LoopBringButton.Position = UDim2.new(0, 0, 0, 0)
+LoopBringButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+LoopBringButton.BorderColor3 = Color3.fromRGB(255, 0, 0)
+LoopBringButton.Text = "[LoopBring]"
+LoopBringButton.Font = Enum.Font.SourceSansBold
+LoopBringButton.TextSize = 14
+LoopBringButton.TextColor3 = Color3.fromRGB(255, 0, 0)
+LoopBringButton.Parent = MainFrame
 
--- Divider Line Under LoopBring
-local LBLine = Instance.new("Frame")
-LBLine.Size = UDim2.new(0, 2, 1, 0)
-LBLine.Position = UDim2.new(0, 80, 0, 0)
-LBLine.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-LBLine.BorderSizePixel = 0
-LBLine.Parent = MainFrame
+-- Divider under LoopBring and Tabs
+local TopDivider = Instance.new("Frame")
+TopDivider.Size = UDim2.new(1, 0, 0, 1)
+TopDivider.Position = UDim2.new(0, 0, 0, 26)
+TopDivider.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+TopDivider.BorderSizePixel = 0
+TopDivider.Parent = MainFrame
+
+-- Left Divider Line for LoopBring
+local LeftDivider = Instance.new("Frame")
+LeftDivider.Size = UDim2.new(0, 2, 1, -26)
+LeftDivider.Position = UDim2.new(0, 100, 0, 26)
+LeftDivider.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+LeftDivider.BorderSizePixel = 0
+LeftDivider.Parent = MainFrame
 
 -- Top Tabs
 local function createTab(name, icon, position)
@@ -47,71 +55,46 @@ local function createTab(name, icon, position)
     btn.TextColor3 = Color3.fromRGB(0, 255, 0)
     btn.Parent = MainFrame
 
-    -- Divider between buttons
+    -- Divider Line between buttons
     local divider = Instance.new("Frame")
-    divider.Size = UDim2.new(0, 1, 0, 25)
-    divider.Position = UDim2.new(0, position + 80, 0, 0)
+    divider.Size = UDim2.new(0, 1, 1, 0)
+    divider.Position = UDim2.new(1, 0, 0, 0)
     divider.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
     divider.BorderSizePixel = 0
-    divider.Parent = MainFrame
+    divider.Parent = btn
 end
 
-createTab("Tips", "🧐", 85)
-createTab("Main", "💀", 165)
-createTab("Misc", "🔧", 245)
-createTab("Alternative\nHubs", "🌐", 325)
+createTab("Tips", "🧠", 110)
+createTab("Main", "💀", 190)
+createTab("Misc", "🔧", 270)
+createTab("Alternative\nHubs", "🌐", 350)
 
--- TDW Title Left Panel Extension
-local TitlePanel = Instance.new("Frame")
-TitlePanel.Size = UDim2.new(0, 25, 1, 0)
-TitlePanel.Position = UDim2.new(0, -25, 0, 0)
-TitlePanel.BackgroundTransparency = 1
-TitlePanel.Parent = MainFrame
+-- TDW Title
+local TDWFrame = Instance.new("Frame")
+TDWFrame.Size = UDim2.new(0, 30, 1, -26)
+TDWFrame.Position = UDim2.new(0, 0, 0, 26)
+TDWFrame.BackgroundTransparency = 1
+TDWFrame.Parent = MainFrame
 
 local sideLabels = {"T", "D", "W"}
 for i, letter in ipairs(sideLabels) do
     local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(0, 25, 0, 50)
-    label.Position = UDim2.new(0, 0, 0, 50 + (i - 1) * 60)
+    label.Size = UDim2.new(0, 30, 0, 50)
+    label.Position = UDim2.new(0, 0, 0, (i - 1) * 100 + 30)
     label.Text = letter
     label.Font = Enum.Font.SourceSansBold
-    label.TextSize = 24
+    label.TextSize = 30
     label.TextColor3 = Color3.fromRGB(255, 0, 0)
     label.BackgroundTransparency = 1
-    label.Parent = TitlePanel
+    label.Parent = TDWFrame
 end
-
--- Divider between TDW and script area
-local VerticalDivider = Instance.new("Frame")
-VerticalDivider.Size = UDim2.new(0, 2, 1, 0)
-VerticalDivider.Position = UDim2.new(0, 0, 0, 0)
-VerticalDivider.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-VerticalDivider.BorderSizePixel = 0
-VerticalDivider.Parent = MainFrame
-
--- Right Side Info Panel Toggle Button
-local InfoToggleBtn = Instance.new("TextButton")
-InfoToggleBtn.Size = UDim2.new(0, 25, 0, 25)
-InfoToggleBtn.Position = UDim2.new(1, -30, 0, 0)
-InfoToggleBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-InfoToggleBtn.BorderColor3 = Color3.fromRGB(255, 0, 0)
-InfoToggleBtn.Text = ">"
-InfoToggleBtn.Font = Enum.Font.SourceSansBold
-InfoToggleBtn.TextSize = 18
-InfoToggleBtn.TextColor3 = Color3.fromRGB(0, 255, 0)
-InfoToggleBtn.Parent = MainFrame
 
 -- Right Side Info Panel
 local InfoPanel = Instance.new("Frame")
 InfoPanel.Size = UDim2.new(0, 180, 1, 0)
 InfoPanel.Position = UDim2.new(1, 0, 0, 0)
 InfoPanel.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-InfoPanel.Visible = false
 InfoPanel.Parent = MainFrame
-
-InfoToggleBtn.MouseButton1Click:Connect(function()
-    InfoPanel.Visible = not InfoPanel.Visible
-end)
 
 local Username = Instance.new("TextLabel")
 Username.Size = UDim2.new(1, 0, 0, 20)

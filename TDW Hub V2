@@ -3,6 +3,30 @@ local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
+local whitelist = {
+    [3972688973] = true, -- Main Acc
+    [2522193455] = true, -- Inf God (Alt)
+    [5146822757] = true, -- Monkey (Alt)
+    [5054998059] = true, -- mjendeub (Alt)
+  	[3429553477] = true, -- Dyllan144335 (Alt)
+    [8407911841] = true, -- Void (Star)
+    [8646139977] = true, -- Stars Alt
+    [1548866917] = true, -- Timmy
+    [8551057429] = true, -- Timmy Alt
+    [1799483953] = true, -- Sword
+    [8237187551] = true, -- Alijah
+    [1746591571] = true, -- Jenn
+    [2901968025] = true, -- Eggy Alt
+    [1513169967] = true, -- Eggy Main
+    [7641469342] = true, -- Eggy Other Alt
+}
+
+local player = game.Players.LocalPlayer
+if not whitelist[player.UserId] then
+    player:Kick("GET OUT.")
+    return
+end
+
 local tabs = {}          -- Stores tab buttons
 local tabPages = {}      -- Stores tab content frames
 local currentTab = nil   -- Tracks the currently active tab

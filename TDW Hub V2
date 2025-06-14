@@ -164,7 +164,7 @@ local miscButtons = {
     end },
     { text = "Emote Gui", callback = function() loadstring(game:HttpGet("https://pastebin.com/raw/eCpipCTH",true))()
     end },
-    { text = "Ragdoll Tools", callback = loadstring(game:HttpGet("https://pastefy.app/xjoCsunl/raw",true))() 
+    { text = "Ragdoll Tools", callback = function() loadstring(game:HttpGet("https://pastefy.app/xjoCsunl/raw",true))() 
     end },
 }
 

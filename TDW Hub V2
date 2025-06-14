@@ -446,7 +446,7 @@ toggleButton.TextSize = 16
 toggleButton.BorderSizePixel = 0
 toggleButton.Active = true
 toggleButton.Draggable = true
-toggleButton.Parent = game:GetService("CoreGui") -- VERY IMPORTANT
+
 -- Toggle Function
 toggleButton.MouseButton1Click:Connect(function()
     MainFrame.Visible = not MainFrame.Visible

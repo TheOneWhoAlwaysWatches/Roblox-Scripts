@@ -1,3 +1,12 @@
+-- Services
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local tabs = {}          -- Stores tab buttons
+local tabPages = {}      -- Stores tab content frames
+local currentTab = nil   -- Tracks the currently active tab
+
 -- Recreate Script Hub UI
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "ScriptHubUI"
@@ -42,7 +51,47 @@ LeftDivider.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 LeftDivider.BorderSizePixel = 0
 LeftDivider.Parent = MainFrame
 
--- Top Tabs
+-- Function to create buttons dynamically within a tab page
+local function populateButtons(tabFrame, buttonSpecs)
+    local columns = 4
+    local spacingX, spacingY = 100, 40
+    local startX, startY = 10, 10
+
+    for i, spec in ipairs(buttonSpecs) do
+        local button = Instance.new("TextButton")
+        button.Size = UDim2.new(0, 90, 0, 30)
+        local row = math.floor((i - 1) / columns)
+        local col = (i - 1) % columns
+        button.Position = UDim2.new(0, startX + col * spacingX, 0, startY + row * spacingY)
+        button.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+        button.BorderColor3 = Color3.fromRGB(255, 0, 0)
+        button.Text = spec.text
+        button.Font = Enum.Font.SourceSansBold
+        button.TextSize = 14
+        button.TextColor3 = Color3.fromRGB(0, 255, 0)
+        button.Parent = tabFrame
+
+        button.MouseButton1Click:Connect(spec.callback)
+    end
+end
+
+-- Function to create tip labels
+local function populateTips(tabFrame, tips)
+    for i, text in ipairs(tips) do
+        local label = Instance.new("TextLabel")
+        label.Size = UDim2.new(1, -20, 0, 30)
+        label.Position = UDim2.new(0, 10, 0, (i - 1) * 35 + 10)
+        label.BackgroundTransparency = 1
+        label.Text = "Tip: " .. text
+        label.Font = Enum.Font.SourceSansBold
+        label.TextSize = 14
+        label.TextColor3 = Color3.fromRGB(0, 255, 0)
+        label.TextXAlignment = Enum.TextXAlignment.Left
+        label.Parent = tabFrame
+    end
+end
+
+-- Create tab logic and populate later
 local function createTab(name, icon, position)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(0, 80, 0, 25)
@@ -55,19 +104,99 @@ local function createTab(name, icon, position)
     btn.TextColor3 = Color3.fromRGB(0, 255, 0)
     btn.Parent = MainFrame
 
-    -- Divider Line between buttons
+    local page = Instance.new("Frame")
+    page.Name = name .. "Page"
+    page.Size = UDim2.new(1, -220, 1, -26)
+    page.Position = UDim2.new(0, 150, 0, 26)
+    page.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    page.BorderColor3 = Color3.fromRGB(255, 0, 0)
+    page.BorderSizePixel = 2
+    page.Visible = false
+    page.Parent = MainFrame
+
+    tabs[name] = btn
+    tabPages[name] = page
+
     local divider = Instance.new("Frame")
     divider.Size = UDim2.new(0, 1, 1, 0)
     divider.Position = UDim2.new(1, 0, 0, 0)
     divider.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
     divider.BorderSizePixel = 0
     divider.Parent = btn
+
+    btn.MouseButton1Click:Connect(function()
+        if currentTab and tabPages[currentTab] then
+            tabPages[currentTab].Visible = false
+        end
+        currentTab = name
+        tabPages[name].Visible = true
+    end)
+
+    return page
 end
 
-createTab("Tips", "🧠", 110)
-createTab("Main", "💀", 190)
-createTab("Misc", "🔧", 270)
-createTab("Hubs", "🌐", 350)
+-- Example data for each tab
+local mainButtons = {
+    { text = "Get Base V3", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Something",true))()
+    end },
+    { text = "Get Tools V3", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Tools%20V3.lua", true))()
+    end },
+    { text = "Use Tools V4", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Use%20Tools%20V4.lua", true))()
+    end },
+    { text = "Insta-Kill", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/One%20Shot%20Aura.lua", true))()
+    end },
+    { text = "Respawn V3", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V2.lua", true))()
+    end },
+    { text = "Infinite Yeild", callback = function() loadstring(game:HttpGet("https://pastebin.com/raw/6rrhy0P1", true))()
+    end },
+    { text = "Anti-Lag", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Lag", true))()
+    end },
+    { text = "God Mode", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/God%20Mode.lua", true))()
+    end },
+    { text = "Normal Aura", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20Aura", true))()
+    end },
+    { text = "No Cooldown", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V5.lua", true))()
+    end },
+}
+
+local miscButtons = {
+    { text = "Chat Spy", callback = function() loadstring(game:HttpGet("https://pastebin.com/raw/w1DW0m31",true))()
+    end },
+    { text = "Emote Gui", callback = function() loadstring(game:HttpGet("https://pastebin.com/raw/eCpipCTH",true))()
+    end },
+    { text = "Ragdoll Tools", callback = loadstring(game:HttpGet("https://pastefy.app/xjoCsunl/raw",true))() 
+    end },
+}
+
+local hubButtons = {
+    { text = "CTLM Hub V1", callback = function() loadstring(game:HttpGet("https://pastefy.app/kwOI1DmM/raw",true))() 
+    end },
+    { text = "Destroyer Hub", callback = function() loadstring(game:HttpGet("https://pastefy.app/xhFiwEWy/raw",true))() 
+    end },
+    { text = "Acrylix", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/3dsonsuce/acrylix/main/Acrylix",true))()
+    end },
+}
+
+local tips = {
+    "Tip 1 --> Dont use God Mode if you have Respawn activated",
+    "Tip 2 --> Dont use No Cooldown with Insta Kill Aura",
+    "Tip 3 --> Dont use Insta Kill Aura with Normal Aura",
+    "Tip 4 --> Inf axe smash is inside Acrylix..",
+    "Tip 5 --> Dont trust random exploiters trying to give you scripts, they could be dangerous!!"
+}
+
+-- Creating and populating tabs
+local tipsPage = createTab("Tips", "🧠", 110)
+populateTips(tipsPage, tips)
+
+local mainPage = createTab("Main", "💀", 190)
+populateButtons(mainPage, mainButtons)
+
+local miscPage = createTab("Misc", "🔧", 270)
+populateButtons(miscPage, miscButtons)
+
+local hubsPage = createTab("Hubs", "🌐", 350)
+populateButtons(hubsPage, hubButtons)
 
 -- TDW Title
 local TDWFrame = Instance.new("Frame")
@@ -99,13 +228,13 @@ InfoPanel.BorderSizePixel = 2
 InfoPanel.Visible = true
 InfoPanel.Parent = MainFrame
 
--- Toggle InfoPanel button
+-- Toggle InfoPanel button (now labeled "Stats")
 local ToggleInfoButton = Instance.new("TextButton")
-ToggleInfoButton.Size = UDim2.new(0, 20, 0, 20)
-ToggleInfoButton.Position = UDim2.new(1, -20, 0, 0)
+ToggleInfoButton.Size = UDim2.new(0, 50, 0, 20)
+ToggleInfoButton.Position = UDim2.new(1, -50, 0, 0)
 ToggleInfoButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 ToggleInfoButton.BorderColor3 = Color3.fromRGB(255, 0, 0)
-ToggleInfoButton.Text = ">"
+ToggleInfoButton.Text = "Stats"
 ToggleInfoButton.Font = Enum.Font.SourceSansBold
 ToggleInfoButton.TextSize = 14
 ToggleInfoButton.TextColor3 = Color3.fromRGB(255, 0, 0)
@@ -113,13 +242,13 @@ ToggleInfoButton.Parent = MainFrame
 
 ToggleInfoButton.MouseButton1Click:Connect(function()
     InfoPanel.Visible = not InfoPanel.Visible
-    ToggleInfoButton.Text = InfoPanel.Visible and ">" or "<"
 end)
 
+-- Username Display
 local Username = Instance.new("TextLabel")
-Username.Size = UDim2.new(1, 0, 0, 20)
+Username.Size = UDim2.new(1, 0, 0, 30)
 Username.Position = UDim2.new(0, 0, 0, 5)
-Username.Text = "User:\nunknownhumanbeingfr"
+Username.Text = "User:\n" .. LocalPlayer.Name
 Username.TextWrapped = true
 Username.Font = Enum.Font.SourceSansBold
 Username.TextSize = 14
@@ -127,32 +256,69 @@ Username.TextColor3 = Color3.fromRGB(0, 255, 0)
 Username.BackgroundTransparency = 1
 Username.Parent = InfoPanel
 
+-- Avatar Image
 local Avatar = Instance.new("ImageLabel")
 Avatar.Size = UDim2.new(0, 80, 0, 80)
-Avatar.Position = UDim2.new(0.5, -40, 0, 30)
+Avatar.Position = UDim2.new(0.5, -40, 0, 40)
 Avatar.BackgroundTransparency = 1
-Avatar.Image = "rbxassetid://17174555482"
+Avatar.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. LocalPlayer.UserId .. "&width=420&height=420&format=png"
 Avatar.Parent = InfoPanel
 
+-- Live FPS Label
 local FPS = Instance.new("TextLabel")
 FPS.Size = UDim2.new(1, 0, 0, 20)
-FPS.Position = UDim2.new(0, 0, 0, 120)
-FPS.Text = "FPS: 44"
+FPS.Position = UDim2.new(0, 0, 0, 130)
+FPS.Text = "FPS: 0"
 FPS.Font = Enum.Font.SourceSansBold
 FPS.TextSize = 18
 FPS.TextColor3 = Color3.fromRGB(0, 255, 0)
 FPS.BackgroundTransparency = 1
 FPS.Parent = InfoPanel
 
+-- Live Ping Label
 local Ping = Instance.new("TextLabel")
 Ping.Size = UDim2.new(1, 0, 0, 20)
-Ping.Position = UDim2.new(0, 0, 0, 145)
-Ping.Text = "Ping: 93ms"
+Ping.Position = UDim2.new(0, 0, 0, 155)
+Ping.Text = "Ping: 0ms"
 Ping.Font = Enum.Font.SourceSansBold
 Ping.TextSize = 18
 Ping.TextColor3 = Color3.fromRGB(0, 255, 0)
 Ping.BackgroundTransparency = 1
 Ping.Parent = InfoPanel
+
+-- Tool Count (future expansion)
+local ToolCount = Instance.new("TextLabel")
+ToolCount.Size = UDim2.new(1, 0, 0, 20)
+ToolCount.Position = UDim2.new(0, 0, 0, 180)
+ToolCount.Text = "Tools: 0"
+ToolCount.Font = Enum.Font.SourceSansBold
+ToolCount.TextSize = 18
+ToolCount.TextColor3 = Color3.fromRGB(0, 255, 0)
+ToolCount.BackgroundTransparency = 1
+ToolCount.Parent = InfoPanel
+
+-- Live Updater
+RunService.RenderStepped:Connect(function()
+    -- FPS
+    local fps = math.floor(1 / RunService.RenderStepped:Wait())
+    FPS.Text = "FPS: " .. tostring(fps)
+
+    -- Ping
+    local ping = LocalPlayer:GetNetworkPing() or 0
+    Ping.Text = "Ping: " .. math.floor(ping * 1000) .. "ms"
+
+    -- Tool Count
+    local count = 0
+    if LocalPlayer.Character then
+        for _, tool in ipairs(LocalPlayer.Backpack:GetChildren()) do
+            if tool:IsA("Tool") then count += 1 end
+        end
+        for _, tool in ipairs(LocalPlayer.Character:GetChildren()) do
+            if tool:IsA("Tool") then count += 1 end
+        end
+    end
+    ToolCount.Text = "Tools: " .. count
+end)
 
 -- LoopBring Panel
 local LoopBringPanel = Instance.new("Frame")
@@ -205,6 +371,67 @@ end)
 MinusButton.MouseButton1Click:Connect(function()
     currentDistance = math.max(1, currentDistance - 1)
     DistanceLabel.Text = "Distance: " .. currentDistance
+end)
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
+
+local playerListFrame = Instance.new("Frame")
+playerListFrame.Size = UDim2.new(1, 0, 1, -60)
+playerListFrame.Position = UDim2.new(0, 0, 0, 40)
+playerListFrame.BackgroundTransparency = 1
+playerListFrame.Parent = LoopBringPanel
+
+local selectedPlayers = {}
+
+-- Create buttons for all players
+local function refreshPlayerButtons()
+    for _, child in pairs(playerListFrame:GetChildren()) do
+        if child:IsA("TextButton") then child:Destroy() end
+    end
+
+    local yOffset = 0
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            local button = Instance.new("TextButton")
+            button.Size = UDim2.new(1, 0, 0, 20)
+            button.Position = UDim2.new(0, 0, 0, yOffset)
+            button.BackgroundTransparency = 1
+            button.Text = player.Name
+            button.Font = Enum.Font.SourceSansBold
+            button.TextSize = 14
+            button.TextColor3 = Color3.fromRGB(0, 255, 0)
+            button.Parent = playerListFrame
+
+            button.MouseButton1Click:Connect(function()
+                if selectedPlayers[player] then
+                    selectedPlayers[player] = nil
+                    button.TextColor3 = Color3.fromRGB(0, 255, 0)
+                else
+                    selectedPlayers[player] = true
+                    button.TextColor3 = Color3.fromRGB(255, 0, 0)
+                end
+            end)
+
+            yOffset += 22
+        end
+    end
+end
+
+-- Refresh when players join/leave
+Players.PlayerAdded:Connect(refreshPlayerButtons)
+Players.PlayerRemoving:Connect(refreshPlayerButtons)
+refreshPlayerButtons()
+
+-- LoopBring logic
+RunService.Heartbeat:Connect(function()
+    for player, _ in pairs(selectedPlayers) do
+        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") and
+           LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            player.Character.HumanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, -currentDistance)
+        end
+    end
 end)
 
 LoopBringButton.MouseButton1Click:Connect(function()

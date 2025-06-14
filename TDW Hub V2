@@ -22,6 +22,7 @@ MainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 MainFrame.BorderColor3 = Color3.fromRGB(255, 0, 0)
 MainFrame.BorderSizePixel = 2
 MainFrame.Parent = ScreenGui
+MainFrame.Draggable = True
 
 -- LoopBring Button
 local LoopBringButton = Instance.new("TextButton")
@@ -434,22 +435,57 @@ LoopBringButton.MouseButton1Click:Connect(function()
     LoopBringPanel.Visible = not LoopBringPanel.Visible
 end)
 
+local UserInputService = game:GetService("UserInputService")
+
 local toggleButton = Instance.new("TextButton")
 toggleButton.Name = "HubToggle"
 toggleButton.Size = UDim2.new(0, 120, 0, 40)
-toggleButton.Position = UDim2.new(0, 20, 0, 20) -- top-left corner
+toggleButton.Position = UDim2.new(0, 20, 0, 20)
 toggleButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 toggleButton.Text = "Close Hub"
 toggleButton.Font = Enum.Font.GothamBold
 toggleButton.TextSize = 16
 toggleButton.BorderSizePixel = 0
-toggleButton.Active = true
-toggleButton.Draggable = true
+toggleButton.ZIndex = 9999
 toggleButton.Parent = ScreenGui
 
--- Toggle Function
+-- Mouse dragging logic
+local dragging = false
+local dragInput, dragStart, startPos
+
+toggleButton.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = toggleButton.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+toggleButton.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		local delta = input.Position - dragStart
+		toggleButton.Position = UDim2.new(
+			startPos.X.Scale, startPos.X.Offset + delta.X,
+			startPos.Y.Scale, startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+-- Toggle visibility of the main UI
 toggleButton.MouseButton1Click:Connect(function()
-    MainFrame.Visible = not MainFrame.Visible
-    toggleButton.Text = MainFrame.Visible and "Close Hub" or "Open Hub"
+	MainFrame.Visible = not MainFrame.Visible
+	toggleButton.Text = MainFrame.Visible and "Close Hub" or "Open Hub"
 end)

@@ -1,0 +1,104 @@
+-- Updated version with tab highlight and layout enhancements
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "TabGui"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0.75, 0, 0.75, 0)
+MainFrame.Position = UDim2.new(0.125, 0, 0.125, 0)
+MainFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+MainFrame.BorderColor3 = Color3.fromRGB(255, 0, 0)
+MainFrame.BorderSizePixel = 2
+MainFrame.Parent = ScreenGui
+
+local TabBar = Instance.new("Frame")
+TabBar.Size = UDim2.new(1, 0, 0, 30)
+TabBar.BackgroundColor3 = Color3.new(0, 0, 0)
+TabBar.BorderColor3 = Color3.fromRGB(255, 0, 0)
+TabBar.BorderSizePixel = 1
+TabBar.Parent = MainFrame
+
+local PagesFrame = Instance.new("Frame")
+PagesFrame.Position = UDim2.new(0, 0, 0, 30)
+PagesFrame.Size = UDim2.new(1, 0, 1, -30)
+PagesFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+PagesFrame.BorderColor3 = Color3.fromRGB(255, 0, 0)
+PagesFrame.BorderSizePixel = 1
+PagesFrame.Parent = MainFrame
+
+local pages = {}
+local tabButtons = {}
+
+local function createTab(name)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0, 80, 1, 0)
+    btn.BackgroundColor3 = Color3.new(0, 0, 0)
+    btn.BorderColor3 = Color3.fromRGB(0, 255, 0)
+    btn.TextColor3 = Color3.fromRGB(0, 255, 0)
+    btn.Text = name
+    btn.Font = Enum.Font.SourceSansBold
+    btn.TextSize = 16
+    btn.Parent = TabBar
+
+    table.insert(tabButtons, btn)
+
+    local page = Instance.new("ScrollingFrame")
+    page.Size = UDim2.new(1, 0, 1, 0)
+    page.BackgroundColor3 = Color3.new(0, 0, 0)
+    page.Visible = false
+    page.CanvasSize = UDim2.new(0, 0, 0, 0)
+    page.ScrollBarThickness = 6
+    page.Parent = PagesFrame
+
+    local layout = Instance.new("UIListLayout")
+    layout.Padding = UDim.new(0, 5)
+    layout.SortOrder = Enum.SortOrder.LayoutOrder
+    layout.Parent = page
+
+    pages[name] = page
+
+    btn.MouseButton1Click:Connect(function()
+        for k, v in pairs(pages) do
+            v.Visible = false
+        end
+        for _, b in pairs(tabButtons) do
+            b.BackgroundColor3 = Color3.new(0, 0, 0)
+        end
+        btn.BackgroundColor3 = Color3.fromRGB(0, 50, 0) -- highlight
+        page.Visible = true
+    end)
+end
+
+local function createScriptButton(text, scriptContent)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, -10, 0, 30)
+    btn.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+    btn.BorderColor3 = Color3.fromRGB(0, 255, 0)
+    btn.TextColor3 = Color3.fromRGB(0, 255, 0)
+    btn.Text = text
+    btn.Font = Enum.Font.SourceSans
+    btn.TextSize = 14
+
+    btn.MouseButton1Click:Connect(function()
+        loadstring(scriptContent)()
+    end)
+
+    return btn
+end
+
+-- Example usage
+createTab("Tips")
+createTab("Main")
+createTab("Misc")
+createTab("Hubs")
+
+-- Fill tabs
+pages["Tips"]:AddChild(createScriptButton("Tip Script", "print('Tip')"))
+pages["Main"]:AddChild(createScriptButton("Main Script", "print('Main')"))
+pages["Misc"]:AddChild(createScriptButton("Misc Script", "print('Misc')"))
+pages["Hubs"]:AddChild(createScriptButton("Hub Script", "print('Hub')"))
+
+-- Show first page by default
+pages["Tips"].Visible = true
+tabButtons[1].BackgroundColor3 = Color3.fromRGB(0, 50, 0)

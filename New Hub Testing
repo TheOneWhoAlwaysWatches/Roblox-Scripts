@@ -137,36 +137,36 @@ end
 
 -- Example data for each tab
 local mainButtons = {
-    { text = "GodMode", callback = function() print("GodMode Enabled") end },
-    { text = "KillAura", callback = function() print("KillAura Activated") end },
-    { text = "Fly", callback = function() print("Fly Mode") end },
-    { text = "Speed", callback = function() print("Speed Boost") end },
-    { text = "JumpBoost", callback = function() print("Jump Boost") end },
-    { text = "ESP", callback = function() print("ESP Toggle") end },
-    { text = "Invis", callback = function() print("Become Invisible") end },
-    { text = "TP", callback = function() print("Teleport") end },
-    { text = "Reset", callback = function() print("Reset Char") end },
-    { text = "AntiKick", callback = function() print("AntiKick") end },
+    { text = "Get Base V3", callback = function() print("GodMode Enabled") end },
+    { text = "Get Tools V3", callback = function() print("KillAura Activated") end },
+    { text = "Use Tools V4", callback = function() print("Fly Mode") end },
+    { text = "Insta-Kill", callback = function() print("Speed Boost") end },
+    { text = "Respawn V3", callback = function() print("Jump Boost") end },
+    { text = "Infinite Yeild", callback = function() print("ESP Toggle") end },
+    { text = "Anti-Lag", callback = function() print("Become Invisible") end },
+    { text = "God Mode", callback = function() print("Teleport") end },
+    { text = "Normal Aura", callback = function() print("Reset Char") end },
+    { text = "No Cooldown", callback = function() print("AntiKick") end },
 }
 
 local miscButtons = {
-    { text = "Rainbow", callback = function() print("Rainbow Mode") end },
-    { text = "Noclip", callback = function() print("Noclip Enabled") end },
-    { text = "Sit", callback = function() print("Sit") end },
+    { text = "Chat Spy", callback = function() print("Rainbow Mode") end },
+    { text = "Emote Gui", callback = function() print("Noclip Enabled") end },
+    { text = "Ragdoll Tools", callback = function() print("Sit") end },
 }
 
 local hubButtons = {
-    { text = "InfiniteYield", callback = function() print("Loaded IY") end },
-    { text = "DarkHub", callback = function() print("Loaded DarkHub") end },
-    { text = "Hydra", callback = function() print("Hydra Active") end },
-    { text = "AimbotHub", callback = function() print("Aimbot Ready") end },
+    { text = "CTLM Hub V1", callback = function() print("Loaded IY") end },
+    { text = "Destroyer Hub", callback = function() print("Hydra Active") end },
+    { text = "Acrylix", callback = function() print("Aimbot Ready") end },
 }
 
 local tips = {
-    "Use GodMode in safe zones.",
-    "Some hubs may crash on update.",
-    "Use Sit to glitch into small spaces.",
-    "DarkHub is best for FPS games.",
+    "Tip 1 --> Dont use God Mode if you have Respawn activated",
+    "Tip 2 --> Dont use No Cooldown with Insta Kill Aura",
+    "Tip 3 --> Dont use Insta Kill Aura with Normal Aura",
+    "Tip 4 --> Inf axe smash is inside Acrylix..",
+    "Tip 5 --> Dont trust random exploiters trying to give you scripts, they could be dangerous!!"
 }
 
 -- Creating and populating tabs
@@ -181,11 +181,6 @@ populateButtons(miscPage, miscButtons)
 
 local hubsPage = createTab("Hubs", "🌐", 350)
 populateButtons(hubsPage, hubButtons)
-
-local tipsPage = createTab("Tips", "🧠", 110)
-local mainPage = createTab("Main", "💀", 190)
-local miscPage = createTab("Misc", "🔧", 270)
-local hubsPage = createTab("Hubs", "🌐", 350)
 
 -- TDW Title
 local TDWFrame = Instance.new("Frame")

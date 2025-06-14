@@ -3,21 +3,188 @@ local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
--- Recreate Script Hub UI
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "ScriptHubUI"
-ScreenGui.ResetOnSpawn = false
-ScreenGui.Parent = game.CoreGui
+--// Main TDW Hub Frame
+local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+ScreenGui.Name = "TDWHub"
 
--- Main Frame
-local MainFrame = Instance.new("Frame")
-MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 800, 0, 400)
-MainFrame.Position = UDim2.new(0.5, -400, 0.5, -200)
-MainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.Size = UDim2.new(0, 650, 0, 400)
+MainFrame.Position = UDim2.new(0.5, -325, 0.5, -200)
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 MainFrame.BorderColor3 = Color3.fromRGB(255, 0, 0)
 MainFrame.BorderSizePixel = 2
-MainFrame.Parent = ScreenGui
+MainFrame.Visible = true
+MainFrame.Active = true
+MainFrame.Draggable = true
+
+local UICorner = Instance.new("UICorner", MainFrame)
+UICorner.CornerRadius = UDim.new(0, 10)
+
+--// Title
+local Title = Instance.new("TextLabel", MainFrame)
+Title.Text = "TDW Hub"
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.BackgroundTransparency = 1
+Title.TextColor3 = Color3.fromRGB(255, 0, 0)
+Title.TextSize = 24
+Title.Font = Enum.Font.SourceSansBold
+
+--// Tabs
+local Tabs = {}
+local tabScriptBoxes = {}
+
+local function createTab(name, order)
+	local tab = Instance.new("TextButton", MainFrame)
+	tab.Text = name
+	tab.Size = UDim2.new(0, 120, 0, 30)
+	tab.Position = UDim2.new(0, 10 + (order * 130), 0, 40)
+	tab.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	tab.TextColor3 = Color3.fromRGB(255, 0, 0)
+	tab.BorderColor3 = Color3.fromRGB(255, 0, 0)
+	tab.TextSize = 18
+	tab.Font = Enum.Font.SourceSansBold
+
+	local corner = Instance.new("UICorner", tab)
+	corner.CornerRadius = UDim.new(0, 6)
+
+	Tabs[name] = tab
+	return tab
+end
+
+--// Script Box Per Tab
+local function setupTabScriptBox(tabName)
+	local box = Instance.new("ScrollingFrame")
+	box.Name = tabName .. "ScriptBox"
+	box.Size = UDim2.new(0, 490, 0, 310)
+	box.Position = UDim2.new(0, 130, 0, 80)
+	box.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+	box.BorderColor3 = Color3.fromRGB(255, 0, 0)
+	box.BorderSizePixel = 2
+	box.CanvasSize = UDim2.new(0, 0, 0, 0)
+	box.ScrollBarThickness = 4
+	box.Visible = false
+	box.Parent = MainFrame
+
+	local layout = Instance.new("UIListLayout")
+	layout.Padding = UDim.new(0, 5)
+	layout.SortOrder = Enum.SortOrder.LayoutOrder
+	layout.Parent = box
+
+	tabScriptBoxes[tabName] = {
+		Frame = box,
+		Layout = layout
+	}
+end
+
+-- Show only one tab at a time
+local function showTab(tabName)
+	for name, data in pairs(tabScriptBoxes) do
+		data.Frame.Visible = (name == tabName)
+	end
+end
+
+-- Add tabs and setup script boxes
+local MainTab = createTab("Main", 0)
+local MiscTab = createTab("Misc", 1)
+local LoopBringTab = createTab("LoopBring", 2)
+local StatsTab = createTab("Stats", 3)
+
+setupTabScriptBox("Main")
+setupTabScriptBox("Misc")
+setupTabScriptBox("LoopBring")
+setupTabScriptBox("Stats")
+
+-- Tab Button Click Events
+MainTab.MouseButton1Click:Connect(function()
+	showTab("Main")
+end)
+MiscTab.MouseButton1Click:Connect(function()
+	showTab("Misc")
+end)
+LoopBringTab.MouseButton1Click:Connect(function()
+	showTab("LoopBring")
+end)
+StatsTab.MouseButton1Click:Connect(function()
+	showTab("Stats")
+end)
+
+-- Default Tab
+showTab("Main")
+
+-- Script Button Creator
+local function createScriptButton(tabName, label, func)
+	local container = tabScriptBoxes[tabName]
+	if not container then
+		warn("Tab not found:", tabName)
+		return
+	end
+
+	local btn = Instance.new("TextButton")
+	btn.Size = UDim2.new(1, -10, 0, 30)
+	btn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	btn.BorderColor3 = Color3.fromRGB(255, 0, 0)
+	btn.Text = label
+	btn.Font = Enum.Font.SourceSansBold
+	btn.TextSize = 16
+	btn.TextColor3 = Color3.fromRGB(0, 255, 0)
+	btn.Parent = container.Frame
+
+	btn.MouseButton1Click:Connect(function()
+		pcall(func)
+	end)
+
+	btn.MouseEnter:Connect(function()
+		btn.TextColor3 = Color3.fromRGB(255, 0, 0)
+	end)
+	btn.MouseLeave:Connect(function()
+		btn.TextColor3 = Color3.fromRGB(0, 255, 0)
+	end)
+
+	container.Frame.CanvasSize = UDim2.new(0, 0, 0, container.Layout.AbsoluteContentSize.Y + 10)
+end
+
+--// === Example Script Buttons by Tab ===
+
+-- Main Scripts
+createScriptButton("Main", "Infinite Yield", function()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
+end)
+
+createScriptButton("Main", "Dark Dex", function()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/peyton2465/Dex/master/out.lua"))()
+end)
+
+-- Misc Scripts
+createScriptButton("Misc", "Simple Fly", function()
+	loadstring(game:HttpGet("https://pastebin.com/raw/6cr7WhZp"))()
+end)
+
+createScriptButton("Misc", "Chat Bypass", function()
+	print("Bypassed chat filter.")
+end)
+
+-- LoopBring Features
+createScriptButton("LoopBring", "Bring Nearest", function()
+	print("Loop bringing nearest player.")
+end)
+
+createScriptButton("LoopBring", "Set Bring Distance", function()
+	print("Bring distance set to 10 studs.")
+end)
+
+-- Stats / Utility
+createScriptButton("Stats", "FPS Booster", function()
+	print("FPS Boosted.")
+end)
+
+createScriptButton("Stats", "Anti AFK", function()
+	local vu = game:GetService("VirtualUser")
+	game:GetService("Players").LocalPlayer.Idled:Connect(function()
+		vu:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+		wait(1)
+		vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+	end)
+end)
 
 -- LoopBring Button
 local LoopBringButton = Instance.new("TextButton")

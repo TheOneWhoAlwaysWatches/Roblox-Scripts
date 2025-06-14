@@ -453,6 +453,6 @@ toggleButton.Parent = game:GetService("CoreGui") -- Don't parent it to MainUI
 
 -- Set up toggle behavior
 toggleButton.MouseButton1Click:Connect(function()
-    MainUI.Visible = not MainUI.Visible
-    toggleButton.Text = MainUI.Visible and "Close Hub" or "Open Hub"
+    MainFrame.Visible = not MainFrame.Visible
+    toggleButton.Text = MainFrame.Visible and "Close Hub" or "Open Hub"
 end)

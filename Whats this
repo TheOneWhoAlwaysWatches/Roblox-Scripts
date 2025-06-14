@@ -1,104 +1,346 @@
--- Updated version with tab highlight and layout enhancements
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "TabGui"
-ScreenGui.ResetOnSpawn = false
-ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+-- Services
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
 
+local tabs = {}          -- Stores tab buttons
+local tabPages = {}      -- Stores tab content frames
+local currentTab = nil   -- Tracks the currently active tab
+
+-- Recreate Script Hub UI
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "ScriptHubUI"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = game.CoreGui
+
+-- Main Frame
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0.75, 0, 0.75, 0)
-MainFrame.Position = UDim2.new(0.125, 0, 0.125, 0)
-MainFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 800, 0, 400)
+MainFrame.Position = UDim2.new(0.5, -400, 0.5, -200)
+MainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 MainFrame.BorderColor3 = Color3.fromRGB(255, 0, 0)
 MainFrame.BorderSizePixel = 2
 MainFrame.Parent = ScreenGui
 
-local TabBar = Instance.new("Frame")
-TabBar.Size = UDim2.new(1, 0, 0, 30)
-TabBar.BackgroundColor3 = Color3.new(0, 0, 0)
-TabBar.BorderColor3 = Color3.fromRGB(255, 0, 0)
-TabBar.BorderSizePixel = 1
-TabBar.Parent = MainFrame
+-- LoopBring Button
+local LoopBringButton = Instance.new("TextButton")
+LoopBringButton.Size = UDim2.new(0, 100, 0, 25)
+LoopBringButton.Position = UDim2.new(0, 0, 0, 0)
+LoopBringButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+LoopBringButton.BorderColor3 = Color3.fromRGB(255, 0, 0)
+LoopBringButton.Text = "[LoopBring]"
+LoopBringButton.Font = Enum.Font.SourceSansBold
+LoopBringButton.TextSize = 14
+LoopBringButton.TextColor3 = Color3.fromRGB(255, 0, 0)
+LoopBringButton.Parent = MainFrame
 
-local PagesFrame = Instance.new("Frame")
-PagesFrame.Position = UDim2.new(0, 0, 0, 30)
-PagesFrame.Size = UDim2.new(1, 0, 1, -30)
-PagesFrame.BackgroundColor3 = Color3.new(0, 0, 0)
-PagesFrame.BorderColor3 = Color3.fromRGB(255, 0, 0)
-PagesFrame.BorderSizePixel = 1
-PagesFrame.Parent = MainFrame
+-- Divider under LoopBring and Tabs
+local TopDivider = Instance.new("Frame")
+TopDivider.Size = UDim2.new(1, 0, 0, 1)
+TopDivider.Position = UDim2.new(0, 0, 0, 26)
+TopDivider.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+TopDivider.BorderSizePixel = 0
+TopDivider.Parent = MainFrame
 
-local pages = {}
-local tabButtons = {}
+-- Left Divider Line for LoopBring
+local LeftDivider = Instance.new("Frame")
+LeftDivider.Size = UDim2.new(0, 2, 1, -26)
+LeftDivider.Position = UDim2.new(0, 100, 0, 26)
+LeftDivider.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+LeftDivider.BorderSizePixel = 0
+LeftDivider.Parent = MainFrame
 
-local function createTab(name)
+local function createTab(name, icon, position)
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0, 80, 1, 0)
-    btn.BackgroundColor3 = Color3.new(0, 0, 0)
-    btn.BorderColor3 = Color3.fromRGB(0, 255, 0)
-    btn.TextColor3 = Color3.fromRGB(0, 255, 0)
-    btn.Text = name
+    btn.Size = UDim2.new(0, 80, 0, 25)
+    btn.Position = UDim2.new(0, position, 0, 0)
+    btn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    btn.BorderSizePixel = 0
+    btn.Text = icon .. " " .. name
     btn.Font = Enum.Font.SourceSansBold
-    btn.TextSize = 16
-    btn.Parent = TabBar
-
-    table.insert(tabButtons, btn)
-
-    local page = Instance.new("ScrollingFrame")
-    page.Size = UDim2.new(1, 0, 1, 0)
-    page.BackgroundColor3 = Color3.new(0, 0, 0)
-    page.Visible = false
-    page.CanvasSize = UDim2.new(0, 0, 0, 0)
-    page.ScrollBarThickness = 6
-    page.Parent = PagesFrame
-
-    local layout = Instance.new("UIListLayout")
-    layout.Padding = UDim.new(0, 5)
-    layout.SortOrder = Enum.SortOrder.LayoutOrder
-    layout.Parent = page
-
-    pages[name] = page
-
-    btn.MouseButton1Click:Connect(function()
-        for k, v in pairs(pages) do
-            v.Visible = false
-        end
-        for _, b in pairs(tabButtons) do
-            b.BackgroundColor3 = Color3.new(0, 0, 0)
-        end
-        btn.BackgroundColor3 = Color3.fromRGB(0, 50, 0) -- highlight
-        page.Visible = true
-    end)
-end
-
-local function createScriptButton(text, scriptContent)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -10, 0, 30)
-    btn.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
-    btn.BorderColor3 = Color3.fromRGB(0, 255, 0)
+    btn.TextSize = 18
     btn.TextColor3 = Color3.fromRGB(0, 255, 0)
-    btn.Text = text
-    btn.Font = Enum.Font.SourceSans
-    btn.TextSize = 14
+    btn.Parent = MainFrame
 
+    -- Content frame for this tab
+    local page = Instance.new("Frame")
+    page.Name = name .. "Page"
+    page.Size = UDim2.new(1, -280, 1, -26)
+    page.Position = UDim2.new(0, 100, 0, 26)
+    page.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    page.BorderColor3 = Color3.fromRGB(255, 0, 0)
+    page.BorderSizePixel = 2
+    page.Visible = false
+    page.Parent = MainFrame
+
+    -- Store for switching logic
+    tabs[name] = btn
+    tabPages[name] = page
+
+    -- Divider line
+    local divider = Instance.new("Frame")
+    divider.Size = UDim2.new(0, 1, 1, 0)
+    divider.Position = UDim2.new(1, 0, 0, 0)
+    divider.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    divider.BorderSizePixel = 0
+    divider.Parent = btn
+
+    -- Tab click logic
     btn.MouseButton1Click:Connect(function()
-        loadstring(scriptContent)()
+        -- Hide current tab
+        if currentTab and tabPages[currentTab] then
+            tabPages[currentTab].Visible = false
+        end
+        -- Show new tab
+        currentTab = name
+        tabPages[name].Visible = true
     end)
 
-    return btn
+    return page
 end
 
--- Example usage
-createTab("Tips")
-createTab("Main")
-createTab("Misc")
-createTab("Hubs")
+local tipsPage = createTab("Tips", "🧠", 110)
+local mainPage = createTab("Main", "💀", 190)
+local miscPage = createTab("Misc", "🔧", 270)
+local hubsPage = createTab("Hubs", "🌐", 350)
 
--- Fill tabs
-pages["Tips"]:AddChild(createScriptButton("Tip Script", "print('Tip')"))
-pages["Main"]:AddChild(createScriptButton("Main Script", "print('Main')"))
-pages["Misc"]:AddChild(createScriptButton("Misc Script", "print('Misc')"))
-pages["Hubs"]:AddChild(createScriptButton("Hub Script", "print('Hub')"))
+-- TDW Title
+local TDWFrame = Instance.new("Frame")
+TDWFrame.Size = UDim2.new(0, 30, 1, -26)
+TDWFrame.Position = UDim2.new(0, 35, 0, 26) -- Adjusted position (moved right)
+TDWFrame.BackgroundTransparency = 1
+TDWFrame.Parent = MainFrame
 
--- Show first page by default
-pages["Tips"].Visible = true
-tabButtons[1].BackgroundColor3 = Color3.fromRGB(0, 50, 0)
+local sideLabels = {"T", "D", "W"}
+for i, letter in ipairs(sideLabels) do
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(0, 30, 0, 50)
+    label.Position = UDim2.new(0, 0, 0, (i - 1) * 100 + 30)
+    label.Text = letter
+    label.Font = Enum.Font.SourceSansBold
+    label.TextSize = 30
+    label.TextColor3 = Color3.fromRGB(255, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Parent = TDWFrame
+end
+
+-- Right Side Info Panel
+local InfoPanel = Instance.new("Frame")
+InfoPanel.Size = UDim2.new(0, 180, 1, 0)
+InfoPanel.Position = UDim2.new(1, 0, 0, 0)
+InfoPanel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+InfoPanel.BorderColor3 = Color3.fromRGB(255, 0, 0)
+InfoPanel.BorderSizePixel = 2
+InfoPanel.Visible = true
+InfoPanel.Parent = MainFrame
+
+-- Toggle InfoPanel button (now labeled "Stats")
+local ToggleInfoButton = Instance.new("TextButton")
+ToggleInfoButton.Size = UDim2.new(0, 50, 0, 20)
+ToggleInfoButton.Position = UDim2.new(1, -50, 0, 0)
+ToggleInfoButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+ToggleInfoButton.BorderColor3 = Color3.fromRGB(255, 0, 0)
+ToggleInfoButton.Text = "Stats"
+ToggleInfoButton.Font = Enum.Font.SourceSansBold
+ToggleInfoButton.TextSize = 14
+ToggleInfoButton.TextColor3 = Color3.fromRGB(255, 0, 0)
+ToggleInfoButton.Parent = MainFrame
+
+ToggleInfoButton.MouseButton1Click:Connect(function()
+    InfoPanel.Visible = not InfoPanel.Visible
+end)
+
+-- Username Display
+local Username = Instance.new("TextLabel")
+Username.Size = UDim2.new(1, 0, 0, 30)
+Username.Position = UDim2.new(0, 0, 0, 5)
+Username.Text = "User:\n" .. LocalPlayer.Name
+Username.TextWrapped = true
+Username.Font = Enum.Font.SourceSansBold
+Username.TextSize = 14
+Username.TextColor3 = Color3.fromRGB(0, 255, 0)
+Username.BackgroundTransparency = 1
+Username.Parent = InfoPanel
+
+-- Avatar Image
+local Avatar = Instance.new("ImageLabel")
+Avatar.Size = UDim2.new(0, 80, 0, 80)
+Avatar.Position = UDim2.new(0.5, -40, 0, 40)
+Avatar.BackgroundTransparency = 1
+Avatar.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. LocalPlayer.UserId .. "&width=420&height=420&format=png"
+Avatar.Parent = InfoPanel
+
+-- Live FPS Label
+local FPS = Instance.new("TextLabel")
+FPS.Size = UDim2.new(1, 0, 0, 20)
+FPS.Position = UDim2.new(0, 0, 0, 130)
+FPS.Text = "FPS: 0"
+FPS.Font = Enum.Font.SourceSansBold
+FPS.TextSize = 18
+FPS.TextColor3 = Color3.fromRGB(0, 255, 0)
+FPS.BackgroundTransparency = 1
+FPS.Parent = InfoPanel
+
+-- Live Ping Label
+local Ping = Instance.new("TextLabel")
+Ping.Size = UDim2.new(1, 0, 0, 20)
+Ping.Position = UDim2.new(0, 0, 0, 155)
+Ping.Text = "Ping: 0ms"
+Ping.Font = Enum.Font.SourceSansBold
+Ping.TextSize = 18
+Ping.TextColor3 = Color3.fromRGB(0, 255, 0)
+Ping.BackgroundTransparency = 1
+Ping.Parent = InfoPanel
+
+-- Tool Count (future expansion)
+local ToolCount = Instance.new("TextLabel")
+ToolCount.Size = UDim2.new(1, 0, 0, 20)
+ToolCount.Position = UDim2.new(0, 0, 0, 180)
+ToolCount.Text = "Tools: 0"
+ToolCount.Font = Enum.Font.SourceSansBold
+ToolCount.TextSize = 18
+ToolCount.TextColor3 = Color3.fromRGB(0, 255, 0)
+ToolCount.BackgroundTransparency = 1
+ToolCount.Parent = InfoPanel
+
+-- Live Updater
+RunService.RenderStepped:Connect(function()
+    -- FPS
+    local fps = math.floor(1 / RunService.RenderStepped:Wait())
+    FPS.Text = "FPS: " .. tostring(fps)
+
+    -- Ping
+    local ping = LocalPlayer:GetNetworkPing() or 0
+    Ping.Text = "Ping: " .. math.floor(ping * 1000) .. "ms"
+
+    -- Tool Count
+    local count = 0
+    if LocalPlayer.Character then
+        for _, tool in ipairs(LocalPlayer.Backpack:GetChildren()) do
+            if tool:IsA("Tool") then count += 1 end
+        end
+        for _, tool in ipairs(LocalPlayer.Character:GetChildren()) do
+            if tool:IsA("Tool") then count += 1 end
+        end
+    end
+    ToolCount.Text = "Tools: " .. count
+end)
+
+-- LoopBring Panel
+local LoopBringPanel = Instance.new("Frame")
+LoopBringPanel.Size = UDim2.new(0, 200, 1, -26)
+LoopBringPanel.Position = UDim2.new(0, -200, 0, 26)
+LoopBringPanel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+LoopBringPanel.BorderColor3 = Color3.fromRGB(255, 0, 0)
+LoopBringPanel.BorderSizePixel = 2
+LoopBringPanel.Visible = false
+LoopBringPanel.Parent = MainFrame
+
+-- Distance Manager
+local DistanceLabel = Instance.new("TextLabel")
+DistanceLabel.Size = UDim2.new(1, 0, 0, 30)
+DistanceLabel.Position = UDim2.new(0, 0, 0, 0)
+DistanceLabel.Text = "Distance: 5"
+DistanceLabel.Font = Enum.Font.SourceSansBold
+DistanceLabel.TextSize = 16
+DistanceLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+DistanceLabel.BackgroundTransparency = 1
+DistanceLabel.Parent = LoopBringPanel
+
+local PlusButton = Instance.new("TextButton")
+PlusButton.Size = UDim2.new(0, 30, 0, 30)
+PlusButton.Position = UDim2.new(1, -60, 0, 0)
+PlusButton.Text = "+"
+PlusButton.Font = Enum.Font.SourceSansBold
+PlusButton.TextSize = 18
+PlusButton.TextColor3 = Color3.fromRGB(0, 255, 0)
+PlusButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+PlusButton.BorderColor3 = Color3.fromRGB(255, 0, 0)
+PlusButton.Parent = LoopBringPanel
+
+local MinusButton = Instance.new("TextButton")
+MinusButton.Size = UDim2.new(0, 30, 0, 30)
+MinusButton.Position = UDim2.new(1, -30, 0, 0)
+MinusButton.Text = "-"
+MinusButton.Font = Enum.Font.SourceSansBold
+MinusButton.TextSize = 18
+MinusButton.TextColor3 = Color3.fromRGB(0, 255, 0)
+MinusButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+MinusButton.BorderColor3 = Color3.fromRGB(255, 0, 0)
+MinusButton.Parent = LoopBringPanel
+
+local currentDistance = 5
+PlusButton.MouseButton1Click:Connect(function()
+    currentDistance += 1
+    DistanceLabel.Text = "Distance: " .. currentDistance
+end)
+MinusButton.MouseButton1Click:Connect(function()
+    currentDistance = math.max(1, currentDistance - 1)
+    DistanceLabel.Text = "Distance: " .. currentDistance
+end)
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
+
+local playerListFrame = Instance.new("Frame")
+playerListFrame.Size = UDim2.new(1, 0, 1, -60)
+playerListFrame.Position = UDim2.new(0, 0, 0, 40)
+playerListFrame.BackgroundTransparency = 1
+playerListFrame.Parent = LoopBringPanel
+
+local selectedPlayers = {}
+
+-- Create buttons for all players
+local function refreshPlayerButtons()
+    for _, child in pairs(playerListFrame:GetChildren()) do
+        if child:IsA("TextButton") then child:Destroy() end
+    end
+
+    local yOffset = 0
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            local button = Instance.new("TextButton")
+            button.Size = UDim2.new(1, 0, 0, 20)
+            button.Position = UDim2.new(0, 0, 0, yOffset)
+            button.BackgroundTransparency = 1
+            button.Text = player.Name
+            button.Font = Enum.Font.SourceSansBold
+            button.TextSize = 14
+            button.TextColor3 = Color3.fromRGB(0, 255, 0)
+            button.Parent = playerListFrame
+
+            button.MouseButton1Click:Connect(function()
+                if selectedPlayers[player] then
+                    selectedPlayers[player] = nil
+                    button.TextColor3 = Color3.fromRGB(0, 255, 0)
+                else
+                    selectedPlayers[player] = true
+                    button.TextColor3 = Color3.fromRGB(255, 0, 0)
+                end
+            end)
+
+            yOffset += 22
+        end
+    end
+end
+
+-- Refresh when players join/leave
+Players.PlayerAdded:Connect(refreshPlayerButtons)
+Players.PlayerRemoving:Connect(refreshPlayerButtons)
+refreshPlayerButtons()
+
+-- LoopBring logic
+RunService.Heartbeat:Connect(function()
+    for player, _ in pairs(selectedPlayers) do
+        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") and
+           LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            player.Character.HumanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, -currentDistance)
+        end
+    end
+end)
+
+LoopBringButton.MouseButton1Click:Connect(function()
+    LoopBringPanel.Visible = not LoopBringPanel.Visible
+end)

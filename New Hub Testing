@@ -16,7 +16,7 @@ ScreenGui.Parent = game.CoreGui
 -- Main Frame
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 750, 0, 400)
+MainFrame.Size = UDim2.new(0, 800, 0, 400)
 MainFrame.Position = UDim2.new(0.5, -400, 0.5, -200)
 MainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 MainFrame.BorderColor3 = Color3.fromRGB(255, 0, 0)
@@ -51,6 +51,47 @@ LeftDivider.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 LeftDivider.BorderSizePixel = 0
 LeftDivider.Parent = MainFrame
 
+-- Function to create buttons dynamically within a tab page
+local function populateButtons(tabFrame, buttonSpecs)
+    local columns = 4
+    local spacingX, spacingY = 100, 40
+    local startX, startY = 10, 10
+
+    for i, spec in ipairs(buttonSpecs) do
+        local button = Instance.new("TextButton")
+        button.Size = UDim2.new(0, 90, 0, 30)
+        local row = math.floor((i - 1) / columns)
+        local col = (i - 1) % columns
+        button.Position = UDim2.new(0, startX + col * spacingX, 0, startY + row * spacingY)
+        button.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+        button.BorderColor3 = Color3.fromRGB(255, 0, 0)
+        button.Text = spec.text
+        button.Font = Enum.Font.SourceSansBold
+        button.TextSize = 14
+        button.TextColor3 = Color3.fromRGB(0, 255, 0)
+        button.Parent = tabFrame
+
+        button.MouseButton1Click:Connect(spec.callback)
+    end
+end
+
+-- Function to create tip labels
+local function populateTips(tabFrame, tips)
+    for i, text in ipairs(tips) do
+        local label = Instance.new("TextLabel")
+        label.Size = UDim2.new(1, -20, 0, 30)
+        label.Position = UDim2.new(0, 10, 0, (i - 1) * 35 + 10)
+        label.BackgroundTransparency = 1
+        label.Text = "Tip: " .. text
+        label.Font = Enum.Font.SourceSansBold
+        label.TextSize = 14
+        label.TextColor3 = Color3.fromRGB(0, 255, 0)
+        label.TextXAlignment = Enum.TextXAlignment.Left
+        label.Parent = tabFrame
+    end
+end
+
+-- Create tab logic and populate later
 local function createTab(name, icon, position)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(0, 80, 0, 25)
@@ -63,10 +104,9 @@ local function createTab(name, icon, position)
     btn.TextColor3 = Color3.fromRGB(0, 255, 0)
     btn.Parent = MainFrame
 
-    -- Tab content frame (adjusted)
     local page = Instance.new("Frame")
     page.Name = name .. "Page"
-    page.Size = UDim2.new(1, -240, 1, -26)
+    page.Size = UDim2.new(1, -220, 1, -26)
     page.Position = UDim2.new(0, 150, 0, 26)
     page.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
     page.BorderColor3 = Color3.fromRGB(255, 0, 0)
@@ -74,12 +114,9 @@ local function createTab(name, icon, position)
     page.Visible = false
     page.Parent = MainFrame
 
-
-    -- Store for switching logic
     tabs[name] = btn
     tabPages[name] = page
 
-    -- Divider line
     local divider = Instance.new("Frame")
     divider.Size = UDim2.new(0, 1, 1, 0)
     divider.Position = UDim2.new(1, 0, 0, 0)
@@ -87,19 +124,63 @@ local function createTab(name, icon, position)
     divider.BorderSizePixel = 0
     divider.Parent = btn
 
-    -- Tab click logic
     btn.MouseButton1Click:Connect(function()
-        -- Hide current tab
         if currentTab and tabPages[currentTab] then
             tabPages[currentTab].Visible = false
         end
-        -- Show new tab
         currentTab = name
         tabPages[name].Visible = true
     end)
 
     return page
 end
+
+-- Example data for each tab
+local mainButtons = {
+    { text = "GodMode", callback = function() print("GodMode Enabled") end },
+    { text = "KillAura", callback = function() print("KillAura Activated") end },
+    { text = "Fly", callback = function() print("Fly Mode") end },
+    { text = "Speed", callback = function() print("Speed Boost") end },
+    { text = "JumpBoost", callback = function() print("Jump Boost") end },
+    { text = "ESP", callback = function() print("ESP Toggle") end },
+    { text = "Invis", callback = function() print("Become Invisible") end },
+    { text = "TP", callback = function() print("Teleport") end },
+    { text = "Reset", callback = function() print("Reset Char") end },
+    { text = "AntiKick", callback = function() print("AntiKick") end },
+}
+
+local miscButtons = {
+    { text = "Rainbow", callback = function() print("Rainbow Mode") end },
+    { text = "Noclip", callback = function() print("Noclip Enabled") end },
+    { text = "Sit", callback = function() print("Sit") end },
+}
+
+local hubButtons = {
+    { text = "InfiniteYield", callback = function() print("Loaded IY") end },
+    { text = "DarkHub", callback = function() print("Loaded DarkHub") end },
+    { text = "Hydra", callback = function() print("Hydra Active") end },
+    { text = "AimbotHub", callback = function() print("Aimbot Ready") end },
+}
+
+local tips = {
+    "Use GodMode in safe zones.",
+    "Some hubs may crash on update.",
+    "Use Sit to glitch into small spaces.",
+    "DarkHub is best for FPS games.",
+}
+
+-- Creating and populating tabs
+local tipsPage = createTab("Tips", "🧠", 110)
+populateTips(tipsPage, tips)
+
+local mainPage = createTab("Main", "💀", 190)
+populateButtons(mainPage, mainButtons)
+
+local miscPage = createTab("Misc", "🔧", 270)
+populateButtons(miscPage, miscButtons)
+
+local hubsPage = createTab("Hubs", "🌐", 350)
+populateButtons(hubsPage, hubButtons)
 
 local tipsPage = createTab("Tips", "🧠", 110)
 local mainPage = createTab("Main", "💀", 190)

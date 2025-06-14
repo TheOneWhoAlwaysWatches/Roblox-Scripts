@@ -1,5 +1,3 @@
--- TDW Hub V2 FINAL PROJECT
-
 -- Services
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
@@ -24,7 +22,6 @@ MainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 MainFrame.BorderColor3 = Color3.fromRGB(255, 0, 0)
 MainFrame.BorderSizePixel = 2
 MainFrame.Parent = ScreenGui
-MainFrame.Draggable = True
 
 -- LoopBring Button
 local LoopBringButton = Instance.new("TextButton")
@@ -443,16 +440,18 @@ local toggleButton = Instance.new("TextButton")
 toggleButton.Name = "HubToggle"
 toggleButton.Size = UDim2.new(0, 120, 0, 40)
 toggleButton.Position = UDim2.new(0, 20, 0, 20)
-toggleButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)          -- black
+toggleButton.BorderColor3 = Color3.fromRGB(255, 0, 0)            -- red border
+toggleButton.BorderSizePixel = 2
+toggleButton.TextColor3 = Color3.fromRGB(0, 255, 0)              -- green text
 toggleButton.Text = "Close Hub"
-toggleButton.Font = Enum.Font.GothamBold
+toggleButton.Font = Enum.Font.SourceSansBold
 toggleButton.TextSize = 16
-toggleButton.BorderSizePixel = 0
 toggleButton.ZIndex = 9999
 toggleButton.Parent = ScreenGui
+toggleButton.Active = true
 
--- Mouse dragging logic
+-- Mouse dragging
 local dragging = false
 local dragInput, dragStart, startPos
 
@@ -486,7 +485,7 @@ UserInputService.InputChanged:Connect(function(input)
 	end
 end)
 
--- Toggle visibility of the main UI
+-- Toggle logic
 toggleButton.MouseButton1Click:Connect(function()
 	MainFrame.Visible = not MainFrame.Visible
 	toggleButton.Text = MainFrame.Visible and "Close Hub" or "Open Hub"

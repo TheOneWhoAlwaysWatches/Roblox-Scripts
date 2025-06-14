@@ -434,20 +434,20 @@ LoopBringButton.MouseButton1Click:Connect(function()
     LoopBringPanel.Visible = not LoopBringPanel.Visible
 end)
 
--- Toggle Button (Draggable and Updates Text)
 local toggleButton = Instance.new("TextButton")
+toggleButton.Name = "HubToggle"
 toggleButton.Size = UDim2.new(0, 120, 0, 40)
-toggleButton.Position = UDim2.new(0, 20, 0, 20)
-toggleButton.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-toggleButton.TextColor3 = Color3.new(1, 1, 1)
-toggleButton.TextSize = 16
-toggleButton.Font = Enum.Font.GothamBold
+toggleButton.Position = UDim2.new(0, 20, 0, 20) -- top-left corner
+toggleButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 toggleButton.Text = "Close Hub"
+toggleButton.Font = Enum.Font.GothamBold
+toggleButton.TextSize = 16
+toggleButton.BorderSizePixel = 0
 toggleButton.Active = true
 toggleButton.Draggable = true
-toggleButton.Parent = game:GetService("CoreGui") -- Don't parent it to MainUI
-
--- Set up toggle behavior
+toggleButton.Parent = game:GetService("CoreGui") -- VERY IMPORTANT
+-- Toggle Function
 toggleButton.MouseButton1Click:Connect(function()
     MainFrame.Visible = not MainFrame.Visible
     toggleButton.Text = MainFrame.Visible and "Close Hub" or "Open Hub"

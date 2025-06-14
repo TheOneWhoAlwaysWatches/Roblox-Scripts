@@ -47,6 +47,11 @@ MainFrame.BorderColor3 = Color3.fromRGB(255, 0, 0)
 MainFrame.BorderSizePixel = 2
 MainFrame.Parent = ScreenGui
 
+-- Add scaling for mobile
+local uiScale = Instance.new("UIScale")
+uiScale.Scale = 1
+uiScale.Parent = MainFrame
+
 -- LoopBring Button
 local LoopBringButton = Instance.new("TextButton")
 LoopBringButton.Size = UDim2.new(0, 100, 0, 25)

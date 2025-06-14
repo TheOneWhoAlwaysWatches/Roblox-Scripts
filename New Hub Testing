@@ -1,3 +1,8 @@
+-- Services
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
 -- Recreate Script Hub UI
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "ScriptHubUI"
@@ -99,13 +104,13 @@ InfoPanel.BorderSizePixel = 2
 InfoPanel.Visible = true
 InfoPanel.Parent = MainFrame
 
--- Toggle InfoPanel button
+-- Toggle InfoPanel button (now labeled "Stats")
 local ToggleInfoButton = Instance.new("TextButton")
-ToggleInfoButton.Size = UDim2.new(0, 20, 0, 20)
-ToggleInfoButton.Position = UDim2.new(1, -20, 0, 0)
+ToggleInfoButton.Size = UDim2.new(0, 50, 0, 20)
+ToggleInfoButton.Position = UDim2.new(1, -50, 0, 0)
 ToggleInfoButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 ToggleInfoButton.BorderColor3 = Color3.fromRGB(255, 0, 0)
-ToggleInfoButton.Text = ">"
+ToggleInfoButton.Text = "Stats"
 ToggleInfoButton.Font = Enum.Font.SourceSansBold
 ToggleInfoButton.TextSize = 14
 ToggleInfoButton.TextColor3 = Color3.fromRGB(255, 0, 0)
@@ -113,13 +118,13 @@ ToggleInfoButton.Parent = MainFrame
 
 ToggleInfoButton.MouseButton1Click:Connect(function()
     InfoPanel.Visible = not InfoPanel.Visible
-    ToggleInfoButton.Text = InfoPanel.Visible and ">" or "<"
 end)
 
+-- Username Display
 local Username = Instance.new("TextLabel")
-Username.Size = UDim2.new(1, 0, 0, 20)
+Username.Size = UDim2.new(1, 0, 0, 30)
 Username.Position = UDim2.new(0, 0, 0, 5)
-Username.Text = "User:\nunknownhumanbeingfr"
+Username.Text = "User:\n" .. LocalPlayer.Name
 Username.TextWrapped = true
 Username.Font = Enum.Font.SourceSansBold
 Username.TextSize = 14
@@ -127,32 +132,69 @@ Username.TextColor3 = Color3.fromRGB(0, 255, 0)
 Username.BackgroundTransparency = 1
 Username.Parent = InfoPanel
 
+-- Avatar Image
 local Avatar = Instance.new("ImageLabel")
 Avatar.Size = UDim2.new(0, 80, 0, 80)
-Avatar.Position = UDim2.new(0.5, -40, 0, 30)
+Avatar.Position = UDim2.new(0.5, -40, 0, 40)
 Avatar.BackgroundTransparency = 1
-Avatar.Image = "rbxassetid://17174555482"
+Avatar.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. LocalPlayer.UserId .. "&width=420&height=420&format=png"
 Avatar.Parent = InfoPanel
 
+-- Live FPS Label
 local FPS = Instance.new("TextLabel")
 FPS.Size = UDim2.new(1, 0, 0, 20)
-FPS.Position = UDim2.new(0, 0, 0, 120)
-FPS.Text = "FPS: 44"
+FPS.Position = UDim2.new(0, 0, 0, 130)
+FPS.Text = "FPS: 0"
 FPS.Font = Enum.Font.SourceSansBold
 FPS.TextSize = 18
 FPS.TextColor3 = Color3.fromRGB(0, 255, 0)
 FPS.BackgroundTransparency = 1
 FPS.Parent = InfoPanel
 
+-- Live Ping Label
 local Ping = Instance.new("TextLabel")
 Ping.Size = UDim2.new(1, 0, 0, 20)
-Ping.Position = UDim2.new(0, 0, 0, 145)
-Ping.Text = "Ping: 93ms"
+Ping.Position = UDim2.new(0, 0, 0, 155)
+Ping.Text = "Ping: 0ms"
 Ping.Font = Enum.Font.SourceSansBold
 Ping.TextSize = 18
 Ping.TextColor3 = Color3.fromRGB(0, 255, 0)
 Ping.BackgroundTransparency = 1
 Ping.Parent = InfoPanel
+
+-- Tool Count (future expansion)
+local ToolCount = Instance.new("TextLabel")
+ToolCount.Size = UDim2.new(1, 0, 0, 20)
+ToolCount.Position = UDim2.new(0, 0, 0, 180)
+ToolCount.Text = "Tools: 0"
+ToolCount.Font = Enum.Font.SourceSansBold
+ToolCount.TextSize = 18
+ToolCount.TextColor3 = Color3.fromRGB(0, 255, 0)
+ToolCount.BackgroundTransparency = 1
+ToolCount.Parent = InfoPanel
+
+-- Live Updater
+RunService.RenderStepped:Connect(function()
+    -- FPS
+    local fps = math.floor(1 / RunService.RenderStepped:Wait())
+    FPS.Text = "FPS: " .. tostring(fps)
+
+    -- Ping
+    local ping = LocalPlayer:GetNetworkPing() or 0
+    Ping.Text = "Ping: " .. math.floor(ping * 1000) .. "ms"
+
+    -- Tool Count
+    local count = 0
+    if LocalPlayer.Character then
+        for _, tool in ipairs(LocalPlayer.Backpack:GetChildren()) do
+            if tool:IsA("Tool") then count += 1 end
+        end
+        for _, tool in ipairs(LocalPlayer.Character:GetChildren()) do
+            if tool:IsA("Tool") then count += 1 end
+        end
+    end
+    ToolCount.Text = "Tools: " .. count
+end)
 
 -- LoopBring Panel
 local LoopBringPanel = Instance.new("Frame")

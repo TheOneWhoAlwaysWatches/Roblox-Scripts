@@ -47,6 +47,40 @@ MainFrame.BorderColor3 = Color3.fromRGB(255, 0, 0)
 MainFrame.BorderSizePixel = 2
 MainFrame.Parent = ScreenGui
 
+-- Main Frame Dragging
+local mainDragging = false
+local mainDragInput, mainDragStart, mainStartPos
+
+MainFrame.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		mainDragging = true
+		mainDragStart = input.Position
+		mainStartPos = MainFrame.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				mainDragging = false
+			end
+		end)
+	end
+end)
+
+MainFrame.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		mainDragInput = input
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if input == mainDragInput and mainDragging then
+		local delta = input.Position - mainDragStart
+		MainFrame.Position = UDim2.new(
+			mainStartPos.X.Scale, mainStartPos.X.Offset + delta.X,
+			mainStartPos.Y.Scale, mainStartPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
 -- LoopBring Button
 local LoopBringButton = Instance.new("TextButton")
 LoopBringButton.Size = UDim2.new(0, 100, 0, 25)
@@ -475,19 +509,19 @@ toggleButton.ZIndex = 9999
 toggleButton.Parent = ScreenGui
 toggleButton.Active = true
 
--- Mouse dragging
-local dragging = false
-local dragInput, dragStart, startPos
+-- Toggle Button Dragging
+local toggleDragging = false
+local toggleDragInput, toggleDragStart, toggleStartPos
 
 toggleButton.InputBegan:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		dragging = true
-		dragStart = input.Position
-		startPos = toggleButton.Position
+		toggleDragging = true
+		toggleDragStart = input.Position
+		toggleStartPos = toggleButton.Position
 
 		input.Changed:Connect(function()
 			if input.UserInputState == Enum.UserInputState.End then
-				dragging = false
+				toggleDragging = false
 			end
 		end)
 	end
@@ -495,16 +529,16 @@ end)
 
 toggleButton.InputChanged:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseMovement then
-		dragInput = input
+		toggleDragInput = input
 	end
 end)
 
 UserInputService.InputChanged:Connect(function(input)
-	if input == dragInput and dragging then
-		local delta = input.Position - dragStart
+	if input == toggleDragInput and toggleDragging then
+		local delta = input.Position - toggleDragStart
 		toggleButton.Position = UDim2.new(
-			startPos.X.Scale, startPos.X.Offset + delta.X,
-			startPos.Y.Scale, startPos.Y.Offset + delta.Y
+			toggleStartPos.X.Scale, toggleStartPos.X.Offset + delta.X,
+			toggleStartPos.Y.Scale, toggleStartPos.Y.Offset + delta.Y
 		)
 	end
 end)

@@ -1,0 +1,41 @@
+-- Float Tools Script
+
+local offsets = {
+
+    ["Axe"] = Vector3.new(13, -10, -4),
+
+    ["Staff"] = Vector3.new(2, 10, -16),
+
+    ["Energy Sword"] = Vector3.new(-13, -10, -4),
+
+}
+
+local function FloatTools()
+
+    local char = game.Players.LocalPlayer.Character
+
+    if char then
+
+        for _, tool in pairs(char:GetChildren()) do
+
+            if tool:IsA("Tool") and offsets[tool.Name] then
+
+                tool.Grip = CFrame.new(offsets[tool.Name])
+
+            end
+
+        end
+
+    end
+
+end
+
+FloatTools()
+
+game.Players.LocalPlayer.CharacterAdded:Connect(function()
+
+    wait(1)
+
+    FloatTools()
+
+end)

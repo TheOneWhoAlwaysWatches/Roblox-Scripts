@@ -19,6 +19,7 @@ local whitelist = {
     [2901968025] = true, -- Eggy Alt
     [1513169967] = true, -- Eggy Main
     [7641469342] = true, -- Eggy Other Alt
+    [8695113281] = true, -- Eggy Other Other Alt
 }
 
 local player = game.Players.LocalPlayer

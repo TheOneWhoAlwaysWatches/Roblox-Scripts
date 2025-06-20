@@ -482,7 +482,7 @@ toggleButton.Active = true
 
 -- Mouse dragging
 local dragging = false
-local dragInput, dragStart, startPos
+local dragInputToggle, dragStartToggle, startPosToggle
 
 toggleButton.InputBegan:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -513,6 +513,42 @@ UserInputService.InputChanged:Connect(function(input)
 		)
 	end
 end)
+
+-- Mobile + PC Draggability for MainFrame
+local draggingHub = false
+local dragInputHub, dragStartHub, startPosHub
+
+MainFrame.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		draggingHub = true
+		dragStartHub = input.Position
+		startPosHub = MainFrame.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				draggingHub = false
+			end
+		end)
+	end
+end)
+
+MainFrame.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+		dragInputHub = input
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if input == dragInputHub and draggingHub then
+		local delta = input.Position - dragStartHub
+		MainFrame.Position = UDim2.new(
+			startPosHub.X.Scale, startPosHub.X.Offset + delta.X,
+			startPosHub.Y.Scale, startPosHub.Y.Offset + delta.Y
+		)
+	end
+end)
+
+
 
 -- Toggle logic
 toggleButton.MouseButton1Click:Connect(function()

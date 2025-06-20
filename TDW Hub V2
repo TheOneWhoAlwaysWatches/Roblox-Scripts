@@ -9,6 +9,7 @@ local whitelist = {
     [5146822757] = true, -- Monkey (Alt)
     [5054998059] = true, -- mjendeub (Alt)
   	[3429553477] = true, -- Dyllan144335 (Alt)
+    [2647384879] = true, -- Crainer (Alt)
     [8407911841] = true, -- Void (Star)
     [8646139977] = true, -- Stars Alt
     [1548866917] = true, -- Timmy

@@ -1,0 +1,59 @@
+-- GUI Creation
+local player = game.Players.LocalPlayer
+local kills = 0
+local deaths = 0
+
+local screenGui = Instance.new("ScreenGui", game.CoreGui)
+screenGui.Name = "KillDeathTracker"
+
+local frame = Instance.new("Frame", screenGui)
+frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+frame.BorderColor3 = Color3.fromRGB(0, 255, 0)
+frame.BorderSizePixel = 2
+frame.Position = UDim2.new(0.5, -75, 0, 10) -- Top Middle
+frame.Size = UDim2.new(0, 150, 0, 60)
+
+local killLabel = Instance.new("TextLabel", frame)
+killLabel.Text = "Kills: 0"
+killLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+killLabel.BackgroundTransparency = 1
+killLabel.Size = UDim2.new(1, 0, 0.5, 0)
+killLabel.Font = Enum.Font.SourceSansBold
+killLabel.TextScaled = true
+
+local deathLabel = Instance.new("TextLabel", frame)
+deathLabel.Text = "Deaths: 0"
+deathLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+deathLabel.BackgroundTransparency = 1
+deathLabel.Position = UDim2.new(0, 0, 0.5, 0)
+deathLabel.Size = UDim2.new(1, 0, 0.5, 0)
+deathLabel.Font = Enum.Font.SourceSansBold
+deathLabel.TextScaled = true
+
+-- Kill Tracker
+game.Players.PlayerAdded:Connect(function(plr)
+	if plr == player then return end
+	plr.CharacterAdded:Connect(function(char)
+		local humanoid = char:WaitForChild("Humanoid", 5)
+		if humanoid then
+			humanoid.Died:Connect(function()
+				local tag = humanoid:FindFirstChild("creator")
+				if tag and tag.Value == player then
+					kills += 1
+					killLabel.Text = "Kills: " .. kills
+				end
+			end)
+		end
+	end)
+end)
+
+-- Death Tracker
+player.CharacterAdded:Connect(function(char)
+	local humanoid = char:WaitForChild("Humanoid", 5)
+	if humanoid then
+		humanoid.Died:Connect(function()
+			deaths += 1
+			deathLabel.Text = "Deaths: " .. deaths
+		end)
+	end
+end)

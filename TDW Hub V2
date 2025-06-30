@@ -30,7 +30,7 @@ if not whitelist[player.UserId] then
     return
 end
 
--- Add this somewhere near your main whitelist
+-- Special Access Tab
 local hiddenTabWhitelist = {
     [3972688973] = true, -- Main Acc
     [2522193455] = true, -- Inf God (Alt)
@@ -235,19 +235,20 @@ populateButtons(miscPage, miscButtons)
 local hubsPage = createTab("Hubs", "🌐", 350)
 populateButtons(hubsPage, hubButtons)
 
--- After your other tab creations, conditionally create the hidden tab:
 if hiddenTabWhitelist[player.UserId] then
-    local hiddenPage = createTab("Hidden", "🔒", 430)  -- Adjust position as needed
-
-    -- Add buttons or UI elements inside this hidden tab like normal
+    print("Creating hidden tab")
+    local hiddenPage = createTab("Special Access", "🔒", 430)
     populateButtons(hiddenPage, {
         { text = "Insta-Kill", callback = function()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/One%20Shot%20Aura.lua", true))()
+            print("Insta-Kill clicked")
         end },
         { text = "Kill/Death Tracker", callback = function()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20%26%20Death%20Tracker",true))()
+            print("Kill/Death Tracker clicked")
         end },
     })
+    -- Force visibility to test:
+    tabs["Special Access"].Visible = true
+    tabPages["Special Access"].Visible = true
 end
 
 -- TDW Title

@@ -189,6 +189,8 @@ local mainButtons = {
 }
 
 local miscButtons = {
+    { text = "Kill/Death Tracker", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20%26%20Death%20Tracker",true))()
+    end },
     { text = "Chat Spy", callback = function() loadstring(game:HttpGet("https://pastebin.com/raw/w1DW0m31",true))()
     end },
     { text = "Emote Gui", callback = function() loadstring(game:HttpGet("https://pastebin.com/raw/eCpipCTH",true))()

@@ -237,7 +237,7 @@ populateButtons(hubsPage, hubButtons)
 
 if hiddenTabWhitelist[player.UserId] then
     print("Creating hidden tab")
-    local hiddenPage = createTab("Special Access", "🔒", 450)
+    local hiddenPage = createTab("Special", "🔒", 450)
     populateButtons(hiddenPage, {
         { text = "Insta-Kill", callback = function()
             print("Insta-Kill clicked")

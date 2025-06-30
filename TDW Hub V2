@@ -247,8 +247,8 @@ if hiddenTabWhitelist[player.UserId] then
         end },
     })
     -- Force visibility to test:
-    tabs["Special Access"].Visible = true
-    tabPages["Special Access"].Visible = true
+    tabs["Special"].Visible = true
+    tabPages["Special"].Visible = true
 end
 
 -- TDW Title

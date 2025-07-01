@@ -1,4 +1,4 @@
--- ⚔️ TDW Hyper Tool Spammer (True Demonic Theme + Hotkey + Power Meter)
+-- ⚔️ TDW Hyper Tool Spammer (Demonic Hub Theme: Black/Green/Red + Power Meter + Hotkey)
 
 local player = game.Players.LocalPlayer
 local RunService = game:GetService("RunService")
@@ -19,18 +19,18 @@ toolButton.Size = UDim2.new(0, 80, 0, 40)
 toolButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Black background
 toolButton.Font = Enum.Font.FredokaOne
 toolButton.Text = "OFF"
-toolButton.TextColor3 = Color3.fromRGB(200, 0, 0) -- BLOOD RED text
+toolButton.TextColor3 = Color3.fromRGB(0, 255, 0) -- Green text
 toolButton.TextSize = 22
 toolButton.AutoButtonColor = false
 toolButton.BorderSizePixel = 0
 
--- Sharp Green Border
+-- Sharp Red Border
 local stroke = Instance.new("UIStroke", toolButton)
 stroke.Thickness = 3
-stroke.Color = Color3.fromRGB(0, 255, 0) -- Green border
+stroke.Color = Color3.fromRGB(255, 0, 0) -- Red border
 stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
--- Optional glow or gradient (dark, subtle)
+-- Optional gradient effect
 local gradient = Instance.new("UIGradient", toolButton)
 gradient.Color = ColorSequence.new({
 	ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 20, 20)),
@@ -38,14 +38,6 @@ gradient.Color = ColorSequence.new({
 	ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 20, 20)),
 })
 gradient.Rotation = 45
-
--- Hover effect
-toolButton.MouseEnter:Connect(function()
-	toolButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-end)
-toolButton.MouseLeave:Connect(function()
-	toolButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-end)
 
 -- Power Meter
 local powerLabel = Instance.new("TextLabel")
@@ -107,7 +99,8 @@ end
 local function toggleAttack()
 	attacking = not attacking
 	toolButton.Text = attacking and "ON" or "OFF"
-	toolButton.TextColor3 = Color3.fromRGB(200, 0, 0) -- Blood red (unchanged)
+	toolButton.TextColor3 = Color3.fromRGB(0, 255, 0) -- Always green text
+
 	if not attacking then
 		for _, tool in ipairs(player.Character:GetChildren()) do
 			if tool:IsA("Tool") then
@@ -120,17 +113,17 @@ local function toggleAttack()
 	end
 end
 
--- UI Button click
+-- Button click
 toolButton.MouseButton1Click:Connect(toggleAttack)
 
--- Hotkey toggle (default: F)
+-- Hotkey: F
 UserInputService.InputBegan:Connect(function(input, gp)
 	if not gp and input.KeyCode == Enum.KeyCode.F then
 		toggleAttack()
 	end
 end)
 
--- New tool while active
+-- Tool added while attacking
 player.Backpack.ChildAdded:Connect(function(child)
 	if child:IsA("Tool") and attacking then
 		child.Parent = player.Character
@@ -145,7 +138,7 @@ player.CharacterAdded:Connect(function()
 	end
 end)
 
--- Constant tick
+-- Every frame
 RunService.PostSimulation:Connect(function()
 	if attacking then
 		equipAllTools()

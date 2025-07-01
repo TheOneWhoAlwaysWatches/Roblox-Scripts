@@ -1,6 +1,6 @@
 -- CONFIG
-local attackRate = 0.01 -- Speed of the loop (seconds)
-local zapRange = 20 -- Distance to search for targets
+local attackRate = 0.01 -- Fastest safe loop
+local zapRange = 25 -- Aura "kill" range
 
 -- SERVICES
 local Players = game:GetService("Players")
@@ -26,20 +26,6 @@ local function autoEquip(tool)
 	tool:Activate()
 end
 
-local function cloneToolAndStrike(tool, char)
-	local fightEvent = tool:FindFirstChild("FightEvent")
-	if not fightEvent then return end
-
-	local cloned = tool:Clone()
-	cloned.Name = tool.Name .. "_Clone" .. math.random(1000,9999)
-	cloned.Parent = char
-	cloned:Activate()
-	local clonedEvent = cloned:FindFirstChild("FightEvent")
-	if clonedEvent then
-		clonedEvent:FireServer()
-	end
-end
-
 -- MAIN LOOP
 task.spawn(function()
 	while running do
@@ -54,16 +40,11 @@ task.spawn(function()
 				local fightEvent = tool:FindFirstChild("FightEvent")
 				local touchPart = getTouchPart(tool)
 
-				-- Main attack
 				if fightEvent then
 					autoEquip(tool)
 					fightEvent:FireServer()
-
-					-- Try cloning it for extra hit
-					cloneToolAndStrike(tool, char)
 				end
 
-				-- Aura effect remains untouched
 				if touchPart then
 					for _, target in ipairs(workspace:GetDescendants()) do
 						if
@@ -72,10 +53,9 @@ task.spawn(function()
 							and target ~= touchPart
 							and (target.Position - touchPart.Position).Magnitude <= zapRange
 						then
-							-- Optionally teleport hitbox onto target to force collision
+							-- 💥 Teleport hitbox to simulate real contact
 							touchPart.CFrame = target.CFrame * CFrame.new(0, 0.1, 0)
 
-							-- firetouchinterest spam
 							firetouchinterest(touchPart, target, 1)
 							firetouchinterest(touchPart, target, 0)
 						end
@@ -94,4 +74,4 @@ LocalPlayer.CharacterAdded:Connect(function()
 	running = true
 end)
 
-print("💥 Enhanced Aura Spammer Activated – With Clone + Zap Boost")
+print("⚡ Hitbox Zapper Aura Spammer Activated!")

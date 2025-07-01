@@ -1,5 +1,5 @@
 -- CONFIG
-local attackRate = 0.01 -- Speed of the loop (seconds)
+local attackRate = 0.005 -- Speed of the loop (seconds)
 
 -- SERVICES
 local Players = game:GetService("Players")
@@ -31,6 +31,10 @@ task.spawn(function()
 		local char = getChar(LocalPlayer)
 		if not char then task.wait(1) continue end
 
+		-- Find the Players folder safely once per iteration
+		local playersFolder = workspace:FindFirstChild("Players")
+		local parentToCheck = playersFolder or workspace
+
 		for _, tool in ipairs(char:GetChildren()) do
 			if tool:IsA("Tool") then
 				local fightEvent = tool:FindFirstChild("FightEvent")
@@ -46,7 +50,7 @@ task.spawn(function()
 
 				if touchPart then
 					for _, target in ipairs(workspace:GetDescendants()) do
-						if target:IsA("BasePart") and target:IsDescendantOf(workspace.Players or workspace) and target ~= touchPart then
+						if target:IsA("BasePart") and target:IsDescendantOf(parentToCheck) and target ~= touchPart then
 							firetouchinterest(touchPart, target, 1)
 							firetouchinterest(touchPart, target, 0)
 						end

@@ -1,4 +1,4 @@
--- ⚔️ TDW Hyper Tool Spammer (Max Power Mode: Stable Version)
+-- ⚔️ TDW Hyper Tool Spammer (Real-Time, Safe, and Overload-Aware)
 
 local player = game.Players.LocalPlayer
 local RunService = game:GetService("RunService")
@@ -16,10 +16,10 @@ toolButton.Name = "AttackToggle"
 toolButton.Parent = screenGui
 toolButton.Position = UDim2.new(0.5, -40, 0.85, -20)
 toolButton.Size = UDim2.new(0, 80, 0, 40)
-toolButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Pure black
+toolButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 toolButton.Font = Enum.Font.FredokaOne
 toolButton.Text = "OFF"
-toolButton.TextColor3 = Color3.fromRGB(0, 255, 0) -- Neon green
+toolButton.TextColor3 = Color3.fromRGB(0, 255, 0)
 toolButton.TextSize = 22
 toolButton.AutoButtonColor = false
 toolButton.BorderSizePixel = 0
@@ -35,36 +35,25 @@ padding.PaddingBottom = UDim.new(0, 5)
 padding.PaddingLeft = UDim.new(0, 6)
 padding.PaddingRight = UDim.new(0, 6)
 
--- Power Meter
+-- Power Meter Label
 local powerLabel = Instance.new("TextLabel")
 powerLabel.Name = "PowerMeter"
 powerLabel.Parent = screenGui
-powerLabel.Position = UDim2.new(0.5, -60, 0.85, 30)
-powerLabel.Size = UDim2.new(0, 120, 0, 20)
+powerLabel.Position = UDim2.new(0.5, -70, 0.85, 30)
+powerLabel.Size = UDim2.new(0, 140, 0, 20)
 powerLabel.BackgroundTransparency = 1
 powerLabel.Font = Enum.Font.Code
 powerLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
 powerLabel.TextSize = 18
 powerLabel.Text = "Power: 0/s"
 
--- Overload Warning
-local overloadLabel = Instance.new("TextLabel")
-overloadLabel.Parent = screenGui
-overloadLabel.Position = UDim2.new(0.5, -70, 0.85, 55)
-overloadLabel.Size = UDim2.new(0, 140, 0, 20)
-overloadLabel.BackgroundTransparency = 1
-overloadLabel.Font = Enum.Font.Code
-overloadLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
-overloadLabel.TextSize = 16
-overloadLabel.Text = ""
-
--- Core Logic
+-- Core Variables
 local attacking = false
 local attackSessionId = 0
-local hitCount = 0
-local lastUpdate = tick()
-local MAX_HITS_PER_FRAME = 30 -- ⚠ Cap per frame
+local MAX_HITS_PER_FRAME = 30
+local hitTimestamps = {}
 
+-- Equip Tools
 local function equipAllTools()
 	if not player.Character then return end
 	for _, tool in ipairs(player.Backpack:GetChildren()) do
@@ -74,27 +63,31 @@ local function equipAllTools()
 	end
 end
 
+-- Update Live Power Meter
 local function updatePowerMeter()
 	local now = tick()
-	if now - lastUpdate >= 1 then
-		powerLabel.Text = "Power: " .. hitCount .. "/s"
-
-		if hitCount > 600 then
-			overloadLabel.Text = "⚠ Overload: " .. hitCount .. "/s"
-		else
-			overloadLabel.Text = ""
+	-- Remove timestamps older than 1 second
+	for i = #hitTimestamps, 1, -1 do
+		if now - hitTimestamps[i] > 1 then
+			table.remove(hitTimestamps, i)
 		end
+	end
 
-		hitCount = 0
-		lastUpdate = now
+	local hitsPerSec = #hitTimestamps
+	if hitsPerSec > 600 then
+		powerLabel.Text = "Overload: " .. hitsPerSec .. "/s"
+		powerLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+	else
+		powerLabel.Text = "Power: " .. hitsPerSec .. "/s"
+		powerLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
 	end
 end
 
+-- Toggle Logic
 local function toggleAttack()
 	attacking = not attacking
 	attackSessionId += 1
 	local session = attackSessionId
-
 	toolButton.Text = attacking and "ON" or "OFF"
 
 	if not attacking then
@@ -110,7 +103,7 @@ local function toggleAttack()
 	end
 end
 
--- Button click
+-- Button Click
 toolButton.MouseButton1Click:Connect(toggleAttack)
 
 -- Hotkey: F
@@ -120,25 +113,26 @@ UserInputService.InputBegan:Connect(function(input, gp)
 	end
 end)
 
--- Auto equip added tools
+-- Auto Equip on Tool Add
 player.Backpack.ChildAdded:Connect(function(child)
 	if child:IsA("Tool") and attacking then
 		child.Parent = player.Character
 	end
 end)
 
--- Re-equip on respawn
+-- Re-equip on Respawn
 player.CharacterAdded:Connect(function()
-	task.wait(0.5)
+	task.wait(1)
 	if attacking then
 		equipAllTools()
 	end
 end)
 
--- Main spam loop (stable + session protected)
+-- Main Activation Loop
 RunService.Heartbeat:Connect(function()
-	if not attacking or not player.Character then return end
+	updatePowerMeter()
 
+	if not attacking or not player.Character then return end
 	local session = attackSessionId
 	local hitsThisFrame = 0
 
@@ -147,14 +141,13 @@ RunService.Heartbeat:Connect(function()
 		if tool:IsA("Tool") then
 			pcall(function()
 				for _ = 1, 3 do
+					if not attacking or session ~= attackSessionId then break end
 					if hitsThisFrame >= MAX_HITS_PER_FRAME then break end
 					tool:Activate()
-					hitCount += 1
 					hitsThisFrame += 1
+					table.insert(hitTimestamps, tick())
 				end
 			end)
 		end
 	end
-
-	updatePowerMeter()
 end)

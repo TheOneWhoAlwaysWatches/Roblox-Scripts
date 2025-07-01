@@ -246,11 +246,7 @@ if hiddenTabWhitelist[player.UserId] then
             loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20%26%20Death%20Tracker",true))()
         end },
     })
-    -- Force visibility to test:
-    tabs["Special"].Visible = true
-    tabPages["Special"].Visible = true
 end
-
 -- TDW Title
 local TDWFrame = Instance.new("Frame")
 TDWFrame.Size = UDim2.new(0, 30, 1, -26)

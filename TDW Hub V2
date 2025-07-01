@@ -182,7 +182,7 @@ local mainButtons = {
     end },
     { text = "Respawn V3", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V2.lua", true))()
     end },
-    { text = "Original No Cooldown", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Original%20No%20Cooldown",true))()
+    { text = "No Cooldown", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Original%20No%20Cooldown",true))()
     end },
     { text = "Infinite Yeild", callback = function() loadstring(game:HttpGet("https://pastebin.com/raw/6rrhy0P1", true))()
     end },

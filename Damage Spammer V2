@@ -1,30 +1,68 @@
-RunService.Heartbeat:Connect(function()
-    if not running then return end
+-- CONFIG
+local attackRate = 0.01 -- Speed of the loop (seconds)
 
-    local char = getChar(LocalPlayer)
-    if not char then return end
+-- SERVICES
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
 
-    for _, tool in ipairs(char:GetChildren()) do
-        if tool:IsA("Tool") then
-            local fightEvent = tool:FindFirstChild("FightEvent")
-            local touchPart = getTouchPart(tool)
+-- STATE
+local running = true
 
-            if fightEvent then
-                tool:Activate()
-                fightEvent:FireServer()
-            end
+-- HELPERS
+local function getChar(plr)
+	return plr and plr.Character
+end
 
-            if touchPart then
-                for _, plr in ipairs(Players:GetPlayers()) do
-                    if plr ~= LocalPlayer then
-                        local hrp = getHRP(plr)
-                        if hrp then
-                            firetouchinterest(touchPart, hrp, 1)
-                            firetouchinterest(touchPart, hrp, 0)
-                        end
-                    end
-                end
-            end
-        end
-    end
+local function getTouchPart(tool)
+	local touchTransmitter = tool and tool:FindFirstChildWhichIsA("TouchTransmitter", true)
+	return touchTransmitter and touchTransmitter.Parent
+end
+
+local function autoEquip(tool)
+	if not tool:IsDescendantOf(workspace) then
+		tool.Parent = getChar(LocalPlayer)
+	end
+	tool:Activate()
+end
+
+-- MAIN LOOP
+task.spawn(function()
+	while running do
+		local char = getChar(LocalPlayer)
+		if not char then task.wait(1) continue end
+
+		for _, tool in ipairs(char:GetChildren()) do
+			if tool:IsA("Tool") then
+				local fightEvent = tool:FindFirstChild("FightEvent")
+				local touchPart = getTouchPart(tool)
+
+				if fightEvent then
+					autoEquip(tool)
+
+					-- DOUBLE FIRE 💥💥
+					fightEvent:FireServer()
+					fightEvent:FireServer()
+				end
+
+				if touchPart then
+					for _, target in ipairs(workspace:GetDescendants()) do
+						if target:IsA("BasePart") and target:IsDescendantOf(workspace.Players or workspace) and target ~= touchPart then
+							firetouchinterest(touchPart, target, 1)
+							firetouchinterest(touchPart, target, 0)
+						end
+					end
+				end
+			end
+		end
+
+		task.wait(attackRate)
+	end
 end)
+
+-- RESET ON DEATH
+LocalPlayer.CharacterAdded:Connect(function()
+	task.wait(1)
+	running = true
+end)
+
+print("🔥 Insta-Kill DOUBLE Fire Activated")

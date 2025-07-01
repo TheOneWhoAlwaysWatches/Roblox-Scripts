@@ -45,7 +45,6 @@ task.spawn(function()
                 if fightEvent then
                     autoEquip(tool)
                     fightEvent:FireServer()
-                    fightEvent:FireServer()
                 end
 
                 if touchPart then

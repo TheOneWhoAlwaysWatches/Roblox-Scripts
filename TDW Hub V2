@@ -240,15 +240,15 @@ if hiddenTabWhitelist[player.UserId] then
     local hiddenPage = createTab("Special", "🔒", 430)
     populateButtons(hiddenPage, {
         { text = "Insta-Kill", callback = function()
-            print("Insta-Kill clicked")
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Damage%20Spammer%20(Insta-Kill)",true))()
         end },
         { text = "Kill/Death Tracker", callback = function()
-            print("Kill/Death Tracker clicked")
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20%26%20Death%20Tracker",true))()
         end },
     })
     -- Force visibility to test:
-    tabs["Special"].Visible = true
-    tabPages["Special"].Visible = true
+    tabs["Special Access"].Visible = true
+    tabPages["Special Access"].Visible = true
 end
 
 -- TDW Title

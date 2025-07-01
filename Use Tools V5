@@ -1,4 +1,4 @@
--- ⚔️ TDW Hyper Tool Spammer (Max Power Mode: Black/Green/Red + Power Meter + Hotkey)
+-- ⚔️ TDW Hyper Tool Spammer (Max Power Mode: Stable Version)
 
 local player = game.Players.LocalPlayer
 local RunService = game:GetService("RunService")
@@ -16,7 +16,7 @@ toolButton.Name = "AttackToggle"
 toolButton.Parent = screenGui
 toolButton.Position = UDim2.new(0.5, -40, 0.85, -20)
 toolButton.Size = UDim2.new(0, 80, 0, 40)
-toolButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Pitch black
+toolButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Pure black
 toolButton.Font = Enum.Font.FredokaOne
 toolButton.Text = "OFF"
 toolButton.TextColor3 = Color3.fromRGB(0, 255, 0) -- Neon green
@@ -24,13 +24,16 @@ toolButton.TextSize = 22
 toolButton.AutoButtonColor = false
 toolButton.BorderSizePixel = 0
 
--- Bold Blood Red Border
-local stroke = Instance.new("UIStroke")
-stroke.Parent = toolButton
+local stroke = Instance.new("UIStroke", toolButton)
 stroke.Thickness = 3
-stroke.Color = Color3.fromRGB(255, 0, 0) -- Blood red
+stroke.Color = Color3.fromRGB(255, 0, 0)
 stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-stroke.LineJoinMode = Enum.LineJoinMode.Round
+
+local padding = Instance.new("UIPadding", toolButton)
+padding.PaddingTop = UDim.new(0, 5)
+padding.PaddingBottom = UDim.new(0, 5)
+padding.PaddingLeft = UDim.new(0, 6)
+padding.PaddingRight = UDim.new(0, 6)
 
 -- Power Meter
 local powerLabel = Instance.new("TextLabel")
@@ -44,14 +47,26 @@ powerLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
 powerLabel.TextSize = 18
 powerLabel.Text = "Power: 0/s"
 
+-- Overload Warning
+local overloadLabel = Instance.new("TextLabel")
+overloadLabel.Parent = screenGui
+overloadLabel.Position = UDim2.new(0.5, -70, 0.85, 55)
+overloadLabel.Size = UDim2.new(0, 140, 0, 20)
+overloadLabel.BackgroundTransparency = 1
+overloadLabel.Font = Enum.Font.Code
+overloadLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+overloadLabel.TextSize = 16
+overloadLabel.Text = ""
+
 -- Core Logic
 local attacking = false
+local attackSessionId = 0
 local hitCount = 0
 local lastUpdate = tick()
+local MAX_HITS_PER_FRAME = 30 -- ⚠ Cap per frame
 
 local function equipAllTools()
 	if not player.Character then return end
-
 	for _, tool in ipairs(player.Backpack:GetChildren()) do
 		if tool:IsA("Tool") then
 			tool.Parent = player.Character
@@ -63,6 +78,13 @@ local function updatePowerMeter()
 	local now = tick()
 	if now - lastUpdate >= 1 then
 		powerLabel.Text = "Power: " .. hitCount .. "/s"
+
+		if hitCount > 600 then
+			overloadLabel.Text = "⚠ Overload: " .. hitCount .. "/s"
+		else
+			overloadLabel.Text = ""
+		end
+
 		hitCount = 0
 		lastUpdate = now
 	end
@@ -70,10 +92,12 @@ end
 
 local function toggleAttack()
 	attacking = not attacking
+	attackSessionId += 1
+	local session = attackSessionId
+
 	toolButton.Text = attacking and "ON" or "OFF"
 
 	if not attacking then
-		-- Move tools back to backpack
 		if player.Character then
 			for _, tool in ipairs(player.Character:GetChildren()) do
 				if tool:IsA("Tool") then
@@ -96,14 +120,14 @@ UserInputService.InputBegan:Connect(function(input, gp)
 	end
 end)
 
--- Auto equip tools added to backpack
+-- Auto equip added tools
 player.Backpack.ChildAdded:Connect(function(child)
 	if child:IsA("Tool") and attacking then
 		child.Parent = player.Character
 	end
 end)
 
--- Auto re-equip after respawn
+-- Re-equip on respawn
 player.CharacterAdded:Connect(function()
 	task.wait(0.5)
 	if attacking then
@@ -111,19 +135,26 @@ player.CharacterAdded:Connect(function()
 	end
 end)
 
--- Every frame: max spam + meter update
+-- Main spam loop (stable + session protected)
 RunService.Heartbeat:Connect(function()
-	if attacking and player.Character then
-		for _, tool in ipairs(player.Character:GetChildren()) do
-			if tool:IsA("Tool") then
-				pcall(function()
-					for _ = 1, 3 do -- fire multiple times per frame
-						tool:Activate()
-						hitCount += 1
-					end
-				end)
-			end
+	if not attacking or not player.Character then return end
+
+	local session = attackSessionId
+	local hitsThisFrame = 0
+
+	for _, tool in ipairs(player.Character:GetChildren()) do
+		if not attacking or session ~= attackSessionId then break end
+		if tool:IsA("Tool") then
+			pcall(function()
+				for _ = 1, 3 do
+					if hitsThisFrame >= MAX_HITS_PER_FRAME then break end
+					tool:Activate()
+					hitCount += 1
+					hitsThisFrame += 1
+				end
+			end)
 		end
 	end
+
 	updatePowerMeter()
 end)

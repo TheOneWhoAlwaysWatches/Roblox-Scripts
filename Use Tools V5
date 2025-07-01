@@ -1,0 +1,117 @@
+-- 💀 Demon Hub: Use Tools Script (Upgraded UI + Enhanced Logic)
+
+-- Services
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+
+-- GUI Setup
+local screenGui = Instance.new("ScreenGui", game.CoreGui)
+screenGui.Name = "DemonicToolGui"
+screenGui.ResetOnSpawn = false
+
+local toolButton = Instance.new("TextButton")
+toolButton.Name = "AttackToggle"
+toolButton.Parent = screenGui
+toolButton.Position = UDim2.new(0.5, -50, 0.85, -25)
+toolButton.Size = UDim2.new(0, 100, 0, 50)
+toolButton.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+toolButton.Font = Enum.Font.GothamBlack
+toolButton.Text = "OFF"
+toolButton.TextColor3 = Color3.fromRGB(0, 255, 0)
+toolButton.TextSize = 22
+toolButton.AutoButtonColor = false
+
+Instance.new("UICorner", toolButton).CornerRadius = UDim.new(0.2, 0)
+
+local stroke = Instance.new("UIStroke", toolButton)
+stroke.Thickness = 2
+stroke.Color = Color3.fromRGB(200, 0, 0)
+
+local gradient = Instance.new("UIGradient", toolButton)
+gradient.Color = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(150, 0, 0)),
+	ColorSequenceKeypoint.new(0.5, Color3.fromRGB(100, 0, 0)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(60, 0, 0)),
+})
+gradient.Rotation = 45
+
+-- Core Logic
+local attacking = false
+local activeTools = {}
+
+local function activateTool(tool)
+	if activeTools[tool] then return end
+	activeTools[tool] = true
+
+	task.spawn(function()
+		while attacking and tool.Parent == LocalPlayer.Character do
+			pcall(function() tool:Activate() end)
+			RunService.Heartbeat:Wait()
+		end
+		activeTools[tool] = nil
+	end)
+
+	tool.AncestryChanged:Connect(function(_, parent)
+		if not attacking or parent ~= LocalPlayer.Character then
+			activeTools[tool] = nil
+		end
+	end)
+end
+
+local function equipAllTools()
+	if not attacking or not LocalPlayer.Character then return end
+
+	for _, tool in ipairs(LocalPlayer.Backpack:GetChildren()) do
+		if tool:IsA("Tool") then
+			tool.Parent = LocalPlayer.Character
+		end
+	end
+
+	for _, tool in ipairs(LocalPlayer.Character:GetChildren()) do
+		if tool:IsA("Tool") then
+			activateTool(tool)
+		end
+	end
+end
+
+local function toggleAttack()
+	attacking = not attacking
+	toolButton.Text = attacking and "ON" or "OFF"
+	toolButton.TextColor3 = attacking and Color3.fromRGB(255, 60, 60) or Color3.fromRGB(0, 255, 0)
+	stroke.Color = attacking and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(200, 0, 0)
+
+	if attacking then
+		equipAllTools()
+	else
+		for _, tool in ipairs(LocalPlayer.Character:GetChildren()) do
+			if tool:IsA("Tool") then
+				tool.Parent = LocalPlayer.Backpack
+			end
+		end
+		activeTools = {}
+	end
+end
+
+toolButton.MouseButton1Click:Connect(toggleAttack)
+
+-- Tool Auto-Equip
+LocalPlayer.Backpack.ChildAdded:Connect(function(child)
+	if child:IsA("Tool") and attacking then
+		child.Parent = LocalPlayer.Character
+	end
+end)
+
+LocalPlayer.CharacterAdded:Connect(function()
+	task.wait(1)
+	if attacking then equipAllTools() end
+end)
+
+-- Super Fast Loop
+RunService.Heartbeat:Connect(function()
+	if attacking then
+		equipAllTools()
+	end
+end)
+
+print("⚔️ Demonic Use Tools Script Loaded!")

@@ -1,117 +1,155 @@
--- 💀 Demon Hub: Use Tools Script (Upgraded UI + Enhanced Logic)
+-- ⚔️ TDW Hyper Tool Spammer (Black/Red/Green Edition + Power Meter + Hotkey)
 
--- Services
-local Players = game:GetService("Players")
+local player = game.Players.LocalPlayer
 local RunService = game:GetService("RunService")
-local LocalPlayer = Players.LocalPlayer
+local UserInputService = game:GetService("UserInputService")
 
--- GUI Setup
-local screenGui = Instance.new("ScreenGui", game.CoreGui)
+-- UI Setup
+local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "DemonicToolGui"
+screenGui.Parent = game.CoreGui
 screenGui.ResetOnSpawn = false
 
+-- Toggle Button
 local toolButton = Instance.new("TextButton")
 toolButton.Name = "AttackToggle"
 toolButton.Parent = screenGui
-toolButton.Position = UDim2.new(0.5, -50, 0.85, -25)
-toolButton.Size = UDim2.new(0, 100, 0, 50)
-toolButton.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-toolButton.Font = Enum.Font.GothamBlack
+toolButton.Position = UDim2.new(0.5, -40, 0.85, -20)
+toolButton.Size = UDim2.new(0, 80, 0, 40)
+toolButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Black background
+toolButton.Font = Enum.Font.FredokaOne
 toolButton.Text = "OFF"
-toolButton.TextColor3 = Color3.fromRGB(0, 255, 0)
-toolButton.TextSize = 22
+toolButton.TextColor3 = Color3.fromRGB(255, 0, 0) -- Red text
+toolButton.TextSize = 20
 toolButton.AutoButtonColor = false
 
-Instance.new("UICorner", toolButton).CornerRadius = UDim.new(0.2, 0)
+-- Styling
+local corner = Instance.new("UICorner", toolButton)
+corner.CornerRadius = UDim.new(0.5, 0)
 
 local stroke = Instance.new("UIStroke", toolButton)
 stroke.Thickness = 2
-stroke.Color = Color3.fromRGB(200, 0, 0)
+stroke.Color = Color3.fromRGB(0, 255, 0) -- Green border
 
 local gradient = Instance.new("UIGradient", toolButton)
 gradient.Color = ColorSequence.new({
-	ColorSequenceKeypoint.new(0, Color3.fromRGB(150, 0, 0)),
-	ColorSequenceKeypoint.new(0.5, Color3.fromRGB(100, 0, 0)),
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(60, 0, 0)),
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 20, 20)),
+	ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 0, 0)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 20, 20)),
 })
 gradient.Rotation = 45
+
+-- Hover effect
+toolButton.MouseEnter:Connect(function()
+	toolButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+end)
+toolButton.MouseLeave:Connect(function()
+	toolButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+end)
+
+-- Power Meter
+local powerLabel = Instance.new("TextLabel")
+powerLabel.Name = "PowerMeter"
+powerLabel.Parent = screenGui
+powerLabel.Position = UDim2.new(0.5, -60, 0.85, 30)
+powerLabel.Size = UDim2.new(0, 120, 0, 20)
+powerLabel.BackgroundTransparency = 1
+powerLabel.Font = Enum.Font.Code
+powerLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+powerLabel.TextSize = 18
+powerLabel.Text = "Power: 0/s"
 
 -- Core Logic
 local attacking = false
 local activeTools = {}
+local hitCount = 0
+local lastUpdate = tick()
 
 local function activateTool(tool)
 	if activeTools[tool] then return end
 	activeTools[tool] = true
 
 	task.spawn(function()
-		while attacking and tool.Parent == LocalPlayer.Character do
+		while attacking and tool.Parent == player.Character do
 			pcall(function() tool:Activate() end)
-			RunService.Heartbeat:Wait()
+			hitCount += 1
+			RunService.PostSimulation:Wait()
 		end
 		activeTools[tool] = nil
-	end)
-
-	tool.AncestryChanged:Connect(function(_, parent)
-		if not attacking or parent ~= LocalPlayer.Character then
-			activeTools[tool] = nil
-		end
 	end)
 end
 
 local function equipAllTools()
-	if not attacking or not LocalPlayer.Character then return end
+	if not attacking or not player.Character then return end
 
-	for _, tool in ipairs(LocalPlayer.Backpack:GetChildren()) do
+	for _, tool in ipairs(player.Backpack:GetChildren()) do
 		if tool:IsA("Tool") then
-			tool.Parent = LocalPlayer.Character
+			tool.Parent = player.Character
 		end
 	end
 
-	for _, tool in ipairs(LocalPlayer.Character:GetChildren()) do
+	for _, tool in ipairs(player.Character:GetChildren()) do
 		if tool:IsA("Tool") then
 			activateTool(tool)
 		end
 	end
 end
 
-local function toggleAttack()
-	attacking = not attacking
-	toolButton.Text = attacking and "ON" or "OFF"
-	toolButton.TextColor3 = attacking and Color3.fromRGB(255, 60, 60) or Color3.fromRGB(0, 255, 0)
-	stroke.Color = attacking and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(200, 0, 0)
-
-	if attacking then
-		equipAllTools()
-	else
-		for _, tool in ipairs(LocalPlayer.Character:GetChildren()) do
-			if tool:IsA("Tool") then
-				tool.Parent = LocalPlayer.Backpack
-			end
-		end
-		activeTools = {}
+local function updatePowerMeter()
+	local now = tick()
+	if now - lastUpdate >= 1 then
+		powerLabel.Text = "Power: " .. hitCount .. "/s"
+		hitCount = 0
+		lastUpdate = now
 	end
 end
 
+local function toggleAttack()
+	attacking = not attacking
+	toolButton.Text = attacking and "ON" or "OFF"
+	toolButton.TextColor3 = attacking and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(255, 0, 0)
+
+	if not attacking then
+		for _, tool in ipairs(player.Character:GetChildren()) do
+			if tool:IsA("Tool") then
+				tool.Parent = player.Backpack
+			end
+		end
+		activeTools = {}
+	else
+		equipAllTools()
+	end
+end
+
+-- UI Button click
 toolButton.MouseButton1Click:Connect(toggleAttack)
 
--- Tool Auto-Equip
-LocalPlayer.Backpack.ChildAdded:Connect(function(child)
-	if child:IsA("Tool") and attacking then
-		child.Parent = LocalPlayer.Character
+-- Hotkey toggle (default: F)
+UserInputService.InputBegan:Connect(function(input, gp)
+	if not gp and input.KeyCode == Enum.KeyCode.F then
+		toggleAttack()
 	end
 end)
 
-LocalPlayer.CharacterAdded:Connect(function()
-	task.wait(1)
-	if attacking then equipAllTools() end
+-- New tool while active
+player.Backpack.ChildAdded:Connect(function(child)
+	if child:IsA("Tool") and attacking then
+		child.Parent = player.Character
+	end
 end)
 
--- Super Fast Loop
-RunService.Heartbeat:Connect(function()
+-- Respawn
+player.CharacterAdded:Connect(function()
+	task.wait(0.5)
 	if attacking then
 		equipAllTools()
 	end
 end)
 
-print("⚔️ Demonic Use Tools Script Loaded!")
+-- Constant tick
+RunService.PostSimulation:Connect(function()
+	if attacking then
+		equipAllTools()
+	end
+	updatePowerMeter()
+end)

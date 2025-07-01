@@ -1,4 +1,4 @@
--- ⚔️ TDW Hyper Tool Spammer (Demonic Hub Theme: Black/Green/Red + Power Meter + Hotkey)
+-- ⚔️ TDW Hyper Tool Spammer (Max Power Mode: Black/Green/Red + Power Meter + Hotkey)
 
 local player = game.Players.LocalPlayer
 local RunService = game:GetService("RunService")
@@ -16,7 +16,7 @@ toolButton.Name = "AttackToggle"
 toolButton.Parent = screenGui
 toolButton.Position = UDim2.new(0.5, -40, 0.85, -20)
 toolButton.Size = UDim2.new(0, 80, 0, 40)
-toolButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Black background
+toolButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30) -- Dark gray for contrast
 toolButton.Font = Enum.Font.FredokaOne
 toolButton.Text = "OFF"
 toolButton.TextColor3 = Color3.fromRGB(0, 255, 0) -- Green text
@@ -27,17 +27,7 @@ toolButton.BorderSizePixel = 0
 -- Sharp Red Border
 local stroke = Instance.new("UIStroke", toolButton)
 stroke.Thickness = 3
-stroke.Color = Color3.fromRGB(255, 0, 0) -- Red border
-stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-
--- Optional gradient effect
-local gradient = Instance.new("UIGradient", toolButton)
-gradient.Color = ColorSequence.new({
-	ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 20, 20)),
-	ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 0, 0)),
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 20, 20)),
-})
-gradient.Rotation = 45
+stroke.Color = Color3.fromRGB(255, 0, 0)
 
 -- Power Meter
 local powerLabel = Instance.new("TextLabel")
@@ -53,36 +43,15 @@ powerLabel.Text = "Power: 0/s"
 
 -- Core Logic
 local attacking = false
-local activeTools = {}
 local hitCount = 0
 local lastUpdate = tick()
 
-local function activateTool(tool)
-	if activeTools[tool] then return end
-	activeTools[tool] = true
-
-	task.spawn(function()
-		while attacking and tool.Parent == player.Character do
-			pcall(function() tool:Activate() end)
-			hitCount += 1
-			RunService.PostSimulation:Wait()
-		end
-		activeTools[tool] = nil
-	end)
-end
-
 local function equipAllTools()
-	if not attacking or not player.Character then return end
+	if not player.Character then return end
 
 	for _, tool in ipairs(player.Backpack:GetChildren()) do
 		if tool:IsA("Tool") then
 			tool.Parent = player.Character
-		end
-	end
-
-	for _, tool in ipairs(player.Character:GetChildren()) do
-		if tool:IsA("Tool") then
-			activateTool(tool)
 		end
 	end
 end
@@ -99,15 +68,16 @@ end
 local function toggleAttack()
 	attacking = not attacking
 	toolButton.Text = attacking and "ON" or "OFF"
-	toolButton.TextColor3 = Color3.fromRGB(0, 255, 0) -- Always green text
 
 	if not attacking then
-		for _, tool in ipairs(player.Character:GetChildren()) do
-			if tool:IsA("Tool") then
-				tool.Parent = player.Backpack
+		-- Move tools back to backpack
+		if player.Character then
+			for _, tool in ipairs(player.Character:GetChildren()) do
+				if tool:IsA("Tool") then
+					tool.Parent = player.Backpack
+				end
 			end
 		end
-		activeTools = {}
 	else
 		equipAllTools()
 	end
@@ -123,14 +93,14 @@ UserInputService.InputBegan:Connect(function(input, gp)
 	end
 end)
 
--- Tool added while attacking
+-- Auto equip tools added to backpack
 player.Backpack.ChildAdded:Connect(function(child)
 	if child:IsA("Tool") and attacking then
 		child.Parent = player.Character
 	end
 end)
 
--- Respawn
+-- Auto re-equip after respawn
 player.CharacterAdded:Connect(function()
 	task.wait(0.5)
 	if attacking then
@@ -138,10 +108,19 @@ player.CharacterAdded:Connect(function()
 	end
 end)
 
--- Every frame
-RunService.PostSimulation:Connect(function()
-	if attacking then
-		equipAllTools()
+-- Every frame: max spam + meter update
+RunService.Heartbeat:Connect(function()
+	if attacking and player.Character then
+		for _, tool in ipairs(player.Character:GetChildren()) do
+			if tool:IsA("Tool") then
+				pcall(function()
+					for _ = 1, 3 do -- fire multiple times per frame
+						tool:Activate()
+						hitCount += 1
+					end
+				end)
+			end
+		end
 	end
 	updatePowerMeter()
 end)

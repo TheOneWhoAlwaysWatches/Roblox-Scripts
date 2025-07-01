@@ -1,4 +1,4 @@
--- ⚔️ TDW Hyper Tool Spammer (Black/Red/Green Edition + Power Meter + Hotkey)
+-- ⚔️ TDW Hyper Tool Spammer (True Demonic Theme + Hotkey + Power Meter)
 
 local player = game.Players.LocalPlayer
 local RunService = game:GetService("RunService")
@@ -19,18 +19,18 @@ toolButton.Size = UDim2.new(0, 80, 0, 40)
 toolButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Black background
 toolButton.Font = Enum.Font.FredokaOne
 toolButton.Text = "OFF"
-toolButton.TextColor3 = Color3.fromRGB(255, 0, 0) -- Red text
-toolButton.TextSize = 20
+toolButton.TextColor3 = Color3.fromRGB(200, 0, 0) -- BLOOD RED text
+toolButton.TextSize = 22
 toolButton.AutoButtonColor = false
+toolButton.BorderSizePixel = 0
 
--- Styling
-local corner = Instance.new("UICorner", toolButton)
-corner.CornerRadius = UDim.new(0.5, 0)
-
+-- Sharp Green Border
 local stroke = Instance.new("UIStroke", toolButton)
-stroke.Thickness = 2
+stroke.Thickness = 3
 stroke.Color = Color3.fromRGB(0, 255, 0) -- Green border
+stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
+-- Optional glow or gradient (dark, subtle)
 local gradient = Instance.new("UIGradient", toolButton)
 gradient.Color = ColorSequence.new({
 	ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 20, 20)),
@@ -107,8 +107,7 @@ end
 local function toggleAttack()
 	attacking = not attacking
 	toolButton.Text = attacking and "ON" or "OFF"
-	toolButton.TextColor3 = attacking and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(255, 0, 0)
-
+	toolButton.TextColor3 = Color3.fromRGB(200, 0, 0) -- Blood red (unchanged)
 	if not attacking then
 		for _, tool in ipairs(player.Character:GetChildren()) do
 			if tool:IsA("Tool") then

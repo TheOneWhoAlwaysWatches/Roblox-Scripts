@@ -1,0 +1,33 @@
+local function attackLoop()
+    local char = getChar(LocalPlayer)
+    if not char then return end
+
+    for _, tool in ipairs(char:GetChildren()) do
+        if tool:IsA("Tool") then
+            local fightEvent = tool:FindFirstChild("FightEvent")
+            local touchPart = getTouchPart(tool)
+
+            if fightEvent then
+                tool:Activate()
+                fightEvent:FireServer()
+            end
+
+            if touchPart then
+                for _, plr in ipairs(Players:GetPlayers()) do
+                    if plr ~= LocalPlayer then
+                        local hrp = getHRP(plr)
+                        if hrp then
+                            firetouchinterest(touchPart, hrp, 1)
+                            firetouchinterest(touchPart, hrp, 0)
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+-- Use RenderStepped for ultra-fast updates (client-side only)
+RunService.RenderStepped:Connect(function()
+    if running then attackLoop() end
+end)

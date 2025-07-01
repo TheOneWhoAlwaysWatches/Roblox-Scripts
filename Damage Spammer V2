@@ -1,4 +1,6 @@
-local function attackLoop()
+RunService.Heartbeat:Connect(function()
+    if not running then return end
+
     local char = getChar(LocalPlayer)
     if not char then return end
 
@@ -25,9 +27,4 @@ local function attackLoop()
             end
         end
     end
-end
-
--- Use RenderStepped for ultra-fast updates (client-side only)
-RunService.RenderStepped:Connect(function()
-    if running then attackLoop() end
 end)

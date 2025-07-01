@@ -16,18 +16,21 @@ toolButton.Name = "AttackToggle"
 toolButton.Parent = screenGui
 toolButton.Position = UDim2.new(0.5, -40, 0.85, -20)
 toolButton.Size = UDim2.new(0, 80, 0, 40)
-toolButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30) -- Dark gray for contrast
+toolButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Pitch black
 toolButton.Font = Enum.Font.FredokaOne
 toolButton.Text = "OFF"
-toolButton.TextColor3 = Color3.fromRGB(0, 255, 0) -- Green text
+toolButton.TextColor3 = Color3.fromRGB(0, 255, 0) -- Neon green
 toolButton.TextSize = 22
 toolButton.AutoButtonColor = false
 toolButton.BorderSizePixel = 0
 
--- Sharp Red Border
-local stroke = Instance.new("UIStroke", toolButton)
+-- Bold Blood Red Border
+local stroke = Instance.new("UIStroke")
+stroke.Parent = toolButton
 stroke.Thickness = 3
-stroke.Color = Color3.fromRGB(255, 0, 0)
+stroke.Color = Color3.fromRGB(255, 0, 0) -- Blood red
+stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+stroke.LineJoinMode = Enum.LineJoinMode.Round
 
 -- Power Meter
 local powerLabel = Instance.new("TextLabel")

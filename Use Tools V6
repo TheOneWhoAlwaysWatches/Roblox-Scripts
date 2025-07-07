@@ -1,8 +1,11 @@
--- ⚔️ TDW Hyper Tool Spammer (Real-Time, Safe, and Overload-Aware)
+-- ⚔️ TDW Use Tools V6 - Faster Equipping, Shared Hits
 
 local player = game.Players.LocalPlayer
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
+
+-- Shared hit data for external power meter
+getgenv().TDW_HIT_TIMESTAMPS = {}
 
 -- UI Setup
 local screenGui = Instance.new("ScreenGui")
@@ -35,51 +38,25 @@ padding.PaddingBottom = UDim.new(0, 5)
 padding.PaddingLeft = UDim.new(0, 6)
 padding.PaddingRight = UDim.new(0, 6)
 
--- Power Meter Label
-local powerLabel = Instance.new("TextLabel")
-powerLabel.Name = "PowerMeter"
-powerLabel.Parent = screenGui
-powerLabel.Position = UDim2.new(0.5, -70, 0.85, 30)
-powerLabel.Size = UDim2.new(0, 140, 0, 20)
-powerLabel.BackgroundTransparency = 1
-powerLabel.Font = Enum.Font.Code
-powerLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
-powerLabel.TextSize = 18
-powerLabel.Text = "Power: 0/s"
-
 -- Core Variables
 local attacking = false
 local attackSessionId = 0
 local MAX_HITS_PER_FRAME = 30
-local hitTimestamps = {}
 
--- Equip Tools
+-- Fast Equip Function
 local function equipAllTools()
-	if not player.Character then return end
+	local character = player.Character
+	if not character then return end
+
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+	if not humanoid then return end
+
 	for _, tool in ipairs(player.Backpack:GetChildren()) do
 		if tool:IsA("Tool") then
-			tool.Parent = player.Character
+			pcall(function()
+				humanoid:EquipTool(tool)
+			end)
 		end
-	end
-end
-
--- Update Live Power Meter
-local function updatePowerMeter()
-	local now = tick()
-	-- Remove timestamps older than 1 second
-	for i = #hitTimestamps, 1, -1 do
-		if now - hitTimestamps[i] > 1 then
-			table.remove(hitTimestamps, i)
-		end
-	end
-
-	local hitsPerSec = #hitTimestamps
-	if hitsPerSec > 600 then
-		powerLabel.Text = "Overload: " .. hitsPerSec .. "/s"
-		powerLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
-	else
-		powerLabel.Text = "Power: " .. hitsPerSec .. "/s"
-		powerLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
 	end
 end
 
@@ -116,7 +93,7 @@ end)
 -- Auto Equip on Tool Add
 player.Backpack.ChildAdded:Connect(function(child)
 	if child:IsA("Tool") and attacking then
-		child.Parent = player.Character
+		equipAllTools()
 	end
 end)
 
@@ -130,8 +107,6 @@ end)
 
 -- Main Activation Loop
 RunService.Heartbeat:Connect(function()
-	updatePowerMeter()
-
 	if not attacking or not player.Character then return end
 	local session = attackSessionId
 	local hitsThisFrame = 0
@@ -145,7 +120,7 @@ RunService.Heartbeat:Connect(function()
 					if hitsThisFrame >= MAX_HITS_PER_FRAME then break end
 					tool:Activate()
 					hitsThisFrame += 1
-					table.insert(hitTimestamps, tick())
+					table.insert(getgenv().TDW_HIT_TIMESTAMPS, tick())
 				end
 			end)
 		end

@@ -1,0 +1,42 @@
+-- 🔋 TDW Power Meter UI (Shared with Tool Spammer)
+
+local RunService = game:GetService("RunService")
+local timestamps = getgenv().TDW_HIT_TIMESTAMPS or {}
+
+-- Create UI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "DemonicPowerMeter"
+screenGui.Parent = game.CoreGui
+screenGui.ResetOnSpawn = false
+
+local powerLabel = Instance.new("TextLabel")
+powerLabel.Name = "PowerMeter"
+powerLabel.Parent = screenGui
+powerLabel.Position = UDim2.new(0.5, -70, 0.85, 30)
+powerLabel.Size = UDim2.new(0, 140, 0, 20)
+powerLabel.BackgroundTransparency = 1
+powerLabel.Font = Enum.Font.Code
+powerLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+powerLabel.TextSize = 18
+powerLabel.Text = "Power: 0/s"
+
+-- Live update loop
+RunService.Heartbeat:Connect(function()
+	local now = tick()
+
+	-- Remove timestamps older than 1 second
+	for i = #timestamps, 1, -1 do
+		if now - timestamps[i] > 1 then
+			table.remove(timestamps, i)
+		end
+	end
+
+	local hitsPerSec = #timestamps
+	if hitsPerSec > 600 then
+		powerLabel.Text = "Overload: " .. hitsPerSec .. "/s"
+		powerLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+	else
+		powerLabel.Text = "Power: " .. hitsPerSec .. "/s"
+		powerLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+	end
+end)

@@ -30,16 +30,6 @@ if not whitelist[player.UserId] then
     return
 end
 
--- Special Access Tab
-local hiddenTabWhitelist = {
-    [3972688973] = true, -- Main Acc
-    [2522193455] = true, -- Inf God (Alt)
-    [5146822757] = true, -- Monkey (Alt)
-    [5054998059] = true, -- mjendeub (Alt)
-  	[3429553477] = true, -- Dyllan144335 (Alt)
-    [2647384879] = true, -- Crainer (Alt)
-}
-
 local tabs = {}          -- Stores tab buttons
 local tabPages = {}      -- Stores tab content frames
 local currentTab = nil   -- Tracks the currently active tab
@@ -178,11 +168,13 @@ local mainButtons = {
     end },
     { text = "Get Tools V3", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Tools%20V3.lua", true))()
     end },
-    { text = "Use Tools V4", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Use%20Tools%20V4.lua", true))()
+    { text = "Use Tools V6", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Use%20Tools%20V6",true))()
+    end },
+    { text = "Insta-Kill", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Damage%20Spammer%20(Insta-Kill)",true))()
     end },
     { text = "Respawn V3", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V2.lua", true))()
     end },
-    { text = "No Cooldown", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Original%20No%20Cooldown",true))()
+    { text = "No Cooldown V6", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V5.lua", true))()
     end },
     { text = "Infinite Yeild", callback = function() loadstring(game:HttpGet("https://pastebin.com/raw/6rrhy0P1", true))()
     end },
@@ -200,6 +192,8 @@ local miscButtons = {
     { text = "Emote Gui", callback = function() loadstring(game:HttpGet("https://pastebin.com/raw/eCpipCTH",true))()
     end },
     { text = "Ragdoll Tools", callback = function() loadstring(game:HttpGet("https://pastefy.app/xjoCsunl/raw",true))() 
+    end },
+    { text = "God Mode", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/God%20Mode.lua", true))()
     end },
 }
 
@@ -233,20 +227,6 @@ populateButtons(miscPage, miscButtons)
 local hubsPage = createTab("Hubs", "🌐", 350)
 populateButtons(hubsPage, hubButtons)
 
-if hiddenTabWhitelist[player.UserId] then
-    print("Creating hidden tab")
-    local hiddenPage = createTab("Special", "🔒", 430)
-    populateButtons(hiddenPage, {
-        { text = "Use Tools V5", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Use%20Tools%20V5",true))()
-        end },
-        { text = "Insta-Kill", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Damage%20Spammer%20(Insta-Kill)",true))()
-        end },
-        { text = "No Cooldown", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V5.lua", true))()
-        end },
-        { text = "God Mode", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/God%20Mode.lua", true))()
-        end },
-    })
-end
 -- TDW Title
 local TDWFrame = Instance.new("Frame")
 TDWFrame.Size = UDim2.new(0, 30, 1, -26)

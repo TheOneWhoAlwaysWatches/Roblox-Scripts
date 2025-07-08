@@ -1,4 +1,4 @@
--- ⚔️ TDW Use Tools V7 - Fast & Stable Equipping, Purple Themed UI + Glow
+-- ⚔️ TDW Use Tools V6 - Fast & Stable Equipping, Purple Themed UI + Glow
 
 local player = game.Players.LocalPlayer
 local RunService = game:GetService("RunService")

@@ -48,9 +48,10 @@ local function equipAllTools()
 	local character = player.Character
 	if not character then return end
 
-for _, tool in ipairs(player.Backpack:GetChildren()) do
-	if tool:IsA("Tool") then
-		tool.Parent = character
+	for _, tool in ipairs(player.Backpack:GetChildren()) do
+		if tool:IsA("Tool") then
+			tool.Parent = character
+		end
 	end
 end
 

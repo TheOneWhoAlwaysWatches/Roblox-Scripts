@@ -48,15 +48,9 @@ local function equipAllTools()
 	local character = player.Character
 	if not character then return end
 
-	local humanoid = character:FindFirstChildOfClass("Humanoid")
-	if not humanoid then return end
-
-	for _, tool in ipairs(player.Backpack:GetChildren()) do
-		if tool:IsA("Tool") then
-			pcall(function()
-				humanoid:EquipTool(tool)
-			end)
-		end
+for _, tool in ipairs(player.Backpack:GetChildren()) do
+	if tool:IsA("Tool") then
+		tool.Parent = character
 	end
 end
 

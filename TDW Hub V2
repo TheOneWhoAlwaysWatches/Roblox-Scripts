@@ -59,7 +59,7 @@ LoopBringButton.BorderColor3 = Color3.fromRGB(128, 0, 128)
 LoopBringButton.Text = "[LoopBring]"
 LoopBringButton.Font = Enum.Font.SourceSansBold
 LoopBringButton.TextSize = 14
-LoopBringButton.TextColor3 = Color3.fromRGB(255, 0, 0)
+LoopBringButton.TextColor3 = Color3.fromRGB(200, 0, 255)
 LoopBringButton.Parent = MainFrame
 
 -- Divider under LoopBring and Tabs
@@ -95,7 +95,7 @@ local function populateButtons(tabFrame, buttonSpecs)
         button.Text = spec.text
         button.Font = Enum.Font.SourceSansBold
         button.TextSize = 14
-        button.TextColor3 = Color3.fromRGB(0, 255, 0)
+        button.TextColor3 = Color3.fromRGB(200, 0, 255)
         button.Parent = tabFrame
 
         button.MouseButton1Click:Connect(spec.callback)
@@ -112,7 +112,7 @@ local function populateTips(tabFrame, tips)
         label.Text = "Tip: " .. text
         label.Font = Enum.Font.SourceSansBold
         label.TextSize = 14
-        label.TextColor3 = Color3.fromRGB(0, 255, 0)
+        label.TextColor3 = Color3.fromRGB(200, 0, 255)
         label.TextXAlignment = Enum.TextXAlignment.Left
         label.Parent = tabFrame
     end
@@ -128,7 +128,7 @@ local function createTab(name, icon, position)
     btn.Text = icon .. " " .. name
     btn.Font = Enum.Font.SourceSansBold
     btn.TextSize = 18
-    btn.TextColor3 = Color3.fromRGB(0, 255, 0)
+    btn.TextColor3 = Color3.fromRGB(200, 0, 255)
     btn.Parent = MainFrame
 
     local page = Instance.new("Frame")
@@ -244,7 +244,7 @@ for i, letter in ipairs(sideLabels) do
     label.Text = letter
     label.Font = Enum.Font.SourceSansBold
     label.TextSize = 30
-    label.TextColor3 = Color3.fromRGB(255, 0, 0)
+    label.TextColor3 = Color3.fromRGB(143, 0, 245)
     label.BackgroundTransparency = 1
     label.Parent = TDWFrame
 end
@@ -268,7 +268,7 @@ ToggleInfoButton.BorderColor3 = Color3.fromRGB(128, 0, 128)
 ToggleInfoButton.Text = "Stats"
 ToggleInfoButton.Font = Enum.Font.SourceSansBold
 ToggleInfoButton.TextSize = 14
-ToggleInfoButton.TextColor3 = Color3.fromRGB(255, 0, 0)
+ToggleInfoButton.TextColor3 = Color3.fromRGB(143, 0, 245)
 ToggleInfoButton.Parent = MainFrame
 
 ToggleInfoButton.MouseButton1Click:Connect(function()
@@ -283,7 +283,7 @@ Username.Text = "User:\n" .. LocalPlayer.Name
 Username.TextWrapped = true
 Username.Font = Enum.Font.SourceSansBold
 Username.TextSize = 14
-Username.TextColor3 = Color3.fromRGB(0, 255, 0)
+Username.TextColor3 = Color3.fromRGB(200, 0, 255)
 Username.BackgroundTransparency = 1
 Username.Parent = InfoPanel
 
@@ -302,7 +302,7 @@ FPS.Position = UDim2.new(0, 0, 0, 130)
 FPS.Text = "FPS: 0"
 FPS.Font = Enum.Font.SourceSansBold
 FPS.TextSize = 18
-FPS.TextColor3 = Color3.fromRGB(0, 255, 0)
+FPS.TextColor3 = Color3.fromRGB(200, 0, 255)
 FPS.BackgroundTransparency = 1
 FPS.Parent = InfoPanel
 
@@ -313,7 +313,7 @@ Ping.Position = UDim2.new(0, 0, 0, 155)
 Ping.Text = "Ping: 0ms"
 Ping.Font = Enum.Font.SourceSansBold
 Ping.TextSize = 18
-Ping.TextColor3 = Color3.fromRGB(0, 255, 0)
+Ping.TextColor3 = Color3.fromRGB(200, 0, 255)
 Ping.BackgroundTransparency = 1
 Ping.Parent = InfoPanel
 
@@ -324,7 +324,7 @@ ToolCount.Position = UDim2.new(0, 0, 0, 180)
 ToolCount.Text = "Tools: 0"
 ToolCount.Font = Enum.Font.SourceSansBold
 ToolCount.TextSize = 18
-ToolCount.TextColor3 = Color3.fromRGB(0, 255, 0)
+ToolCount.TextColor3 = Color3.fromRGB(200, 0, 255)
 ToolCount.BackgroundTransparency = 1
 ToolCount.Parent = InfoPanel
 
@@ -368,7 +368,7 @@ DistanceLabel.Position = UDim2.new(0, 0, 0, 0)
 DistanceLabel.Text = "Distance: 5"
 DistanceLabel.Font = Enum.Font.SourceSansBold
 DistanceLabel.TextSize = 16
-DistanceLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+DistanceLabel.TextColor3 = Color3.fromRGB(200, 0, 255)
 DistanceLabel.BackgroundTransparency = 1
 DistanceLabel.Parent = LoopBringPanel
 
@@ -378,7 +378,7 @@ PlusButton.Position = UDim2.new(1, -60, 0, 0)
 PlusButton.Text = "+"
 PlusButton.Font = Enum.Font.SourceSansBold
 PlusButton.TextSize = 18
-PlusButton.TextColor3 = Color3.fromRGB(0, 255, 0)
+PlusButton.TextColor3 = Color3.fromRGB(200, 0, 255)
 PlusButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 PlusButton.BorderColor3 = Color3.fromRGB(128, 0, 128)
 PlusButton.Parent = LoopBringPanel
@@ -389,7 +389,7 @@ MinusButton.Position = UDim2.new(1, -30, 0, 0)
 MinusButton.Text = "-"
 MinusButton.Font = Enum.Font.SourceSansBold
 MinusButton.TextSize = 18
-MinusButton.TextColor3 = Color3.fromRGB(0, 255, 0)
+MinusButton.TextColor3 = Color3.fromRGB(200, 0, 255)
 MinusButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 MinusButton.BorderColor3 = Color3.fromRGB(128, 0, 128)
 MinusButton.Parent = LoopBringPanel
@@ -428,16 +428,16 @@ local function refreshPlayerButtons()
             button.Text = player.Name
             button.Font = Enum.Font.SourceSansBold
             button.TextSize = 14
-            button.TextColor3 = Color3.fromRGB(0, 255, 0)
+            button.TextColor3 = Color3.fromRGB(200, 0, 255)
             button.Parent = playerListFrame
 
             button.MouseButton1Click:Connect(function()
                 if selectedPlayers[player] then
                     selectedPlayers[player] = nil
-                    button.TextColor3 = Color3.fromRGB(0, 255, 0)
+                    button.TextColor3 = Color3.fromRGB(200, 0, 255)
                 else
                     selectedPlayers[player] = true
-                    button.TextColor3 = Color3.fromRGB(255, 0, 0)
+                    button.TextColor3 = Color3.fromRGB(143, 0, 245)
                 end
             end)
 
@@ -474,7 +474,7 @@ toggleButton.Position = UDim2.new(0, 20, 0, 20)
 toggleButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)          -- black
 toggleButton.BorderColor3 = Color3.fromRGB(128, 0, 128)            -- red border
 toggleButton.BorderSizePixel = 2
-toggleButton.TextColor3 = Color3.fromRGB(0, 255, 0)              -- green text
+toggleButton.TextColor3 = Color3.fromRGB(200, 0, 255)              -- green text
 toggleButton.Text = "Close Hub"
 toggleButton.Font = Enum.Font.SourceSansBold
 toggleButton.TextSize = 16

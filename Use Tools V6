@@ -85,10 +85,10 @@ UserInputService.InputBegan:Connect(function(input, gp)
 	end
 end)
 
--- Auto Equip on Tool Add
+-- Instant Equip per Tool
 player.Backpack.ChildAdded:Connect(function(child)
 	if child:IsA("Tool") and attacking then
-		equipAllTools()
+		child.Parent = player.Character
 	end
 end)
 

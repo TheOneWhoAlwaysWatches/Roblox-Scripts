@@ -236,7 +236,7 @@ TDWFrame.Position = UDim2.new(0, 35, 0, 26) -- Adjusted position (moved right)
 TDWFrame.BackgroundTransparency = 1
 TDWFrame.Parent = MainFrame
 
-local sideLabels = {"T", "D", "W"}
+local sideLabels = {"T", "O", "R"}
 for i, letter in ipairs(sideLabels) do
     local label = Instance.new("TextLabel")
     label.Size = UDim2.new(0, 30, 0, 50)

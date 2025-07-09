@@ -3,6 +3,9 @@
 local player = game.Players.LocalPlayer
 local RunService = game:GetService("RunService")
 
+-- Shared hit timestamps for power meter
+getgenv().TDW_HIT_TIMESTAMPS = {}
+
 -- UI Setup
 local screenGui = Instance.new("ScreenGui", game.CoreGui)
 screenGui.Name = "DemonicToolGui"
@@ -35,7 +38,10 @@ local function activateTool(tool)
 
 	task.spawn(function()
 		while attacking and tool.Parent == player.Character do
-			pcall(function() tool:Activate() end)
+			pcall(function() 
+				tool:Activate() 
+				table.insert(getgenv().TDW_HIT_TIMESTAMPS, tick())
+			end)
 			RunService.PostSimulation:Wait()
 		end
 		activeTools[tool] = nil

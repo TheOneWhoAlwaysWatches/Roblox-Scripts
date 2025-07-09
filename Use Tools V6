@@ -7,8 +7,9 @@ local RunService = game:GetService("RunService")
 getgenv().TDW_HIT_TIMESTAMPS = {}
 
 -- UI Setup
-local screenGui = Instance.new("ScreenGui", game.CoreGui)
+local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "DemonicToolGui"
+screenGui.Parent = game.CoreGui
 screenGui.ResetOnSpawn = false
 
 local toolButton = Instance.new("TextButton")
@@ -16,17 +17,39 @@ toolButton.Name = "AttackToggle"
 toolButton.Parent = screenGui
 toolButton.Position = UDim2.new(0.5, -40, 0.85, -20)
 toolButton.Size = UDim2.new(0, 80, 0, 40)
-toolButton.BackgroundColor3 = Color3.fromRGB(40, 0, 0)
-toolButton.Font = Enum.Font.GothamBlack
+toolButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+toolButton.Font = Enum.Font.FredokaOne
 toolButton.Text = "OFF"
-toolButton.TextColor3 = Color3.fromRGB(180, 100, 255)
-toolButton.TextSize = 20
-
-Instance.new("UICorner", toolButton).CornerRadius = UDim.new(0.2, 0)
+toolButton.TextColor3 = Color3.fromRGB(180, 100, 255) -- purple text
+toolButton.TextSize = 22
+toolButton.AutoButtonColor = false
+toolButton.BorderSizePixel = 0
 
 local stroke = Instance.new("UIStroke", toolButton)
-stroke.Thickness = 2
-stroke.Color = Color3.fromRGB(120, 40, 200)
+stroke.Thickness = 3
+stroke.Color = Color3.fromRGB(120, 40, 200) -- purple border
+stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+local padding = Instance.new("UIPadding", toolButton)
+padding.PaddingTop = UDim.new(0, 5)
+padding.PaddingBottom = UDim.new(0, 5)
+padding.PaddingLeft = UDim.new(0, 6)
+padding.PaddingRight = UDim.new(0, 6)
+
+-- Glow Effect using UIGradient pulsing
+local glow = Instance.new("UIGradient", toolButton)
+glow.Rotation = 45
+local pulseTweenInfo = TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
+local TweenService = game:GetService("TweenService")
+
+glow.Color = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(120, 40, 200)),
+	ColorSequenceKeypoint.new(0.5, Color3.fromRGB(180, 100, 255)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(120, 40, 200)),
+})
+
+local pulseTween = TweenService:Create(glow, pulseTweenInfo, {Offset = Vector2.new(0.3, 0)})
+pulseTween:Play()
 
 -- Logic
 local attacking = false

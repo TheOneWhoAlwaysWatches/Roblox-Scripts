@@ -476,6 +476,10 @@ RunService.Heartbeat:Connect(function(dt)
     end
 end)
 
+LoopBringButton.MouseButton1Click:Connect(function()
+    LoopBringPanel.Visible = not LoopBringPanel.Visible
+end)
+
 local UserInputService = game:GetService("UserInputService")
 
 local toggleButton = Instance.new("TextButton")
@@ -567,4 +571,4 @@ end)
 toggleButton.MouseButton1Click:Connect(function()
 	MainFrame.Visible = not MainFrame.Visible
 	toggleButton.Text = MainFrame.Visible and "Close Hub" or "Open Hub"
-end)  
+end)

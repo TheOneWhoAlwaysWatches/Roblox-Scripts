@@ -1,0 +1,273 @@
+-- Services
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local LocalPlayer = Players.LocalPlayer
+
+-- === Whitelist ===
+local whitelist = {
+    [3972688973] = true, -- Main Acc
+    [2522193455] = true, -- Inf God (Alt)
+    [5146822757] = true, -- Monkey (Alt)
+    [5054998059] = true, -- mjendeub (Alt)
+  	[3429553477] = true, -- Dyllan144335 (Alt)
+    [2647384879] = true, -- Crainer (Alt)
+    [8892518697] = true, -- Getoutmywaylillbro (My Alt)
+    [8893225109] = true, -- Mr. Fish (My Alt)
+    [8407911841] = true, -- Void (Star)
+    [8646139977] = true, -- Stars Alt
+    [1548866917] = true, -- Timmy
+    [8551057429] = true, -- Timmy Alt
+    [1799483953] = true, -- Sword
+    [5372361079] = true, -- Alijah
+    [1746591571] = true, -- Jenn
+    [2901968025] = true, -- Eggy Alt
+    [1513169967] = true, -- Eggy Main
+    [7641469342] = true, -- Eggy Other Alt
+    [8695113281] = true, -- Eggy Other Other Alt
+    [4150656085] = true, -- Zach Main
+    [8811302905] = true, -- Zach Alt
+    [8062979485] = true, -- Troy Main
+    [8129415259] = true, -- Troy Alt
+}
+
+if not whitelist[LocalPlayer.UserId] then
+    LocalPlayer:Kick("GET OUT.")
+    return
+end
+
+-- === Core UI ===
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "ScriptHubUI"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = game.CoreGui
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 650, 0, 360)
+MainFrame.Position = UDim2.new(0.5, -325, 0.5, -180)
+MainFrame.BackgroundColor3 = Color3.fromRGB(10, 0, 20)
+MainFrame.BorderSizePixel = 0
+MainFrame.Parent = ScreenGui
+
+local corner = Instance.new("UICorner", MainFrame)
+corner.CornerRadius = UDim.new(0, 8)
+
+local stroke = Instance.new("UIStroke", MainFrame)
+stroke.Color = Color3.fromRGB(180, 0, 255)
+stroke.Thickness = 2
+
+local grad = Instance.new("UIGradient", MainFrame)
+grad.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(60, 0, 60)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 0, 0))
+}
+grad.Rotation = 45
+
+-- === Toggle Button ===
+local toggleButton = Instance.new("TextButton")
+toggleButton.Name = "HubToggle"
+toggleButton.Size = UDim2.new(0, 120, 0, 40)
+toggleButton.Position = UDim2.new(0, 20, 0, 20)
+toggleButton.BackgroundColor3 = Color3.fromRGB(10, 0, 20)
+toggleButton.BorderSizePixel = 0
+toggleButton.TextColor3 = Color3.fromRGB(200, 0, 255)
+toggleButton.Text = "Close Hub"
+toggleButton.Font = Enum.Font.Code
+toggleButton.TextSize = 16
+toggleButton.ZIndex = 9999
+toggleButton.Parent = ScreenGui
+
+Instance.new("UICorner", toggleButton).CornerRadius = UDim.new(0, 8)
+Instance.new("UIStroke", toggleButton).Color = Color3.fromRGB(180, 0, 255)
+Instance.new("UIGradient", toggleButton).Color = grad.Color
+
+-- === Top Divider ===
+local TopDivider = Instance.new("Frame")
+TopDivider.Size = UDim2.new(1, 0, 0, 2)
+TopDivider.Position = UDim2.new(0, 0, 0, 28)
+TopDivider.BackgroundColor3 = Color3.fromRGB(180, 0, 255)
+TopDivider.BorderSizePixel = 0
+TopDivider.Parent = MainFrame
+
+-- === Tab System ===
+local tabs, tabPages, currentTab = {}, {}, nil
+
+local function createTab(name, icon, position)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0, 90, 0, 28)
+    btn.Position = UDim2.new(0, position, 0, 0)
+    btn.BackgroundColor3 = Color3.fromRGB(10, 0, 20)
+    btn.BorderSizePixel = 0
+    btn.Text = icon .. " " .. name
+    btn.Font = Enum.Font.Code
+    btn.TextSize = 16
+    btn.TextColor3 = Color3.fromRGB(200, 0, 255)
+    btn.Parent = MainFrame
+
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
+    Instance.new("UIStroke", btn).Color = Color3.fromRGB(180, 0, 255)
+
+    local page = Instance.new("Frame")
+    page.Name = name .. "Page"
+    page.Position = UDim2.new(0, 0, 0, 30)
+    page.Size = UDim2.new(1, 0, 1, -30)
+    page.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    page.Visible = false
+    page.Parent = MainFrame
+
+    Instance.new("UICorner", page).CornerRadius = UDim.new(0, 4)
+
+    tabs[name] = btn
+    tabPages[name] = page
+
+    btn.MouseButton1Click:Connect(function()
+        if currentTab then
+            tabPages[currentTab].Visible = false
+        end
+        currentTab = name
+        page.Visible = true
+    end)
+
+    return page
+end
+
+local function populateButtons(tabFrame, specs)
+    for i, spec in ipairs(specs) do
+        local b = Instance.new("TextButton")
+        b.Size = UDim2.new(0, 120, 0, 30)
+        b.Position = UDim2.new(0, 20, 0, 40 * i)
+        b.BackgroundColor3 = Color3.fromRGB(10, 0, 20)
+        b.Text = spec.text
+        b.Font = Enum.Font.Code
+        b.TextSize = 14
+        b.TextColor3 = Color3.fromRGB(200, 0, 255)
+        b.Parent = tabFrame
+
+        Instance.new("UICorner", b).CornerRadius = UDim.new(0, 4)
+        Instance.new("UIStroke", b).Color = Color3.fromRGB(180, 0, 255)
+
+        b.MouseButton1Click:Connect(spec.callback)
+    end
+end
+
+local function populateTips(tabFrame, tips)
+    for i, text in ipairs(tips) do
+        local l = Instance.new("TextLabel")
+        l.Size = UDim2.new(1, -20, 0, 30)
+        l.Position = UDim2.new(0, 10, 0, (i - 1) * 35 + 10)
+        l.BackgroundTransparency = 1
+        l.Text = "Tips" .. text
+        l.Font = Enum.Font.Code
+        l.TextSize = 14
+        l.TextColor3 = Color3.fromRGB(200, 0, 255)
+        l.TextXAlignment = Enum.TextXAlignment.Left
+        l.Parent = tabFrame
+    end
+end
+
+-- Buttons
+local mainButtons = {
+    { text = "Get Base V3", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Base%20V3",true))()
+    end },
+    { text = "Get Tools V4", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Tools%20V4.lua", true))()
+    end },
+    { text = "Use Tools V6", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Use%20Tools%20V6",true))()
+    end },
+    { text = "Insta-Kill", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Damage%20Spammer%20(Insta-Kill)",true))()
+    end },
+    { text = "Loopbring V7", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Loopbring%20V4.lua",true))()
+    end },
+    { text = "Kill Counter", callback = function() print("Coming Soon")
+    end },
+    { text = "Power Meter V1", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Power%20Meter%20V1",true))()
+    end },
+    { text = "No Cooldown V6", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V5.lua", true))()
+    end },
+    { text = "Respawn V4", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V4.lua", true))()
+    end },
+    { text = "Infinite Yeild", callback = function() loadstring(game:HttpGet("https://pastebin.com/raw/6rrhy0P1", true))()
+    end },
+    { text = "Anti-Lag", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Lag", true))()
+    end },
+    { text = "Fly Tools V1", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Fly%20Tools",true))()
+    end },
+    { text = "Normal Aura", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20Aura", true))()
+    end },
+}
+
+local miscButtons = {
+    { text = "Chat Spy", callback = function() loadstring(game:HttpGet("https://pastebin.com/raw/w1DW0m31",true))()
+    end },
+    { text = "Emote Gui", callback = function() loadstring(game:HttpGet("https://pastebin.com/raw/eCpipCTH",true))()
+    end },
+    { text = "Ragdoll Tools", callback = function() loadstring(game:HttpGet("https://pastefy.app/xjoCsunl/raw",true))() 
+    end },
+    { text = "God Mode", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/God%20Mode.lua", true))()
+    end },
+}
+
+local hubButtons = {
+    { text = "CTLM Hub V1", callback = function() loadstring(game:HttpGet("https://pastefy.app/kwOI1DmM/raw",true))() 
+    end },
+    { text = "Destroyer Hub", callback = function() loadstring(game:HttpGet("https://pastefy.app/xhFiwEWy/raw",true))() 
+    end },
+    { text = "Acrylix", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/3dsonsuce/acrylix/main/Acrylix",true))()
+    end },
+}
+
+local tips = {
+    "Tip 1 --> Dont use God Mode if you have Respawn activated",
+    "Tip 2 --> Dont use No Cooldown with Insta Kill Aura",
+    "Tip 3 --> Dont use Insta Kill Aura with Normal Aura",
+    "Tip 4 --> Inf axe smash is inside Acrylix..",
+    "Tip 5 --> Dont trust random exploiters trying to give you scripts, they could be dangerous!!"
+}
+
+-- Creating and populating tabs
+local tipsPage = createTab("Tips", "🧠", 110)
+populateTips(tipsPage, tips)
+
+local mainPage = createTab("Main", "💀", 190)
+populateButtons(mainPage, mainButtons)
+
+local miscPage = createTab("Misc", "🔧", 270)
+populateButtons(miscPage, miscButtons)
+
+local hubsPage = createTab("Hubs", "🌐", 350)
+populateButtons(hubsPage, hubButtons)
+
+-- === Dragging ===
+local drag, dragInput, dragStart, startPos
+
+MainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        drag = true
+        dragStart = input.Position
+        startPos = MainFrame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                drag = false
+            end
+        end)
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
+    end
+    if drag and input == dragInput then
+        local delta = input.Position - dragStart
+        MainFrame.Position = UDim2.new(
+            startPos.X.Scale, startPos.X.Offset + delta.X,
+            startPos.Y.Scale, startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
+-- === Toggle ===
+toggleButton.MouseButton1Click:Connect(function()
+    MainFrame.Visible = not MainFrame.Visible
+    toggleButton.Text = MainFrame.Visible and "Close Hub" or "Open Hub"
+end)

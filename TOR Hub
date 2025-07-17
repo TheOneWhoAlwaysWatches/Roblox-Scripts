@@ -264,7 +264,7 @@ InfoPanel.BorderSizePixel = 2
 InfoPanel.Visible = true
 InfoPanel.Parent = MainFrame
 
--- Toggle InfoPanel button
+-- Toggle InfoPanel button (now labeled "Stats")
 local ToggleInfoButton = Instance.new("TextButton")
 ToggleInfoButton.Size = UDim2.new(0, 50, 0, 20)
 ToggleInfoButton.Position = UDim2.new(1, -50, 0, 0)
@@ -475,6 +475,8 @@ RunService.Heartbeat:Connect(function(dt)
         end
     end
 end)
+
+local UserInputService = game:GetService("UserInputService")
 
 local toggleButton = Instance.new("TextButton")
 toggleButton.Name = "HubToggle"

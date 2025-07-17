@@ -64,6 +64,22 @@ grad.Color = ColorSequence.new{
 }
 grad.Rotation = 45
 
+-- Crack/Glitch Lines Overlay
+local function addCrackLines(parent, count)
+    for i = 1, count do
+        local line = Instance.new("Frame")
+        local isHorizontal = math.random() > 0.5
+        line.Size = isHorizontal and UDim2.new(0, math.random(50, 300), 0, 1) or UDim2.new(0, 1, 0, math.random(50, 200))
+        line.Position = UDim2.new(0, math.random(0, parent.Size.X.Offset), 0, math.random(0, parent.Size.Y.Offset))
+        line.BackgroundColor3 = Color3.fromRGB(128, 0, 128) -- neon purple
+        line.BackgroundTransparency = 0.5
+        line.BorderSizePixel = 0
+        line.Parent = parent
+    end
+end
+
+addCrackLines(MainFrame, 20)
+
 -- === Toggle Button ===
 local toggleButton = Instance.new("TextButton")
 toggleButton.Name = "HubToggle"

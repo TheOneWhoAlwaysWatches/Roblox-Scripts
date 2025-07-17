@@ -1,566 +1,339 @@
--- Services
-local RunService = game:GetService("RunService")
+-- ⚡ GOD CHAIN V2 (Stable Toggle & LoopBring)
+-- Combines: UltraFast Respawn + Tool Grabber + Hyper Tool Spammer + InstaKill Aura + Power Meter + Toggle + LoopBring
+
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
 local LocalPlayer = Players.LocalPlayer
+local Tycoons = workspace:WaitForChild("Tycoons")
 
-local whitelist = {
-    [3972688973] = true, -- Main Acc
-    [2522193455] = true, -- Inf God (Alt)
-    [5146822757] = true, -- Monkey (Alt)
-    [5054998059] = true, -- mjendeub (Alt)
-  	[3429553477] = true, -- Dyllan144335 (Alt)
-    [2647384879] = true, -- Crainer (Alt)
-    [8892518697] = true, -- Getoutmywaylillbro (My Alt)
-    [8893225109] = true, -- Mr. Fish (My Alt)
-    [8407911841] = true, -- Void (Star)
-    [8646139977] = true, -- Stars Alt
-    [1548866917] = true, -- Timmy
-    [8551057429] = true, -- Timmy Alt
-    [1799483953] = true, -- Sword
-    [5372361079] = true, -- Alijah
-    [1746591571] = true, -- Jenn
-    [2901968025] = true, -- Eggy Alt
-    [1513169967] = true, -- Eggy Main
-    [7641469342] = true, -- Eggy Other Alt
-    [8695113281] = true, -- Eggy Other Other Alt
-    [4150656085] = true, -- Zach Main
-    [8811302905] = true, -- Zach Alt
-    [8062979485] = true, -- Troy Main
-    [8129415259] = true, -- Troy Alt
-}
+-- === CONFIG ===
+local respawnRemote = ReplicatedStorage:FindFirstChild("Guide")
+local excludedBases = { "Insanity", "Giant", "Dark", "Spike", "Web", "Strong" }
+local allowedBases = { "Stone", "Magic", "Storm" }
+local auraRange = 20
+local auraSize = Vector3.new(30, 30, 30)
+local attackRate = 0.005
 
-local player = game.Players.LocalPlayer
-if not whitelist[player.UserId] then
-    player:Kick("GET OUT.")
-    return
-end
+-- === STATE ===
+local excludedBasesSet, allowedBasesSet = {}, {}
+for _, base in ipairs(excludedBases) do excludedBasesSet[base] = true end
+for _, base in ipairs(allowedBases) do allowedBasesSet[base] = true end
 
-local tabs = {}          -- Stores tab buttons
-local tabPages = {}      -- Stores tab content frames
-local currentTab = nil   -- Tracks the currently active tab
+getgenv().TDW_HIT_TIMESTAMPS = {}
+_G.UltraRespawnActive = true
+local running = true
+local toolSpammerActive = true -- default ON
 
--- Recreate Script Hub UI
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "ScriptHubUI"
-ScreenGui.ResetOnSpawn = false
-ScreenGui.Parent = game.CoreGui
+local auraParams = OverlapParams.new()
+auraParams.FilterType = Enum.RaycastFilterType.Include
 
--- Main Frame
-local MainFrame = Instance.new("Frame")
-MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 650, 0, 360)
-MainFrame.Position = UDim2.new(0.5, -325, 0.5, -180)
-MainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-MainFrame.BorderColor3 = Color3.fromRGB(128, 0, 128)
-MainFrame.BorderSizePixel = 2
-MainFrame.Parent = ScreenGui
+-- === UI: Power Meter ===
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "GodChainUI"
+screenGui.Parent = game.CoreGui
+screenGui.ResetOnSpawn = false
 
--- LoopBring Button
-local LoopBringButton = Instance.new("TextButton")
-LoopBringButton.Size = UDim2.new(0, 100, 0, 25)
-LoopBringButton.Position = UDim2.new(0, 0, 0, 0)
-LoopBringButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-LoopBringButton.BorderColor3 = Color3.fromRGB(128, 0, 128)
-LoopBringButton.Text = "[LoopBring]"
-LoopBringButton.Font = Enum.Font.SourceSansBold
-LoopBringButton.TextSize = 14
-LoopBringButton.TextColor3 = Color3.fromRGB(200, 0, 255)
-LoopBringButton.Parent = MainFrame
+local powerLabel = Instance.new("TextLabel")
+powerLabel.Name = "PowerMeter"
+powerLabel.Parent = screenGui
+powerLabel.Position = UDim2.new(0.5, -70, 0.85, 30)
+powerLabel.Size = UDim2.new(0, 140, 0, 20)
+powerLabel.BackgroundTransparency = 1
+powerLabel.Font = Enum.Font.Code
+powerLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+powerLabel.TextSize = 18
+powerLabel.Text = "Power: 0/s"
 
--- Divider under LoopBring and Tabs
-local TopDivider = Instance.new("Frame")
-TopDivider.Size = UDim2.new(1, 0, 0, 1)
-TopDivider.Position = UDim2.new(0, 0, 0, 26)
-TopDivider.BackgroundColor3 = Color3.fromRGB(128, 0, 128)
-TopDivider.BorderSizePixel = 0
-TopDivider.Parent = MainFrame
-
--- Left Divider Line for LoopBring
-local LeftDivider = Instance.new("Frame")
-LeftDivider.Size = UDim2.new(0, 2, 1, -26)
-LeftDivider.Position = UDim2.new(0, 100, 0, 26)
-LeftDivider.BackgroundColor3 = Color3.fromRGB(128, 0, 128)
-LeftDivider.BorderSizePixel = 0
-LeftDivider.Parent = MainFrame
-
--- Function to create buttons dynamically within a tab page
-local function populateButtons(tabFrame, buttonSpecs)
-    local columns = 4
-    local spacingX, spacingY = 100, 40
-    local startX, startY = 10, 10
-
-    for i, spec in ipairs(buttonSpecs) do
-        local button = Instance.new("TextButton")
-        button.Size = UDim2.new(0, 90, 0, 30)
-        local row = math.floor((i - 1) / columns)
-        local col = (i - 1) % columns
-        button.Position = UDim2.new(0, startX + col * spacingX, 0, startY + row * spacingY)
-        button.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-        button.BorderColor3 = Color3.fromRGB(128, 0, 128)
-        button.Text = spec.text
-        button.Font = Enum.Font.SourceSansBold
-        button.TextSize = 14
-        button.TextColor3 = Color3.fromRGB(200, 0, 255)
-        button.Parent = tabFrame
-
-        button.MouseButton1Click:Connect(spec.callback)
-    end
-end
-
--- Function to create tip labels
-local function populateTips(tabFrame, tips)
-    for i, text in ipairs(tips) do
-        local label = Instance.new("TextLabel")
-        label.Size = UDim2.new(1, -20, 0, 30)
-        label.Position = UDim2.new(0, 10, 0, (i - 1) * 35 + 10)
-        label.BackgroundTransparency = 1
-        label.Text = "Tip: " .. text
-        label.Font = Enum.Font.SourceSansBold
-        label.TextSize = 14
-        label.TextColor3 = Color3.fromRGB(200, 0, 255)
-        label.TextXAlignment = Enum.TextXAlignment.Left
-        label.Parent = tabFrame
-    end
-end
-
--- Create tab logic and populate later
-local function createTab(name, icon, position)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0, 80, 0, 25)
-    btn.Position = UDim2.new(0, position, 0, 0)
-    btn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    btn.BorderSizePixel = 0
-    btn.Text = icon .. " " .. name
-    btn.Font = Enum.Font.SourceSansBold
-    btn.TextSize = 18
-    btn.TextColor3 = Color3.fromRGB(200, 0, 255)
-    btn.Parent = MainFrame
-
-    local page = Instance.new("Frame")
-    page.Name = name .. "Page"
-    page.Position = UDim2.new(0, 100, 0, 26)
-    page.Size = UDim2.new(1, -100, 1, -26)
-    page.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    page.BorderColor3 = Color3.fromRGB(128, 0, 128)
-    page.BorderSizePixel = 2
-    page.Visible = false
-    page.Parent = MainFrame
-
-    tabs[name] = btn
-    tabPages[name] = page
-
-    local divider = Instance.new("Frame")
-    divider.Size = UDim2.new(0, 1, 1, 0)
-    divider.Position = UDim2.new(1, 0, 0, 0)
-    divider.BackgroundColor3 = Color3.fromRGB(128, 0, 128)
-    divider.BorderSizePixel = 0
-    divider.Parent = btn
-
-    btn.MouseButton1Click:Connect(function()
-        if currentTab and tabPages[currentTab] then
-            tabPages[currentTab].Visible = false
-        end
-        currentTab = name
-        tabPages[name].Visible = true
-    end)
-
-    return page
-end
-
--- Example data for each tab
-local mainButtons = {
-    { text = "Get Base V3", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Base%20V3",true))()
-    end },
-    { text = "OP Script Combination", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Ultra%20Script%20Combination",true))()
-    end },
-    { text = "Get Tools V4", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Tools%20V4.lua", true))()
-    end },
-    { text = "Use Tools V6", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Use%20Tools%20V6",true))()
-    end },
-    { text = "Insta-Kill", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Damage%20Spammer%20(Insta-Kill)",true))()
-    end },
-    { text = "Power Meter V1", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Power%20Meter%20V1",true))()
-    end },
-    { text = "No Cooldown V6", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V5.lua", true))()
-    end },
-    { text = "Respawn V4", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V4.lua", true))()
-    end },
-    { text = "Infinite Yeild", callback = function() loadstring(game:HttpGet("https://pastebin.com/raw/6rrhy0P1", true))()
-    end },
-    { text = "Anti-Lag", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Lag", true))()
-    end },
-    { text = "Fly Tools V1", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Fly%20Tools",true))()
-    end },
-    { text = "Normal Aura", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20Aura", true))()
-    end },
-}
-
-local miscButtons = {
-    { text = "Chat Spy", callback = function() loadstring(game:HttpGet("https://pastebin.com/raw/w1DW0m31",true))()
-    end },
-    { text = "Emote Gui", callback = function() loadstring(game:HttpGet("https://pastebin.com/raw/eCpipCTH",true))()
-    end },
-    { text = "Ragdoll Tools", callback = function() loadstring(game:HttpGet("https://pastefy.app/xjoCsunl/raw",true))() 
-    end },
-    { text = "God Mode", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/God%20Mode.lua", true))()
-    end },
-}
-
-local hubButtons = {
-    { text = "CTLM Hub V1", callback = function() loadstring(game:HttpGet("https://pastefy.app/kwOI1DmM/raw",true))() 
-    end },
-    { text = "Destroyer Hub", callback = function() loadstring(game:HttpGet("https://pastefy.app/xhFiwEWy/raw",true))() 
-    end },
-    { text = "Acrylix", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/3dsonsuce/acrylix/main/Acrylix",true))()
-    end },
-}
-
-local tips = {
-    "Tip 1 --> Dont use God Mode if you have Respawn activated",
-    "Tip 2 --> Dont use No Cooldown with Insta Kill Aura",
-    "Tip 3 --> Dont use Insta Kill Aura with Normal Aura",
-    "Tip 4 --> Inf axe smash is inside Acrylix..",
-    "Tip 5 --> Dont trust random exploiters trying to give you scripts, they could be dangerous!!"
-}
-
--- Creating and populating tabs
-local tipsPage = createTab("Tips", "🧠", 110)
-populateTips(tipsPage, tips)
-
-local mainPage = createTab("Main", "💀", 190)
-populateButtons(mainPage, mainButtons)
-
-local miscPage = createTab("Misc", "🔧", 270)
-populateButtons(miscPage, miscButtons)
-
-local hubsPage = createTab("Hubs", "🌐", 350)
-populateButtons(hubsPage, hubButtons)
-
--- TDW Title
-local TDWFrame = Instance.new("Frame")
-TDWFrame.Size = UDim2.new(0, 30, 1, -26)
-TDWFrame.Position = UDim2.new(0, 35, 0, 26) -- Adjusted position (moved right)
-TDWFrame.BackgroundTransparency = 1
-TDWFrame.Parent = MainFrame
-
-local sideLabels = {"T", "O", "R"}
-for i, letter in ipairs(sideLabels) do
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(0, 30, 0, 50)
-    label.Position = UDim2.new(0, 0, 0, (i - 1) * 100 + 30)
-    label.Text = letter
-    label.Font = Enum.Font.SourceSansBold
-    label.TextSize = 30
-    label.TextColor3 = Color3.fromRGB(143, 0, 245)
-    label.BackgroundTransparency = 1
-    label.Parent = TDWFrame
-end
-
--- Right Side Info Panel
-local InfoPanel = Instance.new("Frame")
-InfoPanel.Size = UDim2.new(0, 180, 1, 0)
-InfoPanel.Position = UDim2.new(1, 0, 0, 0)
-InfoPanel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-InfoPanel.BorderColor3 = Color3.fromRGB(128, 0, 128)
-InfoPanel.BorderSizePixel = 2
-InfoPanel.Visible = true
-InfoPanel.Parent = MainFrame
-
--- Toggle InfoPanel button (now labeled "Stats")
-local ToggleInfoButton = Instance.new("TextButton")
-ToggleInfoButton.Size = UDim2.new(0, 50, 0, 20)
-ToggleInfoButton.Position = UDim2.new(1, -50, 0, 0)
-ToggleInfoButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-ToggleInfoButton.BorderColor3 = Color3.fromRGB(128, 0, 128)
-ToggleInfoButton.Text = "Stats"
-ToggleInfoButton.Font = Enum.Font.SourceSansBold
-ToggleInfoButton.TextSize = 14
-ToggleInfoButton.TextColor3 = Color3.fromRGB(143, 0, 245)
-ToggleInfoButton.Parent = MainFrame
-
-ToggleInfoButton.MouseButton1Click:Connect(function()
-    InfoPanel.Visible = not InfoPanel.Visible
-end)
-
--- Username Display
-local Username = Instance.new("TextLabel")
-Username.Size = UDim2.new(1, 0, 0, 30)
-Username.Position = UDim2.new(0, 0, 0, 5)
-Username.Text = "User:\n" .. LocalPlayer.Name
-Username.TextWrapped = true
-Username.Font = Enum.Font.SourceSansBold
-Username.TextSize = 14
-Username.TextColor3 = Color3.fromRGB(200, 0, 255)
-Username.BackgroundTransparency = 1
-Username.Parent = InfoPanel
-
--- Avatar Image
-local Avatar = Instance.new("ImageLabel")
-Avatar.Size = UDim2.new(0, 80, 0, 80)
-Avatar.Position = UDim2.new(0.5, -40, 0, 40)
-Avatar.BackgroundTransparency = 1
-Avatar.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. LocalPlayer.UserId .. "&width=420&height=420&format=png"
-Avatar.Parent = InfoPanel
-
--- Live FPS Label
-local FPS = Instance.new("TextLabel")
-FPS.Size = UDim2.new(1, 0, 0, 20)
-FPS.Position = UDim2.new(0, 0, 0, 130)
-FPS.Text = "FPS: 0"
-FPS.Font = Enum.Font.SourceSansBold
-FPS.TextSize = 18
-FPS.TextColor3 = Color3.fromRGB(200, 0, 255)
-FPS.BackgroundTransparency = 1
-FPS.Parent = InfoPanel
-
--- Live Ping Label
-local Ping = Instance.new("TextLabel")
-Ping.Size = UDim2.new(1, 0, 0, 20)
-Ping.Position = UDim2.new(0, 0, 0, 155)
-Ping.Text = "Ping: 0ms"
-Ping.Font = Enum.Font.SourceSansBold
-Ping.TextSize = 18
-Ping.TextColor3 = Color3.fromRGB(200, 0, 255)
-Ping.BackgroundTransparency = 1
-Ping.Parent = InfoPanel
-
--- Tool Count (future expansion)
-local ToolCount = Instance.new("TextLabel")
-ToolCount.Size = UDim2.new(1, 0, 0, 20)
-ToolCount.Position = UDim2.new(0, 0, 0, 180)
-ToolCount.Text = "Tools: 0"
-ToolCount.Font = Enum.Font.SourceSansBold
-ToolCount.TextSize = 18
-ToolCount.TextColor3 = Color3.fromRGB(200, 0, 255)
-ToolCount.BackgroundTransparency = 1
-ToolCount.Parent = InfoPanel
-
--- Live Updater
-RunService.RenderStepped:Connect(function()
-    -- FPS
-    local fps = math.floor(1 / RunService.RenderStepped:Wait())
-    FPS.Text = "FPS: " .. tostring(fps)
-
-    -- Ping
-    local ping = LocalPlayer:GetNetworkPing() or 0
-    Ping.Text = "Ping: " .. math.floor(ping * 1000) .. "ms"
-
-    -- Tool Count
-    local count = 0
-    if LocalPlayer.Character then
-        for _, tool in ipairs(LocalPlayer.Backpack:GetChildren()) do
-            if tool:IsA("Tool") then count += 1 end
-        end
-        for _, tool in ipairs(LocalPlayer.Character:GetChildren()) do
-            if tool:IsA("Tool") then count += 1 end
-        end
-    end
-    ToolCount.Text = "Tools: " .. count
-end)
-
--- LoopBring Panel
-local LoopBringPanel = Instance.new("Frame")
-LoopBringPanel.Size = UDim2.new(0, 200, 1, -26)
-LoopBringPanel.Position = UDim2.new(0, -200, 0, 26)
-LoopBringPanel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-LoopBringPanel.BorderColor3 = Color3.fromRGB(128, 0, 128)
-LoopBringPanel.BorderSizePixel = 2
-LoopBringPanel.Visible = false
-LoopBringPanel.Parent = MainFrame
-
--- Distance Manager
-local DistanceLabel = Instance.new("TextLabel")
-DistanceLabel.Size = UDim2.new(1, 0, 0, 30)
-DistanceLabel.Position = UDim2.new(0, 0, 0, 0)
-DistanceLabel.Text = "Distance: 5"
-DistanceLabel.Font = Enum.Font.SourceSansBold
-DistanceLabel.TextSize = 16
-DistanceLabel.TextColor3 = Color3.fromRGB(200, 0, 255)
-DistanceLabel.BackgroundTransparency = 1
-DistanceLabel.Parent = LoopBringPanel
-
-local PlusButton = Instance.new("TextButton")
-PlusButton.Size = UDim2.new(0, 30, 0, 30)
-PlusButton.Position = UDim2.new(1, -60, 0, 0)
-PlusButton.Text = "+"
-PlusButton.Font = Enum.Font.SourceSansBold
-PlusButton.TextSize = 18
-PlusButton.TextColor3 = Color3.fromRGB(200, 0, 255)
-PlusButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-PlusButton.BorderColor3 = Color3.fromRGB(128, 0, 128)
-PlusButton.Parent = LoopBringPanel
-
-local MinusButton = Instance.new("TextButton")
-MinusButton.Size = UDim2.new(0, 30, 0, 30)
-MinusButton.Position = UDim2.new(1, -30, 0, 0)
-MinusButton.Text = "-"
-MinusButton.Font = Enum.Font.SourceSansBold
-MinusButton.TextSize = 18
-MinusButton.TextColor3 = Color3.fromRGB(200, 0, 255)
-MinusButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-MinusButton.BorderColor3 = Color3.fromRGB(128, 0, 128)
-MinusButton.Parent = LoopBringPanel
-
-local currentDistance = 5
-PlusButton.MouseButton1Click:Connect(function()
-    currentDistance += 1
-    DistanceLabel.Text = "Distance: " .. currentDistance
-end)
-MinusButton.MouseButton1Click:Connect(function()
-    currentDistance = math.max(1, currentDistance - 1)
-    DistanceLabel.Text = "Distance: " .. currentDistance
-end)
-
-local playerListFrame = Instance.new("Frame")
-playerListFrame.Size = UDim2.new(1, 0, 1, -60)
-playerListFrame.Position = UDim2.new(0, 0, 0, 40)
-playerListFrame.BackgroundTransparency = 1
-playerListFrame.Parent = LoopBringPanel
-
-local selectedPlayers = {}
-
--- Create buttons for all players
-local function refreshPlayerButtons()
-    for _, child in pairs(playerListFrame:GetChildren()) do
-        if child:IsA("TextButton") then child:Destroy() end
-    end
-
-    local yOffset = 0
-    for _, player in pairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer then
-            local button = Instance.new("TextButton")
-            button.Size = UDim2.new(1, 0, 0, 20)
-            button.Position = UDim2.new(0, 0, 0, yOffset)
-            button.BackgroundTransparency = 1
-            button.Text = player.Name
-            button.Font = Enum.Font.SourceSansBold
-            button.TextSize = 14
-            button.TextColor3 = Color3.fromRGB(200, 0, 255)
-            button.Parent = playerListFrame
-
-            button.MouseButton1Click:Connect(function()
-                if selectedPlayers[player] then
-                    selectedPlayers[player] = nil
-                    button.TextColor3 = Color3.fromRGB(200, 0, 255)
-                else
-                    selectedPlayers[player] = true
-                    button.TextColor3 = Color3.fromRGB(143, 0, 245)
-                end
-            end)
-
-            yOffset += 22
-        end
-    end
-end
-
--- Refresh when players join/leave
-Players.PlayerAdded:Connect(refreshPlayerButtons)
-Players.PlayerRemoving:Connect(refreshPlayerButtons)
-refreshPlayerButtons()
-
--- LoopBring logic
 RunService.Heartbeat:Connect(function()
-    for player, _ in pairs(selectedPlayers) do
-        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") and
-           LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-            player.Character.HumanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, -currentDistance)
-        end
-    end
+	local timestamps = getgenv().TDW_HIT_TIMESTAMPS
+	local now = tick()
+	for i = #timestamps, 1, -1 do
+		if now - timestamps[i] > 1 then table.remove(timestamps, i) end
+	end
+	local hitsPerSec = #timestamps
+	if hitsPerSec > 600 then
+		powerLabel.Text = "Overload: " .. hitsPerSec .. "/s"
+		powerLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+	else
+		powerLabel.Text = "Power: " .. hitsPerSec .. "/s"
+		powerLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+	end
 end)
 
-LoopBringButton.MouseButton1Click:Connect(function()
-    LoopBringPanel.Visible = not LoopBringPanel.Visible
-end)
-
-local UserInputService = game:GetService("UserInputService")
-
+-- === UI: Toggle Button ===
 local toggleButton = Instance.new("TextButton")
-toggleButton.Name = "HubToggle"
-toggleButton.Size = UDim2.new(0, 120, 0, 40)
-toggleButton.Position = UDim2.new(0, 20, 0, 20)
-toggleButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)          -- black
-toggleButton.BorderColor3 = Color3.fromRGB(128, 0, 128)            -- red border
-toggleButton.BorderSizePixel = 2
-toggleButton.TextColor3 = Color3.fromRGB(200, 0, 255)              -- green text
-toggleButton.Text = "Close Hub"
-toggleButton.Font = Enum.Font.SourceSansBold
-toggleButton.TextSize = 16
-toggleButton.ZIndex = 9999
-toggleButton.Parent = ScreenGui
-toggleButton.Active = true
+toggleButton.Name = "ToolSpammerToggle"
+toggleButton.Parent = screenGui
+toggleButton.Position = UDim2.new(0.5, -40, 0.85, -20)
+toggleButton.Size = UDim2.new(0, 80, 0, 40)
+toggleButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+toggleButton.Font = Enum.Font.FredokaOne
+toggleButton.Text = "ON"
+toggleButton.TextColor3 = Color3.fromRGB(255, 60, 60)
+toggleButton.TextSize = 22
+toggleButton.AutoButtonColor = false
+toggleButton.BorderSizePixel = 0
 
--- Mouse dragging
-local dragging = false
-local dragInputToggle, dragStartToggle, startPosToggle
+local stroke = Instance.new("UIStroke", toggleButton)
+stroke.Thickness = 3
+stroke.Color = Color3.fromRGB(120, 40, 200)
 
-toggleButton.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		dragging = true
-		dragStart = input.Position
-		startPos = toggleButton.Position
+local glow = Instance.new("UIGradient", toggleButton)
+glow.Rotation = 45
+local pulseTweenInfo = TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
+glow.Color = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(120, 40, 200)),
+	ColorSequenceKeypoint.new(0.5, Color3.fromRGB(180, 100, 255)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(120, 40, 200)),
+})
+TweenService:Create(glow, pulseTweenInfo, {Offset = Vector2.new(0.3, 0)}):Play()
 
-		input.Changed:Connect(function()
-			if input.UserInputState == Enum.UserInputState.End then
-				dragging = false
-			end
-		end)
-	end
-end)
-
-toggleButton.InputChanged:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseMovement then
-		dragInput = input
-	end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-	if input == dragInput and dragging then
-		local delta = input.Position - dragStart
-		toggleButton.Position = UDim2.new(
-			startPos.X.Scale, startPos.X.Offset + delta.X,
-			startPos.Y.Scale, startPos.Y.Offset + delta.Y
-		)
-	end
-end)
-
--- Mobile + PC Draggability for MainFrame
-local draggingHub = false
-local dragInputHub, dragStartHub, startPosHub
-
-MainFrame.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-		draggingHub = true
-		dragStartHub = input.Position
-		startPosHub = MainFrame.Position
-
-		input.Changed:Connect(function()
-			if input.UserInputState == Enum.UserInputState.End then
-				draggingHub = false
-			end
-		end)
-	end
-end)
-
-MainFrame.InputChanged:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-		dragInputHub = input
-	end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-	if input == dragInputHub and draggingHub then
-		local delta = input.Position - dragStartHub
-		MainFrame.Position = UDim2.new(
-			startPosHub.X.Scale, startPosHub.X.Offset + delta.X,
-			startPosHub.Y.Scale, startPosHub.Y.Offset + delta.Y
-		)
-	end
-end)
-
-
-
--- Toggle logic
 toggleButton.MouseButton1Click:Connect(function()
-	MainFrame.Visible = not MainFrame.Visible
-	toggleButton.Text = MainFrame.Visible and "Close Hub" or "Open Hub"
+	toolSpammerActive = not toolSpammerActive
+	toggleButton.Text = toolSpammerActive and "ON" or "OFF"
+	toggleButton.TextColor3 = toolSpammerActive and Color3.fromRGB(255, 60, 60) or Color3.fromRGB(0, 255, 0)
 end)
+
+-- === FUNCTIONS ===
+local function getChar(plr) return plr and plr.Character end
+local function getHRP(plr) local c = getChar(plr) return c and c:FindFirstChild("HumanoidRootPart") end
+
+local function CollectTools()
+	local character = LocalPlayer.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart")
+	if not root then return end
+	for _, v in ipairs(Tycoons:GetDescendants()) do
+		if v:IsA("TouchTransmitter") and v.Parent and v.Parent.Parent and v.Parent.Parent.Name:find("GearGiver1") then
+			local baseModel = v.Parent.Parent.Parent
+			local baseName = baseModel and baseModel.Name
+			if baseName and (allowedBasesSet[baseName] or not excludedBasesSet[baseName]) then
+				firetouchinterest(root, v.Parent, 0)
+				firetouchinterest(root, v.Parent, 1)
+			end
+		end
+	end
+end
+
+local function autoEquip(tool)
+	if not tool:IsDescendantOf(workspace) then
+		tool.Parent = LocalPlayer.Character
+	end
+	tool:Activate()
+end
+
+local function equipAllTools()
+	if not LocalPlayer.Character or not toolSpammerActive then return end
+	for _, tool in ipairs(LocalPlayer.Backpack:GetChildren()) do
+		if tool:IsA("Tool") then tool.Parent = LocalPlayer.Character end
+	end
+	for _, tool in ipairs(LocalPlayer.Character:GetChildren()) do
+		if tool:IsA("Tool") then autoEquip(tool) end
+	end
+end
+
+local function hookHumanoidDied(character)
+	local humanoid = character:FindFirstChildOfClass("Humanoid") or character:WaitForChild("Humanoid")
+	humanoid.Died:Connect(function()
+		if respawnRemote and _G.UltraRespawnActive then
+			respawnRemote:FireServer()
+		end
+	end)
+end
+
+local function getValidTargets()
+	local myHRP = getHRP(LocalPlayer)
+	if not myHRP then return {}, {} end
+	local playersInRange, chars = {}, {}
+	for _, player in ipairs(Players:GetPlayers()) do
+		if player ~= LocalPlayer then
+			local hrp = getHRP(player)
+			if hrp and (hrp.Position - myHRP.Position).Magnitude <= auraRange then
+				table.insert(playersInRange, player)
+				local char = getChar(player)
+				if char then table.insert(chars, char) end
+			end
+		end
+	end
+	return playersInRange, chars
+end
+
+-- === MAIN DAMAGE LOOP ===
+task.spawn(function()
+	while running do
+		if toolSpammerActive then
+			local myChar = getChar(LocalPlayer)
+			if not myChar then task.wait(1) continue end
+
+			local targets, enemyChars = getValidTargets()
+			auraParams.FilterDescendantsInstances = enemyChars
+
+			for _, tool in ipairs(myChar:GetChildren()) do
+				if tool:IsA("Tool") then
+					local fightEvent = tool:FindFirstChild("FightEvent")
+					local touchPart = tool:FindFirstChildWhichIsA("TouchTransmitter", true)
+					touchPart = touchPart and touchPart.Parent
+
+					if fightEvent then
+						autoEquip(tool)
+						fightEvent:FireServer()
+						table.insert(getgenv().TDW_HIT_TIMESTAMPS, tick())
+					end
+
+					if touchPart then
+						local partsInBox = workspace:GetPartBoundsInBox(touchPart.CFrame, touchPart.Size + auraSize, auraParams)
+						for _, part in ipairs(partsInBox) do
+							local model = part:FindFirstAncestorWhichIsA("Model")
+							if model and table.find(enemyChars, model) then
+								firetouchinterest(touchPart, part, 1)
+								firetouchinterest(touchPart, part, 0)
+								table.insert(getgenv().TDW_HIT_TIMESTAMPS, tick())
+							end
+						end
+					end
+				end
+			end
+		end
+		task.wait(attackRate)
+	end
+end)
+
+-- === HOOKS ===
+RunService.Heartbeat:Connect(CollectTools)
+RunService.PostSimulation:Connect(equipAllTools)
+
+Tycoons.DescendantAdded:Connect(CollectTools)
+LocalPlayer.CharacterAdded:Connect(function(char)
+	hookHumanoidDied(char)
+	task.wait(0.05)
+	CollectTools()
+	equipAllTools()
+end)
+
+if LocalPlayer.Character then
+	hookHumanoidDied(LocalPlayer.Character)
+	CollectTools()
+	equipAllTools()
+end
+
+-- === LOOPBRING ===
+local bringTargets = {}
+local circleRadius = 5
+local circleSpeed = 0.1
+
+local bringUI = Instance.new("ScreenGui")
+bringUI.Name = "LoopBringCircleUI"
+bringUI.Parent = game.CoreGui
+bringUI.ResetOnSpawn = false
+bringUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+local toggle = Instance.new("TextButton")
+toggle.Size = UDim2.new(0, 35, 0, 35)
+toggle.Position = UDim2.new(1, -45, 0, 10)
+toggle.AnchorPoint = Vector2.new(0.5, 0)
+toggle.Text = "≡"
+toggle.Font = Enum.Font.GothamBold
+toggle.TextScaled = true
+toggle.TextColor3 = Color3.new(1, 1, 1)
+toggle.BackgroundColor3 = Color3.fromRGB(40, 0, 40)
+toggle.Parent = bringUI
+
+local grad = Instance.new("UIGradient", toggle)
+grad.Color = ColorSequence.new{
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(180, 0, 180)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(60, 0, 60))
+}
+grad.Rotation = 45
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 200, 0, 250)
+frame.Position = UDim2.new(1, -220, 0, 50)
+frame.BackgroundColor3 = Color3.fromRGB(20, 0, 20)
+frame.Visible = false
+frame.Parent = bringUI
+
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
+Instance.new("UIStroke", frame).Color = Color3.fromRGB(150, 0, 150)
+
+local scroll = Instance.new("ScrollingFrame")
+scroll.Size = UDim2.new(1, -10, 1, -10)
+scroll.Position = UDim2.new(0, 5, 0, 5)
+scroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+scroll.ScrollBarThickness = 5
+scroll.BackgroundTransparency = 1
+scroll.Parent = frame
+
+local layout = Instance.new("UIListLayout", scroll)
+layout.Padding = UDim.new(0, 2)
+
+toggle.MouseButton1Click:Connect(function()
+	frame.Visible = not frame.Visible
+	if frame.Visible then updatePlayerList() end
+end)
+
+local function loopBring(name)
+	if table.find(bringTargets, name) then return end
+	table.insert(bringTargets, name)
+end
+
+local function stopBring(name)
+	local i = table.find(bringTargets, name)
+	if i then table.remove(bringTargets, i) end
+end
+
+function updatePlayerList()
+	for _, btn in ipairs(scroll:GetChildren()) do
+		if btn:IsA("TextButton") then btn:Destroy() end
+	end
+	for _, p in ipairs(Players:GetPlayers()) do
+		if p ~= LocalPlayer then
+			local b = Instance.new("TextButton")
+			b.Size = UDim2.new(1, -8, 0, 28)
+			b.Text = p.Name
+			b.TextScaled = true
+			b.Font = Enum.Font.Gotham
+			b.BackgroundColor3 = table.find(bringTargets, p.Name) and Color3.fromRGB(120, 0, 120) or Color3.fromRGB(40, 0, 40)
+			b.TextColor3 = Color3.new(1, 1, 1)
+			b.Parent = scroll
+
+			Instance.new("UICorner", b).CornerRadius = UDim.new(0, 6)
+
+			b.MouseButton1Click:Connect(function()
+				if table.find(bringTargets, p.Name) then
+					stopBring(p.Name)
+				else
+					loopBring(p.Name)
+				end
+				updatePlayerList()
+			end)
+		end
+	end
+	scroll.CanvasSize = UDim2.new(0, 0, 0, #Players:GetPlayers() * 30)
+end
+
+Players.PlayerAdded:Connect(updatePlayerList)
+Players.PlayerRemoving:Connect(function(p)
+	stopBring(p.Name)
+	updatePlayerList()
+end)
+
+task.spawn(function()
+	while task.wait(circleSpeed) do
+		local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+		if root and #bringTargets > 0 then
+			for i, name in ipairs(bringTargets) do
+				local plr = Players:FindFirstChild(name)
+				local tChar = plr and plr.Character
+				local tRoot = tChar and tChar:FindFirstChild("HumanoidRootPart")
+				if tRoot then
+					local angle = math.rad((i / #bringTargets) * 360)
+					local offset = Vector3.new(math.cos(angle) * circleRadius, 0, math.sin(angle) * circleRadius)
+					tRoot.CFrame = CFrame.new(root.Position + offset)
+				end
+			end
+		end
+	end
+end)
+
+print("✅ GOD CHAIN V2 Loaded. Toggle working. LoopBring working.")

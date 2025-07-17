@@ -156,10 +156,13 @@ task.spawn(function()
 				local fightEvent = tool:FindFirstChild("FightEvent")
 				local touchPart = getTouchPart(tool)
 
-				if fightEvent then
-					autoEquip(tool)
-					fightEvent:FireServer()
-					table.insert(getgenv().TDW_HIT_TIMESTAMPS, tick())
+				if toolSpammerActive then
+					-- Only spam if toggle ON
+					if fightEvent then
+						autoEquip(tool)
+						fightEvent:FireServer()
+						table.insert(getgenv().TDW_HIT_TIMESTAMPS, tick())
+					end
 				end
 
 				if touchPart then
@@ -181,10 +184,6 @@ task.spawn(function()
 
 		task.wait(0.005)
 	end
-end)
-
-LocalPlayer.CharacterAdded:Connect(function()
-	task.wait(1)
 end)
 
 -- === USE TOOLS TOGGLE BUTTON ===

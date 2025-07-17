@@ -44,7 +44,7 @@ ScreenGui.Parent = game.CoreGui
 
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 650, 0, 360)
+MainFrame.Size = UDim2.new(0, 700, 0, 380)
 MainFrame.Position = UDim2.new(0.5, -325, 0.5, -180)
 MainFrame.BackgroundColor3 = Color3.fromRGB(10, 0, 20)
 MainFrame.BorderSizePixel = 0
@@ -64,12 +64,12 @@ grad.Color = ColorSequence.new{
 }
 grad.Rotation = 45
 
--- === Crack/Glitch Lines Container ===
-local cracksContainer = Instance.new("Frame")
-cracksContainer.Size = UDim2.new(1, 0, 1, 0)
-cracksContainer.BackgroundTransparency = 1
-cracksContainer.ZIndex = 0
-cracksContainer.Parent = MainFrame
+-- === Crack/Glitch Lines Overlay ===
+local cracksOverlay = Instance.new("Frame")
+cracksOverlay.Size = UDim2.new(1, 0, 1, 0)
+cracksOverlay.BackgroundTransparency = 1
+cracksOverlay.ZIndex = 999 -- on top of everything!
+cracksOverlay.Parent = MainFrame
 
 local function addCrackLines(parent, count)
     for i = 1, count do
@@ -81,18 +81,16 @@ local function addCrackLines(parent, count)
         else
             line.Size = UDim2.new(0, 1, length, 0)
         end
-        -- Avoid top bar (30px)
-        local yPos = math.random(30, 360) / 360
-        line.Position = UDim2.new(math.random(), 0, yPos, 0)
+        line.Position = UDim2.new(math.random(), 0, math.random(), 0)
         line.BackgroundColor3 = Color3.fromRGB(128, 0, 128)
         line.BackgroundTransparency = 0.5
         line.BorderSizePixel = 0
-        line.ZIndex = 0
+        line.ZIndex = 999 -- same as overlay
         line.Parent = parent
     end
 end
 
-addCrackLines(cracksContainer, 30)
+addCrackLines(cracksOverlay, 30)
 
 -- === Toggle Button ===
 local toggleButton = Instance.new("TextButton")
@@ -143,8 +141,9 @@ local function createTab(name, icon, position)
     page.Position = UDim2.new(0, 0, 0, 30)
     page.Size = UDim2.new(1, 0, 1, -30)
     page.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    page.BackgroundTransparency = 0.1 -- slight see-through to show cracks
     page.Visible = false
-    page.ZIndex = 1 -- Ensure above crack lines
+    page.ZIndex = 1
     page.Parent = MainFrame
 
     Instance.new("UICorner", page).CornerRadius = UDim.new(0, 4)
@@ -178,7 +177,7 @@ local function populateButtons(tabFrame, buttonSpecs)
         button.Text = spec.text
         button.Font = Enum.Font.SourceSansBold
         button.TextSize = 14
-        button.TextColor3 = Color3.fromRGB(200, 0, 255)
+        button.TextColor3 = Color3.fromRGB(160, 0, 200)
         button.Parent = tabFrame
 
         -- Style
@@ -264,7 +263,7 @@ local tips = {
     "Tip 3 --> Don't use Insta Kill Aura with Normal Aura",
     "Tip 4 --> Inf axe smash is inside Acrylix..",
     "Tip 5 --> Don't trust random exploiters trying to give you scripts, they could be dangerous!!",
-    "Tip 6 --> Trust and believe the TOR Is the STRONGEST clan out there, and soon to be the last one standing."
+    "Tip 6 --> Trust and believe the TOR Is the STRONGEST clan out there, and soon to be the last one"
 }
 
 -- === Tabs ===

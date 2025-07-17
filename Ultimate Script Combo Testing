@@ -1,13 +1,35 @@
--- === SERVICES ===
+-- ⚡ GOD CHAIN V2 (Stable Toggle & LoopBring)
+-- Combines: UltraFast Respawn + Tool Grabber + Hyper Tool Spammer + InstaKill Aura + Power Meter + Toggle + LoopBring
+
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
-
 local LocalPlayer = Players.LocalPlayer
 local Tycoons = workspace:WaitForChild("Tycoons")
 
--- === POWER METER ===
+-- === CONFIG ===
+local respawnRemote = ReplicatedStorage:FindFirstChild("Guide")
+local excludedBases = { "Insanity", "Giant", "Dark", "Spike", "Web", "Strong" }
+local allowedBases = { "Stone", "Magic", "Storm" }
+local auraRange = 20
+local auraSize = Vector3.new(30, 30, 30)
+local attackRate = 0.005
+
+-- === STATE ===
+local excludedBasesSet, allowedBasesSet = {}, {}
+for _, base in ipairs(excludedBases) do excludedBasesSet[base] = true end
+for _, base in ipairs(allowedBases) do allowedBasesSet[base] = true end
+
+getgenv().TDW_HIT_TIMESTAMPS = {}
+_G.UltraRespawnActive = true
+local running = true
+local toolSpammerActive = true -- default ON
+
+local auraParams = OverlapParams.new()
+auraParams.FilterType = Enum.RaycastFilterType.Include
+
+-- === UI: Power Meter ===
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "GodChainUI"
 screenGui.Parent = game.CoreGui
@@ -24,19 +46,12 @@ powerLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
 powerLabel.TextSize = 18
 powerLabel.Text = "Power: 0/s"
 
-getgenv().TDW_HIT_TIMESTAMPS = {}
-
 RunService.Heartbeat:Connect(function()
 	local timestamps = getgenv().TDW_HIT_TIMESTAMPS
-	if not timestamps then return end
-
 	local now = tick()
 	for i = #timestamps, 1, -1 do
-		if now - timestamps[i] > 1 then
-			table.remove(timestamps, i)
-		end
+		if now - timestamps[i] > 1 then table.remove(timestamps, i) end
 	end
-
 	local hitsPerSec = #timestamps
 	if hitsPerSec > 600 then
 		powerLabel.Text = "Overload: " .. hitsPerSec .. "/s"
@@ -47,19 +62,48 @@ RunService.Heartbeat:Connect(function()
 	end
 end)
 
--- === TOOL GRABBER ===
-local excludedBases = { "Insanity", "Giant", "Dark", "Spike", "Web", "Strong" }
-local allowedBases = { "Stone", "Magic", "Storm" }
-local excludedBasesSet, allowedBasesSet = {}, {}
+-- === UI: Toggle Button ===
+local toggleButton = Instance.new("TextButton")
+toggleButton.Name = "ToolSpammerToggle"
+toggleButton.Parent = screenGui
+toggleButton.Position = UDim2.new(0.5, -40, 0.85, -20)
+toggleButton.Size = UDim2.new(0, 80, 0, 40)
+toggleButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+toggleButton.Font = Enum.Font.FredokaOne
+toggleButton.Text = "ON"
+toggleButton.TextColor3 = Color3.fromRGB(255, 60, 60)
+toggleButton.TextSize = 22
+toggleButton.AutoButtonColor = false
+toggleButton.BorderSizePixel = 0
 
-for _, base in ipairs(excludedBases) do excludedBasesSet[base] = true end
-for _, base in ipairs(allowedBases) do allowedBasesSet[base] = true end
+local stroke = Instance.new("UIStroke", toggleButton)
+stroke.Thickness = 3
+stroke.Color = Color3.fromRGB(120, 40, 200)
+
+local glow = Instance.new("UIGradient", toggleButton)
+glow.Rotation = 45
+local pulseTweenInfo = TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
+glow.Color = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(120, 40, 200)),
+	ColorSequenceKeypoint.new(0.5, Color3.fromRGB(180, 100, 255)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(120, 40, 200)),
+})
+TweenService:Create(glow, pulseTweenInfo, {Offset = Vector2.new(0.3, 0)}):Play()
+
+toggleButton.MouseButton1Click:Connect(function()
+	toolSpammerActive = not toolSpammerActive
+	toggleButton.Text = toolSpammerActive and "ON" or "OFF"
+	toggleButton.TextColor3 = toolSpammerActive and Color3.fromRGB(255, 60, 60) or Color3.fromRGB(0, 255, 0)
+end)
+
+-- === FUNCTIONS ===
+local function getChar(plr) return plr and plr.Character end
+local function getHRP(plr) local c = getChar(plr) return c and c:FindFirstChild("HumanoidRootPart") end
 
 local function CollectTools()
 	local character = LocalPlayer.Character
 	local root = character and character:FindFirstChild("HumanoidRootPart")
 	if not root then return end
-
 	for _, v in ipairs(Tycoons:GetDescendants()) do
 		if v:IsA("TouchTransmitter") and v.Parent and v.Parent.Parent and v.Parent.Parent.Name:find("GearGiver1") then
 			local baseModel = v.Parent.Parent.Parent
@@ -72,46 +116,30 @@ local function CollectTools()
 	end
 end
 
-CollectTools()
-RunService.Heartbeat:Connect(CollectTools)
-
-LocalPlayer.CharacterAdded:Connect(function()
-	LocalPlayer.Character:WaitForChild("HumanoidRootPart")
-	CollectTools()
-end)
-
-Tycoons.DescendantAdded:Connect(function(descendant)
-	if descendant:IsA("TouchTransmitter") and descendant.Parent and descendant.Parent.Parent and descendant.Parent.Parent.Name:find("GearGiver1") then
-		CollectTools()
+local function autoEquip(tool)
+	if not tool:IsDescendantOf(workspace) then
+		tool.Parent = LocalPlayer.Character
 	end
-end)
+	tool:Activate()
+end
 
--- === ULTRA FAST RESPAWN ===
-local respawnRemote = ReplicatedStorage:FindFirstChild("Guide")
-_G.UltraRespawnActive = true
+local function equipAllTools()
+	if not LocalPlayer.Character or not toolSpammerActive then return end
+	for _, tool in ipairs(LocalPlayer.Backpack:GetChildren()) do
+		if tool:IsA("Tool") then tool.Parent = LocalPlayer.Character end
+	end
+	for _, tool in ipairs(LocalPlayer.Character:GetChildren()) do
+		if tool:IsA("Tool") then autoEquip(tool) end
+	end
+end
 
 local function hookHumanoidDied(character)
 	local humanoid = character:FindFirstChildOfClass("Humanoid") or character:WaitForChild("Humanoid")
 	humanoid.Died:Connect(function()
-		if _G.UltraRespawnActive and respawnRemote then
+		if respawnRemote and _G.UltraRespawnActive then
 			respawnRemote:FireServer()
 		end
 	end)
-end
-
-LocalPlayer.CharacterAdded:Connect(hookHumanoidDied)
-if LocalPlayer.Character then hookHumanoidDied(LocalPlayer.Character) end
-
--- === DAMAGE AURA ===
-local auraRange = 20
-local auraSize = Vector3.new(30, 30, 30)
-local auraParams = OverlapParams.new()
-auraParams.FilterType = Enum.RaycastFilterType.Include
-
-local function getChar(plr) return plr and plr.Character end
-local function getHRP(plr)
-	local char = getChar(plr)
-	return char and char:FindFirstChild("HumanoidRootPart")
 end
 
 local function getValidTargets()
@@ -131,132 +159,75 @@ local function getValidTargets()
 	return playersInRange, chars
 end
 
-local function getTouchPart(tool)
-	local tt = tool and tool:FindFirstChildWhichIsA("TouchTransmitter", true)
-	return tt and tt.Parent
-end
-
-local function autoEquip(tool)
-	if not tool:IsDescendantOf(workspace) then
-		tool.Parent = getChar(LocalPlayer)
-	end
-	tool:Activate()
-end
-
+-- === MAIN DAMAGE LOOP ===
 task.spawn(function()
-	while true do
-		local myChar = getChar(LocalPlayer)
-		if not myChar then task.wait(1) continue end
+	while running do
+		if toolSpammerActive then
+			local myChar = getChar(LocalPlayer)
+			if not myChar then task.wait(1) continue end
 
-		local targets, enemyChars = getValidTargets()
-		auraParams.FilterDescendantsInstances = enemyChars
+			local targets, enemyChars = getValidTargets()
+			auraParams.FilterDescendantsInstances = enemyChars
 
-		for _, tool in ipairs(myChar:GetChildren()) do
-			if tool:IsA("Tool") then
-				local fightEvent = tool:FindFirstChild("FightEvent")
-				local touchPart = getTouchPart(tool)
+			for _, tool in ipairs(myChar:GetChildren()) do
+				if tool:IsA("Tool") then
+					local fightEvent = tool:FindFirstChild("FightEvent")
+					local touchPart = tool:FindFirstChildWhichIsA("TouchTransmitter", true)
+					touchPart = touchPart and touchPart.Parent
 
-				if toolSpammerActive then
-					-- Only spam if toggle ON
 					if fightEvent then
 						autoEquip(tool)
 						fightEvent:FireServer()
 						table.insert(getgenv().TDW_HIT_TIMESTAMPS, tick())
 					end
-				end
 
-				if touchPart then
-					local partsInBox = workspace:GetPartBoundsInBox(
-						touchPart.CFrame,
-						touchPart.Size + auraSize,
-						auraParams
-				 )
-					for _, part in ipairs(partsInBox) do
-						local model = part:FindFirstAncestorWhichIsA("Model")
-						if model and table.find(enemyChars, model) then
-							firetouchinterest(touchPart, part, 1)
-							firetouchinterest(touchPart, part, 0)
+					if touchPart then
+						local partsInBox = workspace:GetPartBoundsInBox(touchPart.CFrame, touchPart.Size + auraSize, auraParams)
+						for _, part in ipairs(partsInBox) do
+							local model = part:FindFirstAncestorWhichIsA("Model")
+							if model and table.find(enemyChars, model) then
+								firetouchinterest(touchPart, part, 1)
+								firetouchinterest(touchPart, part, 0)
+								table.insert(getgenv().TDW_HIT_TIMESTAMPS, tick())
+							end
 						end
 					end
 				end
 			end
 		end
-
-		task.wait(0.005)
+		task.wait(attackRate)
 	end
 end)
 
--- === USE TOOLS TOGGLE BUTTON ===
-local toggleButton = Instance.new("TextButton")
-toggleButton.Name = "ToolSpammerToggle"
-toggleButton.Parent = screenGui
-toggleButton.Position = UDim2.new(0.5, -40, 0.85, -20)
-toggleButton.Size = UDim2.new(0, 80, 0, 40)
-toggleButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-toggleButton.Font = Enum.Font.FredokaOne
-toggleButton.Text = "OFF"
-toggleButton.TextColor3 = Color3.fromRGB(0, 255, 0)
-toggleButton.TextSize = 22
-toggleButton.AutoButtonColor = false
-toggleButton.BorderSizePixel = 0
+-- === HOOKS ===
+RunService.Heartbeat:Connect(CollectTools)
+RunService.PostSimulation:Connect(equipAllTools)
 
-local stroke = Instance.new("UIStroke", toggleButton)
-stroke.Thickness = 3
-stroke.Color = Color3.fromRGB(120, 40, 200)
-
-local glow = Instance.new("UIGradient", toggleButton)
-glow.Rotation = 45
-local pulseTweenInfo = TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
-glow.Color = ColorSequence.new({
-	ColorSequenceKeypoint.new(0, Color3.fromRGB(120, 40, 200)),
-	ColorSequenceKeypoint.new(0.5, Color3.fromRGB(180, 100, 255)),
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(120, 40, 200)),
-})
-TweenService:Create(glow, pulseTweenInfo, {Offset = Vector2.new(0.3, 0)}):Play()
-
-local toolSpammerActive = false
-toggleButton.MouseButton1Click:Connect(function()
-	toolSpammerActive = not toolSpammerActive
-	toggleButton.Text = toolSpammerActive and "ON" or "OFF"
-	toggleButton.TextColor3 = toolSpammerActive and Color3.fromRGB(255, 60, 60) or Color3.fromRGB(0, 255, 0)
-end)
-
-RunService.PostSimulation:Connect(function()
-	if toolSpammerActive and LocalPlayer.Character then
-		for _, tool in ipairs(LocalPlayer.Backpack:GetChildren()) do
-			if tool:IsA("Tool") then tool.Parent = LocalPlayer.Character end
-		end
-		for _, tool in ipairs(LocalPlayer.Character:GetChildren()) do
-			if tool:IsA("Tool") then
-				tool:Activate()
-				table.insert(getgenv().TDW_HIT_TIMESTAMPS, tick())
-			end
-		end
-	end
-end)
-
-LocalPlayer.CharacterAdded:Connect(function()
+Tycoons.DescendantAdded:Connect(CollectTools)
+LocalPlayer.CharacterAdded:Connect(function(char)
+	hookHumanoidDied(char)
 	task.wait(0.05)
-	if toolSpammerActive then
-		for _, tool in ipairs(LocalPlayer.Backpack:GetChildren()) do
-			if tool:IsA("Tool") then tool.Parent = LocalPlayer.Character end
-		end
-	end
+	CollectTools()
+	equipAllTools()
 end)
 
--- === LOOPBRING V4 (Circle Mode) ===
-local bringTargets = {}
-local circleRadius = 5  -- Distance from player
-local circleSpeed = 0.1 -- Teleport speed
+if LocalPlayer.Character then
+	hookHumanoidDied(LocalPlayer.Character)
+	CollectTools()
+	equipAllTools()
+end
 
--- === UI ===
+-- === LOOPBRING ===
+local bringTargets = {}
+local circleRadius = 5
+local circleSpeed = 0.1
+
 local bringUI = Instance.new("ScreenGui")
 bringUI.Name = "LoopBringCircleUI"
 bringUI.Parent = game.CoreGui
 bringUI.ResetOnSpawn = false
 bringUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
--- Toggle button (top right)
 local toggle = Instance.new("TextButton")
 toggle.Size = UDim2.new(0, 35, 0, 35)
 toggle.Position = UDim2.new(1, -45, 0, 10)
@@ -275,7 +246,6 @@ grad.Color = ColorSequence.new{
 }
 grad.Rotation = 45
 
--- Dropdown frame
 local frame = Instance.new("Frame")
 frame.Size = UDim2.new(0, 200, 0, 250)
 frame.Position = UDim2.new(1, -220, 0, 50)
@@ -302,7 +272,6 @@ toggle.MouseButton1Click:Connect(function()
 	if frame.Visible then updatePlayerList() end
 end)
 
--- Live update players
 local function loopBring(name)
 	if table.find(bringTargets, name) then return end
 	table.insert(bringTargets, name)
@@ -349,7 +318,6 @@ Players.PlayerRemoving:Connect(function(p)
 	updatePlayerList()
 end)
 
--- === Circle Loop ===
 task.spawn(function()
 	while task.wait(circleSpeed) do
 		local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
@@ -367,3 +335,5 @@ task.spawn(function()
 		end
 	end
 end)
+
+print("✅ GOD CHAIN V2 Loaded. Toggle working. LoopBring working.")

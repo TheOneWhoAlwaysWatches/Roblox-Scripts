@@ -66,6 +66,8 @@ grad.Rotation = 45
 
 -- ==[ Cracks ]==
 local function addCrackLines(parent, count)
+    local absSize = parent.AbsoluteSize
+
     for i = 1, count do
         local line = Instance.new("Frame")
         line.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -79,19 +81,18 @@ local function addCrackLines(parent, count)
             and UDim2.new(0, length, 0, thickness)
             or UDim2.new(0, thickness, 0, length)
 
-        -- Random position but keep inside parent
+        -- Use AbsoluteSize for real pixels
         line.Position = UDim2.new(
-            0, math.random(0, parent.Size.X.Offset),
-            0, math.random(0, parent.Size.Y.Offset)
+            0, math.random(0, absSize.X),
+            0, math.random(0, absSize.Y)
         )
 
         line.BackgroundColor3 = Color3.fromRGB(128, 0, 128)
-        line.BackgroundTransparency = 0.2 + math.random() * 0.4 -- some variation
+        line.BackgroundTransparency = 0.2 + math.random() * 0.4
         line.BorderSizePixel = 0
 
-        -- Add slight random rotation
         local rot = Instance.new("UIRotation")
-        rot.Rotation = math.random(-30, 30) -- ±30 degrees
+        rot.Rotation = math.random(-30, 30)
         rot.Parent = line
 
         line.ZIndex = 0
@@ -99,7 +100,9 @@ local function addCrackLines(parent, count)
     end
 end
 
-addCrackLines(cracksContainer, 50) -- add more lines!
+-- Wait for container to size up properly
+RunService.RenderStepped:Wait()
+addCrackLines(cracksContainer, 50)
 
 -- ==[ Toggle Button ]==
 local toggleButton = Instance.new("TextButton")

@@ -186,7 +186,7 @@ local function populateButtons(tabFrame, buttonSpecs)
 
         local stroke = Instance.new("UIStroke", button)
         stroke.Color = Color3.fromRGB(180, 0, 255)
-        stroke.Thickness = 1
+        stroke.Thickness = 5
 
         button.MouseButton1Click:Connect(spec.callback)
     end
@@ -198,7 +198,7 @@ local function populateTips(tabFrame, tips)
         l.Size = UDim2.new(1, -20, 0, 30)
         l.Position = UDim2.new(0, 10, 0, (i - 1) * 35 + 10)
         l.BackgroundTransparency = 1
-        l.Text = "➤ " .. text
+        l.Text = "Tip: " .. text
         l.Font = Enum.Font.Code
         l.TextSize = 14
         l.TextColor3 = Color3.fromRGB(200, 0, 255)

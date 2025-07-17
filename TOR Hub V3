@@ -173,7 +173,8 @@ local function populateButtons(tabFrame, buttonSpecs)
         local row = math.floor((i - 1) / columns)
         local col = (i - 1) % columns
         button.Position = UDim2.new(0, startX + col * spacingX, 0, startY + row * spacingY)
-        button.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+        button.BackgroundTransparency = 0
+        button.BackgroundColor3 = Color3.fromRGB(30, 0, 58)
         button.Text = spec.text
         button.Font = Enum.Font.SourceSansBold
         button.TextSize = 14
@@ -181,12 +182,14 @@ local function populateButtons(tabFrame, buttonSpecs)
         button.Parent = tabFrame
 
         -- Style
-        local corner = Instance.new("UICorner", button)
+        local corner = Instance.new("UICorner")
         corner.CornerRadius = UDim.new(0, 4)
+        corner.parent = button
 
-        local stroke = Instance.new("UIStroke", button)
+        local stroke = Instance.new("UIStroke")
         stroke.Color = Color3.fromRGB(180, 0, 255)
         stroke.Thickness = 5
+        stroke.Parent = button
 
         button.MouseButton1Click:Connect(spec.callback)
     end

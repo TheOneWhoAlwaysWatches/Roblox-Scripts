@@ -132,22 +132,26 @@ local function createTab(name, icon, position)
     return page
 end
 
-local function populateButtons(tabFrame, specs)
-    for i, spec in ipairs(specs) do
-        local b = Instance.new("TextButton")
-        b.Size = UDim2.new(0, 120, 0, 30)
-        b.Position = UDim2.new(0, 20, 0, 40 * i)
-        b.BackgroundColor3 = Color3.fromRGB(10, 0, 20)
-        b.Text = spec.text
-        b.Font = Enum.Font.Code
-        b.TextSize = 14
-        b.TextColor3 = Color3.fromRGB(200, 0, 255)
-        b.Parent = tabFrame
+local function populateButtons(tabFrame, buttonSpecs)
+    local columns = 4
+    local spacingX, spacingY = 100, 40
+    local startX, startY = 10, 10
 
-        Instance.new("UICorner", b).CornerRadius = UDim.new(0, 4)
-        Instance.new("UIStroke", b).Color = Color3.fromRGB(180, 0, 255)
+    for i, spec in ipairs(buttonSpecs) do
+        local button = Instance.new("TextButton")
+        button.Size = UDim2.new(0, 90, 0, 30)
+        local row = math.floor((i - 1) / columns)
+        local col = (i - 1) % columns
+        button.Position = UDim2.new(0, startX + col * spacingX, 0, startY + row * spacingY)
+        button.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+        button.BorderColor3 = Color3.fromRGB(128, 0, 128)
+        button.Text = spec.text
+        button.Font = Enum.Font.SourceSansBold
+        button.TextSize = 14
+        button.TextColor3 = Color3.fromRGB(200, 0, 255)
+        button.Parent = tabFrame
 
-        b.MouseButton1Click:Connect(spec.callback)
+        button.MouseButton1Click:Connect(spec.callback)
     end
 end
 

@@ -457,21 +457,25 @@ Players.PlayerRemoving:Connect(refreshPlayerButtons)
 refreshPlayerButtons()
 
 -- LoopBring logic
-local angle = 0
-local spinSpeed = math.rad(180) -- degrees per second, adjust as needed
+task.spawn(function()
+    while task.wait(0.05) do -- same as your circleSpeed if you want
+        local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        local allTargets = {}
 
-RunService.Heartbeat:Connect(function(dt)
-    angle = angle + spinSpeed * dt
+        for p, _ in pairs(selectedPlayers) do
+            table.insert(allTargets, p)
+        end
 
-    for player, _ in pairs(selectedPlayers) do
-        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") and
-           LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-            local hrp = LocalPlayer.Character.HumanoidRootPart
-            local offsetX = math.cos(angle) * currentDistance
-            local offsetZ = math.sin(angle) * currentDistance
-
-            local newPos = hrp.Position + Vector3.new(offsetX, 0, offsetZ)
-            player.Character.HumanoidRootPart.CFrame = CFrame.new(newPos, hrp.Position)
+        if root and #allTargets > 0 then
+            for i, player in ipairs(allTargets) do
+                local tChar = player.Character
+                local tRoot = tChar and tChar:FindFirstChild("HumanoidRootPart")
+                if tRoot then
+                    local angle = math.rad((i / #allTargets) * 360)
+                    local offset = Vector3.new(math.cos(angle) * currentDistance, 0, math.sin(angle) * currentDistance)
+                    tRoot.CFrame = CFrame.new(root.Position + offset, root.Position)
+                end
+            end
         end
     end
 end)

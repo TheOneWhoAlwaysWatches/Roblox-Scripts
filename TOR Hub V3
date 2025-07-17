@@ -64,46 +64,6 @@ grad.Color = ColorSequence.new{
 }
 grad.Rotation = 45
 
--- ==[ Cracks ]==
-local function addCrackLines(parent, count)
-    local absSize = parent.AbsoluteSize
-
-    for i = 1, count do
-        local line = Instance.new("Frame")
-        line.AnchorPoint = Vector2.new(0.5, 0.5)
-        
-        -- Make line long & thin
-        local length = math.random(50, 250)
-        local thickness = 1
-        local isHorizontal = math.random() > 0.5
-
-        line.Size = isHorizontal 
-            and UDim2.new(0, length, 0, thickness)
-            or UDim2.new(0, thickness, 0, length)
-
-        -- Use AbsoluteSize for real pixels
-        line.Position = UDim2.new(
-            0, math.random(0, absSize.X),
-            0, math.random(0, absSize.Y)
-        )
-
-        line.BackgroundColor3 = Color3.fromRGB(128, 0, 128)
-        line.BackgroundTransparency = 0.2 + math.random() * 0.4
-        line.BorderSizePixel = 0
-
-        local rot = Instance.new("UIRotation")
-        rot.Rotation = math.random(-30, 30)
-        rot.Parent = line
-
-        line.ZIndex = 0
-        line.Parent = parent
-    end
-end
-
--- Wait for container to size up properly
-RunService.RenderStepped:Wait()
-addCrackLines(cracksContainer, 50)
-
 -- ==[ Toggle Button ]==
 local toggleButton = Instance.new("TextButton")
 toggleButton.Name = "HubToggle"

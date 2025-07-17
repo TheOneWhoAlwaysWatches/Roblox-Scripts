@@ -1,10 +1,10 @@
--- === Services ===
+-- ==[ Services ]==
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 
--- === Whitelist ===
+-- ==[ Whitelist ]==
 local whitelist = {
     [3972688973] = true, -- Main Acc
     [2522193455] = true, -- Inf God (Alt)
@@ -36,7 +36,7 @@ if not whitelist[LocalPlayer.UserId] then
     return
 end
 
--- === Core UI ===
+-- ==[ Core UI ]==
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "ScriptHubUI"
 ScreenGui.ResetOnSpawn = false
@@ -64,35 +64,44 @@ grad.Color = ColorSequence.new{
 }
 grad.Rotation = 45
 
--- === Crack/Glitch Lines Overlay ===
-local cracksOverlay = Instance.new("Frame")
-cracksOverlay.Size = UDim2.new(1, 0, 1, 0)
-cracksOverlay.BackgroundTransparency = 1
-cracksOverlay.ZIndex = 999 -- on top of everything!
-cracksOverlay.Parent = MainFrame
-
+-- ==[ Cracks ]==
 local function addCrackLines(parent, count)
     for i = 1, count do
         local line = Instance.new("Frame")
+        line.AnchorPoint = Vector2.new(0.5, 0.5)
+        
+        -- Make line long & thin
+        local length = math.random(50, 250)
+        local thickness = 1
         local isHorizontal = math.random() > 0.5
-        local length = math.random(5, 30) / 100
-        if isHorizontal then
-            line.Size = UDim2.new(length, 0, 0, 1)
-        else
-            line.Size = UDim2.new(0, 1, length, 0)
-        end
-        line.Position = UDim2.new(math.random(), 0, math.random(), 0)
+
+        line.Size = isHorizontal 
+            and UDim2.new(0, length, 0, thickness)
+            or UDim2.new(0, thickness, 0, length)
+
+        -- Random position but keep inside parent
+        line.Position = UDim2.new(
+            0, math.random(0, parent.Size.X.Offset),
+            0, math.random(0, parent.Size.Y.Offset)
+        )
+
         line.BackgroundColor3 = Color3.fromRGB(128, 0, 128)
-        line.BackgroundTransparency = 0.5
+        line.BackgroundTransparency = 0.2 + math.random() * 0.4 -- some variation
         line.BorderSizePixel = 0
-        line.ZIndex = 999 -- same as overlay
+
+        -- Add slight random rotation
+        local rot = Instance.new("UIRotation")
+        rot.Rotation = math.random(-30, 30) -- ±30 degrees
+        rot.Parent = line
+
+        line.ZIndex = 0
         line.Parent = parent
     end
 end
 
-addCrackLines(cracksOverlay, 30)
+addCrackLines(cracksContainer, 50) -- add more lines!
 
--- === Toggle Button ===
+-- ==[ Toggle Button ]==
 local toggleButton = Instance.new("TextButton")
 toggleButton.Name = "HubToggle"
 toggleButton.Size = UDim2.new(0, 120, 0, 40)
@@ -118,7 +127,7 @@ TopDivider.BackgroundColor3 = Color3.fromRGB(180, 0, 255)
 TopDivider.BorderSizePixel = 0
 TopDivider.Parent = MainFrame
 
--- === Tab System ===
+-- ==[ Tab System ]===
 local tabs, tabPages, currentTab = {}, {}, nil
 
 local function createTab(name, icon, position)
@@ -210,7 +219,7 @@ local function populateTips(tabFrame, tips)
     end
 end
 
--- === Buttons ===
+-- ==[ Buttons ]==
 local mainButtons = {
     { text = "Get Base V3", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Base%20V3",true))() 
     end },
@@ -269,7 +278,7 @@ local tips = {
     "Tip 6 --> Trust and believe the TOR Is the STRONGEST clan out there, and soon to be the last one"
 }
 
--- === Tabs ===
+-- ==[ Tabs ]==
 local tipsPage = createTab("Tips", "🧠", 110)
 populateTips(tipsPage, tips)
 
@@ -285,7 +294,7 @@ populateButtons(hubsPage, hubButtons)
 currentTab = "Tips"
 tipsPage.Visible = true
 
--- === Dragging ===
+-- ==[ Dragging ]==
 local drag, dragInput, dragStart, startPos
 
 MainFrame.InputBegan:Connect(function(input)
@@ -314,7 +323,7 @@ UserInputService.InputChanged:Connect(function(input)
     end
 end)
 
--- === Toggle ===
+-- ==[ Toggle ]==
 toggleButton.MouseButton1Click:Connect(function()
     MainFrame.Visible = not MainFrame.Visible
     toggleButton.Text = MainFrame.Visible and "Close Hub" or "Open Hub"

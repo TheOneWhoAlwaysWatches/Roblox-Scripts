@@ -171,8 +171,6 @@ end
 local mainButtons = {
     { text = "Get Base V3", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Base%20V3",true))()
     end },
-    { text = "All-In-One", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Ultra%20Script%20Combination",true))()
-    end },
     { text = "Get Tools V4", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Tools%20V4.lua", true))()
     end },
     { text = "Use Tools V6", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Use%20Tools%20V6",true))()
@@ -266,7 +264,7 @@ InfoPanel.BorderSizePixel = 2
 InfoPanel.Visible = true
 InfoPanel.Parent = MainFrame
 
--- Toggle InfoPanel button (now labeled "Stats")
+-- Toggle InfoPanel button
 local ToggleInfoButton = Instance.new("TextButton")
 ToggleInfoButton.Size = UDim2.new(0, 50, 0, 20)
 ToggleInfoButton.Position = UDim2.new(1, -50, 0, 0)
@@ -459,20 +457,24 @@ Players.PlayerRemoving:Connect(refreshPlayerButtons)
 refreshPlayerButtons()
 
 -- LoopBring logic
-RunService.Heartbeat:Connect(function()
+local angle = 0
+local spinSpeed = math.rad(180) -- degrees per second, adjust as needed
+
+RunService.Heartbeat:Connect(function(dt)
+    angle = angle + spinSpeed * dt
+
     for player, _ in pairs(selectedPlayers) do
         if player.Character and player.Character:FindFirstChild("HumanoidRootPart") and
            LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-            player.Character.HumanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, -currentDistance)
+            local hrp = LocalPlayer.Character.HumanoidRootPart
+            local offsetX = math.cos(angle) * currentDistance
+            local offsetZ = math.sin(angle) * currentDistance
+
+            local newPos = hrp.Position + Vector3.new(offsetX, 0, offsetZ)
+            player.Character.HumanoidRootPart.CFrame = CFrame.new(newPos, hrp.Position)
         end
     end
 end)
-
-LoopBringButton.MouseButton1Click:Connect(function()
-    LoopBringPanel.Visible = not LoopBringPanel.Visible
-end)
-
-local UserInputService = game:GetService("UserInputService")
 
 local toggleButton = Instance.new("TextButton")
 toggleButton.Name = "HubToggle"

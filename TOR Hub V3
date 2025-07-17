@@ -1,4 +1,4 @@
--- Services
+-- === Services ===
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
@@ -10,7 +10,7 @@ local whitelist = {
     [2522193455] = true, -- Inf God (Alt)
     [5146822757] = true, -- Monkey (Alt)
     [5054998059] = true, -- mjendeub (Alt)
-  	[3429553477] = true, -- Dyllan144335 (Alt)
+    [3429553477] = true, -- Dyllan144335 (Alt)
     [2647384879] = true, -- Crainer (Alt)
     [8892518697] = true, -- Getoutmywaylillbro (My Alt)
     [8893225109] = true, -- Mr. Fish (My Alt)
@@ -64,21 +64,35 @@ grad.Color = ColorSequence.new{
 }
 grad.Rotation = 45
 
--- Crack/Glitch Lines Overlay
+-- === Crack/Glitch Lines Container ===
+local cracksContainer = Instance.new("Frame")
+cracksContainer.Size = UDim2.new(1, 0, 1, 0)
+cracksContainer.BackgroundTransparency = 1
+cracksContainer.ZIndex = 0
+cracksContainer.Parent = MainFrame
+
 local function addCrackLines(parent, count)
     for i = 1, count do
         local line = Instance.new("Frame")
         local isHorizontal = math.random() > 0.5
-        line.Size = isHorizontal and UDim2.new(0, math.random(50, 300), 0, 1) or UDim2.new(0, 1, 0, math.random(50, 200))
-        line.Position = UDim2.new(0, math.random(0, parent.Size.X.Offset), 0, math.random(0, parent.Size.Y.Offset))
-        line.BackgroundColor3 = Color3.fromRGB(128, 0, 128) -- neon purple
+        local length = math.random(5, 30) / 100
+        if isHorizontal then
+            line.Size = UDim2.new(length, 0, 0, 1)
+        else
+            line.Size = UDim2.new(0, 1, length, 0)
+        end
+        -- Avoid top bar (30px)
+        local yPos = math.random(30, 360) / 360
+        line.Position = UDim2.new(math.random(), 0, yPos, 0)
+        line.BackgroundColor3 = Color3.fromRGB(128, 0, 128)
         line.BackgroundTransparency = 0.5
         line.BorderSizePixel = 0
+        line.ZIndex = 0
         line.Parent = parent
     end
 end
 
-addCrackLines(MainFrame, 20)
+addCrackLines(cracksContainer, 30)
 
 -- === Toggle Button ===
 local toggleButton = Instance.new("TextButton")
@@ -130,6 +144,7 @@ local function createTab(name, icon, position)
     page.Size = UDim2.new(1, 0, 1, -30)
     page.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
     page.Visible = false
+    page.ZIndex = 1 -- Ensure above crack lines
     page.Parent = MainFrame
 
     Instance.new("UICorner", page).CornerRadius = UDim.new(0, 4)
@@ -160,12 +175,19 @@ local function populateButtons(tabFrame, buttonSpecs)
         local col = (i - 1) % columns
         button.Position = UDim2.new(0, startX + col * spacingX, 0, startY + row * spacingY)
         button.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-        button.BorderColor3 = Color3.fromRGB(128, 0, 128)
         button.Text = spec.text
         button.Font = Enum.Font.SourceSansBold
         button.TextSize = 14
         button.TextColor3 = Color3.fromRGB(200, 0, 255)
         button.Parent = tabFrame
+
+        -- Style
+        local corner = Instance.new("UICorner", button)
+        corner.CornerRadius = UDim.new(0, 4)
+
+        local stroke = Instance.new("UIStroke", button)
+        stroke.Color = Color3.fromRGB(180, 0, 255)
+        stroke.Thickness = 1
 
         button.MouseButton1Click:Connect(spec.callback)
     end
@@ -177,7 +199,7 @@ local function populateTips(tabFrame, tips)
         l.Size = UDim2.new(1, -20, 0, 30)
         l.Position = UDim2.new(0, 10, 0, (i - 1) * 35 + 10)
         l.BackgroundTransparency = 1
-        l.Text = "Tips" .. text
+        l.Text = "➤ " .. text
         l.Font = Enum.Font.Code
         l.TextSize = 14
         l.TextColor3 = Color3.fromRGB(200, 0, 255)
@@ -186,44 +208,44 @@ local function populateTips(tabFrame, tips)
     end
 end
 
--- Buttons
+-- === Buttons ===
 local mainButtons = {
-    { text = "Get Base V3", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Base%20V3",true))()
+    { text = "Get Base V3", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Base%20V3",true))() 
     end },
-    { text = "Get Tools V4", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Tools%20V4.lua", true))()
+    { text = "Get Tools V4", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Tools%20V4.lua", true))() 
     end },
-    { text = "Use Tools V6", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Use%20Tools%20V6",true))()
+    { text = "Use Tools V6", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Use%20Tools%20V6",true))() 
     end },
-    { text = "Insta-Kill", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Damage%20Spammer%20(Insta-Kill)",true))()
+    { text = "Insta-Kill", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Damage%20Spammer%20(Insta-Kill)",true))() 
     end },
-    { text = "Loopbring V7", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Loopbring%20V4.lua",true))()
+    { text = "Loopbring V7", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Loopbring%20V4.lua",true))() 
     end },
-    { text = "Kill Counter", callback = function() print("Coming Soon")
+    { text = "Kill Counter", callback = function() print("Coming Soon") 
     end },
     { text = "Power Meter V1", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Power%20Meter%20V1",true))()
+     end },
+    { text = "No Cooldown V6", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V5.lua", true))() 
     end },
-    { text = "No Cooldown V6", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V5.lua", true))()
+    { text = "Respawn V4", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V4.lua", true))() 
     end },
-    { text = "Respawn V4", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V4.lua", true))()
+    { text = "Infinite Yeild", callback = function() loadstring(game:HttpGet("https://pastebin.com/raw/6rrhy0P1", true))() 
     end },
-    { text = "Infinite Yeild", callback = function() loadstring(game:HttpGet("https://pastebin.com/raw/6rrhy0P1", true))()
+    { text = "Anti-Lag", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Lag", true))() 
     end },
-    { text = "Anti-Lag", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Lag", true))()
+    { text = "Fly Tools V1", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Fly%20Tools",true))() 
     end },
-    { text = "Fly Tools V1", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Fly%20Tools",true))()
-    end },
-    { text = "Normal Aura", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20Aura", true))()
+    { text = "Normal Aura", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20Aura", true))() 
     end },
 }
 
 local miscButtons = {
-    { text = "Chat Spy", callback = function() loadstring(game:HttpGet("https://pastebin.com/raw/w1DW0m31",true))()
+    { text = "Chat Spy", callback = function() loadstring(game:HttpGet("https://pastebin.com/raw/w1DW0m31",true))() 
     end },
-    { text = "Emote Gui", callback = function() loadstring(game:HttpGet("https://pastebin.com/raw/eCpipCTH",true))()
+    { text = "Emote Gui", callback = function() loadstring(game:HttpGet("https://pastebin.com/raw/eCpipCTH",true))() 
     end },
     { text = "Ragdoll Tools", callback = function() loadstring(game:HttpGet("https://pastefy.app/xjoCsunl/raw",true))() 
     end },
-    { text = "God Mode", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/God%20Mode.lua", true))()
+    { text = "God Mode", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/God%20Mode.lua", true))() 
     end },
 }
 
@@ -232,19 +254,20 @@ local hubButtons = {
     end },
     { text = "Destroyer Hub", callback = function() loadstring(game:HttpGet("https://pastefy.app/xhFiwEWy/raw",true))() 
     end },
-    { text = "Acrylix", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/3dsonsuce/acrylix/main/Acrylix",true))()
+    { text = "Acrylix", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/3dsonsuce/acrylix/main/Acrylix",true))() 
     end },
 }
 
 local tips = {
-    "Tip 1 --> Dont use God Mode if you have Respawn activated",
-    "Tip 2 --> Dont use No Cooldown with Insta Kill Aura",
-    "Tip 3 --> Dont use Insta Kill Aura with Normal Aura",
+    "Tip 1 --> Don't use God Mode if you have Respawn activated",
+    "Tip 2 --> Don't use No Cooldown with Insta Kill Aura",
+    "Tip 3 --> Don't use Insta Kill Aura with Normal Aura",
     "Tip 4 --> Inf axe smash is inside Acrylix..",
-    "Tip 5 --> Dont trust random exploiters trying to give you scripts, they could be dangerous!!"
+    "Tip 5 --> Don't trust random exploiters trying to give you scripts, they could be dangerous!!",
+    "Tip 6 --> Trust and believe the TOR Is the STRONGEST clan out there, and soon to be the last one standing."
 }
 
--- Creating and populating tabs
+-- === Tabs ===
 local tipsPage = createTab("Tips", "🧠", 110)
 populateTips(tipsPage, tips)
 
@@ -256,6 +279,9 @@ populateButtons(miscPage, miscButtons)
 
 local hubsPage = createTab("Hubs", "🌐", 350)
 populateButtons(hubsPage, hubButtons)
+
+currentTab = "Tips"
+tipsPage.Visible = true
 
 -- === Dragging ===
 local drag, dragInput, dragStart, startPos

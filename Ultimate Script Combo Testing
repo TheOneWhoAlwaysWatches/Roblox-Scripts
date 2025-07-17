@@ -1,5 +1,5 @@
--- ⚡ GOD CHAIN V2 (Stable Toggle & LoopBring)
--- Combines: UltraFast Respawn + Tool Grabber + Hyper Tool Spammer + InstaKill Aura + Power Meter + Toggle + LoopBring
+-- ⚡ GOD CHAIN V1
+-- Combines: UltraFast Respawn + Tool Grabber + Hyper Tool Spammer + InstaKill Aura + Power Meter
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -23,9 +23,9 @@ for _, base in ipairs(allowedBases) do allowedBasesSet[base] = true end
 
 getgenv().TDW_HIT_TIMESTAMPS = {}
 _G.UltraRespawnActive = true
+local attacking = true
 local running = true
-local toolSpammerActive = true -- default ON
-
+local activeTools = {}
 local auraParams = OverlapParams.new()
 auraParams.FilterType = Enum.RaycastFilterType.Include
 
@@ -62,40 +62,6 @@ RunService.Heartbeat:Connect(function()
 	end
 end)
 
--- === UI: Toggle Button ===
-local toggleButton = Instance.new("TextButton")
-toggleButton.Name = "ToolSpammerToggle"
-toggleButton.Parent = screenGui
-toggleButton.Position = UDim2.new(0.5, -40, 0.85, -20)
-toggleButton.Size = UDim2.new(0, 80, 0, 40)
-toggleButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-toggleButton.Font = Enum.Font.FredokaOne
-toggleButton.Text = "ON"
-toggleButton.TextColor3 = Color3.fromRGB(255, 60, 60)
-toggleButton.TextSize = 22
-toggleButton.AutoButtonColor = false
-toggleButton.BorderSizePixel = 0
-
-local stroke = Instance.new("UIStroke", toggleButton)
-stroke.Thickness = 3
-stroke.Color = Color3.fromRGB(120, 40, 200)
-
-local glow = Instance.new("UIGradient", toggleButton)
-glow.Rotation = 45
-local pulseTweenInfo = TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
-glow.Color = ColorSequence.new({
-	ColorSequenceKeypoint.new(0, Color3.fromRGB(120, 40, 200)),
-	ColorSequenceKeypoint.new(0.5, Color3.fromRGB(180, 100, 255)),
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(120, 40, 200)),
-})
-TweenService:Create(glow, pulseTweenInfo, {Offset = Vector2.new(0.3, 0)}):Play()
-
-toggleButton.MouseButton1Click:Connect(function()
-	toolSpammerActive = not toolSpammerActive
-	toggleButton.Text = toolSpammerActive and "ON" or "OFF"
-	toggleButton.TextColor3 = toolSpammerActive and Color3.fromRGB(255, 60, 60) or Color3.fromRGB(0, 255, 0)
-end)
-
 -- === FUNCTIONS ===
 local function getChar(plr) return plr and plr.Character end
 local function getHRP(plr) local c = getChar(plr) return c and c:FindFirstChild("HumanoidRootPart") end
@@ -124,7 +90,7 @@ local function autoEquip(tool)
 end
 
 local function equipAllTools()
-	if not LocalPlayer.Character or not toolSpammerActive then return end
+	if not LocalPlayer.Character then return end
 	for _, tool in ipairs(LocalPlayer.Backpack:GetChildren()) do
 		if tool:IsA("Tool") then tool.Parent = LocalPlayer.Character end
 	end
@@ -162,39 +128,38 @@ end
 -- === MAIN DAMAGE LOOP ===
 task.spawn(function()
 	while running do
-		if toolSpammerActive then
-			local myChar = getChar(LocalPlayer)
-			if not myChar then task.wait(1) continue end
+		local myChar = getChar(LocalPlayer)
+		if not myChar then task.wait(1) continue end
 
-			local targets, enemyChars = getValidTargets()
-			auraParams.FilterDescendantsInstances = enemyChars
+		local targets, enemyChars = getValidTargets()
+		auraParams.FilterDescendantsInstances = enemyChars
 
-			for _, tool in ipairs(myChar:GetChildren()) do
-				if tool:IsA("Tool") then
-					local fightEvent = tool:FindFirstChild("FightEvent")
-					local touchPart = tool:FindFirstChildWhichIsA("TouchTransmitter", true)
-					touchPart = touchPart and touchPart.Parent
+		for _, tool in ipairs(myChar:GetChildren()) do
+			if tool:IsA("Tool") then
+				local fightEvent = tool:FindFirstChild("FightEvent")
+				local touchPart = tool:FindFirstChildWhichIsA("TouchTransmitter", true)
+				touchPart = touchPart and touchPart.Parent
 
-					if fightEvent then
-						autoEquip(tool)
-						fightEvent:FireServer()
-						table.insert(getgenv().TDW_HIT_TIMESTAMPS, tick())
-					end
+				if fightEvent then
+					autoEquip(tool)
+					fightEvent:FireServer()
+					table.insert(getgenv().TDW_HIT_TIMESTAMPS, tick())
+				end
 
-					if touchPart then
-						local partsInBox = workspace:GetPartBoundsInBox(touchPart.CFrame, touchPart.Size + auraSize, auraParams)
-						for _, part in ipairs(partsInBox) do
-							local model = part:FindFirstAncestorWhichIsA("Model")
-							if model and table.find(enemyChars, model) then
-								firetouchinterest(touchPart, part, 1)
-								firetouchinterest(touchPart, part, 0)
-								table.insert(getgenv().TDW_HIT_TIMESTAMPS, tick())
-							end
+				if touchPart then
+					local partsInBox = workspace:GetPartBoundsInBox(touchPart.CFrame, touchPart.Size + auraSize, auraParams)
+					for _, part in ipairs(partsInBox) do
+						local model = part:FindFirstAncestorWhichIsA("Model")
+						if model and table.find(enemyChars, model) then
+							firetouchinterest(touchPart, part, 1)
+							firetouchinterest(touchPart, part, 0)
+							table.insert(getgenv().TDW_HIT_TIMESTAMPS, tick())
 						end
 					end
 				end
 			end
 		end
+
 		task.wait(attackRate)
 	end
 end)
@@ -217,123 +182,4 @@ if LocalPlayer.Character then
 	equipAllTools()
 end
 
--- === LOOPBRING ===
-local bringTargets = {}
-local circleRadius = 5
-local circleSpeed = 0.1
-
-local bringUI = Instance.new("ScreenGui")
-bringUI.Name = "LoopBringCircleUI"
-bringUI.Parent = game.CoreGui
-bringUI.ResetOnSpawn = false
-bringUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
-local toggle = Instance.new("TextButton")
-toggle.Size = UDim2.new(0, 35, 0, 35)
-toggle.Position = UDim2.new(1, -45, 0, 10)
-toggle.AnchorPoint = Vector2.new(0.5, 0)
-toggle.Text = "≡"
-toggle.Font = Enum.Font.GothamBold
-toggle.TextScaled = true
-toggle.TextColor3 = Color3.new(1, 1, 1)
-toggle.BackgroundColor3 = Color3.fromRGB(40, 0, 40)
-toggle.Parent = bringUI
-
-local grad = Instance.new("UIGradient", toggle)
-grad.Color = ColorSequence.new{
-	ColorSequenceKeypoint.new(0, Color3.fromRGB(180, 0, 180)),
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(60, 0, 60))
-}
-grad.Rotation = 45
-
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 200, 0, 250)
-frame.Position = UDim2.new(1, -220, 0, 50)
-frame.BackgroundColor3 = Color3.fromRGB(20, 0, 20)
-frame.Visible = false
-frame.Parent = bringUI
-
-Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
-Instance.new("UIStroke", frame).Color = Color3.fromRGB(150, 0, 150)
-
-local scroll = Instance.new("ScrollingFrame")
-scroll.Size = UDim2.new(1, -10, 1, -10)
-scroll.Position = UDim2.new(0, 5, 0, 5)
-scroll.CanvasSize = UDim2.new(0, 0, 0, 0)
-scroll.ScrollBarThickness = 5
-scroll.BackgroundTransparency = 1
-scroll.Parent = frame
-
-local layout = Instance.new("UIListLayout", scroll)
-layout.Padding = UDim.new(0, 2)
-
-toggle.MouseButton1Click:Connect(function()
-	frame.Visible = not frame.Visible
-	if frame.Visible then updatePlayerList() end
-end)
-
-local function loopBring(name)
-	if table.find(bringTargets, name) then return end
-	table.insert(bringTargets, name)
-end
-
-local function stopBring(name)
-	local i = table.find(bringTargets, name)
-	if i then table.remove(bringTargets, i) end
-end
-
-function updatePlayerList()
-	for _, btn in ipairs(scroll:GetChildren()) do
-		if btn:IsA("TextButton") then btn:Destroy() end
-	end
-	for _, p in ipairs(Players:GetPlayers()) do
-		if p ~= LocalPlayer then
-			local b = Instance.new("TextButton")
-			b.Size = UDim2.new(1, -8, 0, 28)
-			b.Text = p.Name
-			b.TextScaled = true
-			b.Font = Enum.Font.Gotham
-			b.BackgroundColor3 = table.find(bringTargets, p.Name) and Color3.fromRGB(120, 0, 120) or Color3.fromRGB(40, 0, 40)
-			b.TextColor3 = Color3.new(1, 1, 1)
-			b.Parent = scroll
-
-			Instance.new("UICorner", b).CornerRadius = UDim.new(0, 6)
-
-			b.MouseButton1Click:Connect(function()
-				if table.find(bringTargets, p.Name) then
-					stopBring(p.Name)
-				else
-					loopBring(p.Name)
-				end
-				updatePlayerList()
-			end)
-		end
-	end
-	scroll.CanvasSize = UDim2.new(0, 0, 0, #Players:GetPlayers() * 30)
-end
-
-Players.PlayerAdded:Connect(updatePlayerList)
-Players.PlayerRemoving:Connect(function(p)
-	stopBring(p.Name)
-	updatePlayerList()
-end)
-
-task.spawn(function()
-	while task.wait(circleSpeed) do
-		local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-		if root and #bringTargets > 0 then
-			for i, name in ipairs(bringTargets) do
-				local plr = Players:FindFirstChild(name)
-				local tChar = plr and plr.Character
-				local tRoot = tChar and tChar:FindFirstChild("HumanoidRootPart")
-				if tRoot then
-					local angle = math.rad((i / #bringTargets) * 360)
-					local offset = Vector3.new(math.cos(angle) * circleRadius, 0, math.sin(angle) * circleRadius)
-					tRoot.CFrame = CFrame.new(root.Position + offset)
-				end
-			end
-		end
-	end
-end)
-
-print("✅ GOD CHAIN V2 Loaded. Toggle working. LoopBring working.")
+print("✅ GOD CHAIN V1 Loaded. Ultra Respawn, Auto Tool Grab, Infinite Damage Aura Active.")

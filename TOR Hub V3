@@ -153,16 +153,6 @@ local function populateButtons(tabFrame, buttonSpecs)
         button.TextColor3 = Color3.fromRGB(160, 0, 200)
         button.Parent = tabFrame
 
-        -- Style
-        local corner = Instance.new("UICorner")
-        corner.CornerRadius = UDim.new(0, 4)
-        corner.parent = button
-
-        local stroke = Instance.new("UIStroke")
-        stroke.Color = Color3.fromRGB(180, 0, 255)
-        stroke.Thickness = 5
-        stroke.Parent = button
-
         button.MouseButton1Click:Connect(spec.callback)
     end
 end

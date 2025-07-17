@@ -417,7 +417,9 @@ playerListFrame.Parent = LoopBringPanel
 
 local selectedPlayers = {}
 
--- Create buttons for all players
+local UNSELECTED_COLOR = Color3.fromRGB(200, 0, 255)
+local SELECTED_COLOR   = Color3.fromRGB(230, 100, 255) -- lighter, more obvious
+
 local function refreshPlayerButtons()
     for _, child in pairs(playerListFrame:GetChildren()) do
         if child:IsA("TextButton") then child:Destroy() end
@@ -433,16 +435,23 @@ local function refreshPlayerButtons()
             button.Text = player.Name
             button.Font = Enum.Font.SourceSansBold
             button.TextSize = 14
-            button.TextColor3 = Color3.fromRGB(200, 0, 255)
+
+            -- ✅ If this player is selected, use the selected color
+            if selectedPlayers[player] then
+                button.TextColor3 = SELECTED_COLOR
+            else
+                button.TextColor3 = UNSELECTED_COLOR
+            end
+
             button.Parent = playerListFrame
 
             button.MouseButton1Click:Connect(function()
                 if selectedPlayers[player] then
                     selectedPlayers[player] = nil
-                    button.TextColor3 = Color3.fromRGB(200, 0, 255)
+                    button.TextColor3 = UNSELECTED_COLOR
                 else
                     selectedPlayers[player] = true
-                    button.TextColor3 = Color3.fromRGB(143, 0, 245)
+                    button.TextColor3 = SELECTED_COLOR
                 end
             end)
 

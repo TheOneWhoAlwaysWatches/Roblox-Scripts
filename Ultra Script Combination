@@ -1,0 +1,185 @@
+-- ⚡ GOD CHAIN V1
+-- Combines: UltraFast Respawn + Tool Grabber + Hyper Tool Spammer + InstaKill Aura + Power Meter
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local LocalPlayer = Players.LocalPlayer
+local Tycoons = workspace:WaitForChild("Tycoons")
+
+-- === CONFIG ===
+local respawnRemote = ReplicatedStorage:FindFirstChild("Guide")
+local excludedBases = { "Insanity", "Giant", "Dark", "Spike", "Web", "Strong" }
+local allowedBases = { "Stone", "Magic", "Storm" }
+local auraRange = 20
+local auraSize = Vector3.new(30, 30, 30)
+local attackRate = 0.005
+
+-- === STATE ===
+local excludedBasesSet, allowedBasesSet = {}, {}
+for _, base in ipairs(excludedBases) do excludedBasesSet[base] = true end
+for _, base in ipairs(allowedBases) do allowedBasesSet[base] = true end
+
+getgenv().TDW_HIT_TIMESTAMPS = {}
+_G.UltraRespawnActive = true
+local attacking = true
+local running = true
+local activeTools = {}
+local auraParams = OverlapParams.new()
+auraParams.FilterType = Enum.RaycastFilterType.Include
+
+-- === UI: Power Meter ===
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "GodChainUI"
+screenGui.Parent = game.CoreGui
+screenGui.ResetOnSpawn = false
+
+local powerLabel = Instance.new("TextLabel")
+powerLabel.Name = "PowerMeter"
+powerLabel.Parent = screenGui
+powerLabel.Position = UDim2.new(0.5, -70, 0.85, 30)
+powerLabel.Size = UDim2.new(0, 140, 0, 20)
+powerLabel.BackgroundTransparency = 1
+powerLabel.Font = Enum.Font.Code
+powerLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+powerLabel.TextSize = 18
+powerLabel.Text = "Power: 0/s"
+
+RunService.Heartbeat:Connect(function()
+	local timestamps = getgenv().TDW_HIT_TIMESTAMPS
+	local now = tick()
+	for i = #timestamps, 1, -1 do
+		if now - timestamps[i] > 1 then table.remove(timestamps, i) end
+	end
+	local hitsPerSec = #timestamps
+	if hitsPerSec > 600 then
+		powerLabel.Text = "Overload: " .. hitsPerSec .. "/s"
+		powerLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+	else
+		powerLabel.Text = "Power: " .. hitsPerSec .. "/s"
+		powerLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+	end
+end)
+
+-- === FUNCTIONS ===
+local function getChar(plr) return plr and plr.Character end
+local function getHRP(plr) local c = getChar(plr) return c and c:FindFirstChild("HumanoidRootPart") end
+
+local function CollectTools()
+	local character = LocalPlayer.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart")
+	if not root then return end
+	for _, v in ipairs(Tycoons:GetDescendants()) do
+		if v:IsA("TouchTransmitter") and v.Parent and v.Parent.Parent and v.Parent.Parent.Name:find("GearGiver1") then
+			local baseModel = v.Parent.Parent.Parent
+			local baseName = baseModel and baseModel.Name
+			if baseName and (allowedBasesSet[baseName] or not excludedBasesSet[baseName]) then
+				firetouchinterest(root, v.Parent, 0)
+				firetouchinterest(root, v.Parent, 1)
+			end
+		end
+	end
+end
+
+local function autoEquip(tool)
+	if not tool:IsDescendantOf(workspace) then
+		tool.Parent = LocalPlayer.Character
+	end
+	tool:Activate()
+end
+
+local function equipAllTools()
+	if not LocalPlayer.Character then return end
+	for _, tool in ipairs(LocalPlayer.Backpack:GetChildren()) do
+		if tool:IsA("Tool") then tool.Parent = LocalPlayer.Character end
+	end
+	for _, tool in ipairs(LocalPlayer.Character:GetChildren()) do
+		if tool:IsA("Tool") then autoEquip(tool) end
+	end
+end
+
+local function hookHumanoidDied(character)
+	local humanoid = character:FindFirstChildOfClass("Humanoid") or character:WaitForChild("Humanoid")
+	humanoid.Died:Connect(function()
+		if respawnRemote and _G.UltraRespawnActive then
+			respawnRemote:FireServer()
+		end
+	end)
+end
+
+local function getValidTargets()
+	local myHRP = getHRP(LocalPlayer)
+	if not myHRP then return {}, {} end
+	local playersInRange, chars = {}, {}
+	for _, player in ipairs(Players:GetPlayers()) do
+		if player ~= LocalPlayer then
+			local hrp = getHRP(player)
+			if hrp and (hrp.Position - myHRP.Position).Magnitude <= auraRange then
+				table.insert(playersInRange, player)
+				local char = getChar(player)
+				if char then table.insert(chars, char) end
+			end
+		end
+	end
+	return playersInRange, chars
+end
+
+-- === MAIN DAMAGE LOOP ===
+task.spawn(function()
+	while running do
+		local myChar = getChar(LocalPlayer)
+		if not myChar then task.wait(1) continue end
+
+		local targets, enemyChars = getValidTargets()
+		auraParams.FilterDescendantsInstances = enemyChars
+
+		for _, tool in ipairs(myChar:GetChildren()) do
+			if tool:IsA("Tool") then
+				local fightEvent = tool:FindFirstChild("FightEvent")
+				local touchPart = tool:FindFirstChildWhichIsA("TouchTransmitter", true)
+				touchPart = touchPart and touchPart.Parent
+
+				if fightEvent then
+					autoEquip(tool)
+					fightEvent:FireServer()
+					table.insert(getgenv().TDW_HIT_TIMESTAMPS, tick())
+				end
+
+				if touchPart then
+					local partsInBox = workspace:GetPartBoundsInBox(touchPart.CFrame, touchPart.Size + auraSize, auraParams)
+					for _, part in ipairs(partsInBox) do
+						local model = part:FindFirstAncestorWhichIsA("Model")
+						if model and table.find(enemyChars, model) then
+							firetouchinterest(touchPart, part, 1)
+							firetouchinterest(touchPart, part, 0)
+							table.insert(getgenv().TDW_HIT_TIMESTAMPS, tick())
+						end
+					end
+				end
+			end
+		end
+
+		task.wait(attackRate)
+	end
+end)
+
+-- === HOOKS ===
+RunService.Heartbeat:Connect(CollectTools)
+RunService.PostSimulation:Connect(equipAllTools)
+
+Tycoons.DescendantAdded:Connect(CollectTools)
+LocalPlayer.CharacterAdded:Connect(function(char)
+	hookHumanoidDied(char)
+	task.wait(0.05)
+	CollectTools()
+	equipAllTools()
+end)
+
+if LocalPlayer.Character then
+	hookHumanoidDied(LocalPlayer.Character)
+	CollectTools()
+	equipAllTools()
+end
+
+print("✅ GOD CHAIN V1 Loaded. Ultra Respawn, Auto Tool Grab, Infinite Damage Aura Active.")

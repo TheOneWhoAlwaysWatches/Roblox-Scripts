@@ -1,5 +1,5 @@
 -- CONFIG
-local auraRange = 20 -- Max distance to enemy
+local auraRange = 55 -- Max distance to enemy
 local auraSize = Vector3.new(30, 30, 30) -- Aura box around tool
 local attackRate = 0.005 -- Speed of the loop (seconds)
 

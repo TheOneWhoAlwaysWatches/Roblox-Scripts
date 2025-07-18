@@ -227,13 +227,13 @@ local hubButtons = {
 }
 
 local tips = {
-    "Tip 1 --> To make walking god mode work, use Perma-Death FIRST, then activate God Mode!!"
+    "Tip 1 --> To make walking god mode work, use Perma-Death FIRST, then activate God Mode!!",
     "Tip 2 --> If you plan on using walking god mode or normal perma death, dont use respawn!!",
     "Tip 3 --> Don't use No Cooldown with Insta Kill Aura",
     "Tip 4 --> Don't use Insta Kill Aura with Normal Aura",
     "Tip 5 --> Inf axe smash is inside Acrylix..",
     "Tip 6 --> Don't trust random exploiters trying to give you scripts, they could be dangerous!!",
-    "Tip 7 --> Trust and believe the TOR Is the STRONGEST clan out there, and soon to be the last one"
+    "Tip 7 --> Trust and believe the TOR Is the STRONGEST clan out there, and soon to be the last one",
 }
 
 -- ==[ Tabs ]==

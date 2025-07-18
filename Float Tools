@@ -1,0 +1,61 @@
+-- Variables de servicio
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local player = Players.LocalPlayer
+
+-- Altura a la que flotarán las herramientas cuando el jugador muera
+local deathHeight = 10
+
+-- Función para detectar si el jugador está muerto
+local function IsPlayerDead()
+local char = player.Character
+if not char then return false end
+local humanoid = char:FindFirstChildOfClass("Humanoid")
+return humanoid and humanoid.Health <= 0
+end
+
+-- Función para hacer flotar las herramientas solo cuando el jugador muere
+local function FloatToolsOnDeath()
+if not player.Character then return end
+
+for _, tool in ipairs(player.Character:GetChildren()) do
+if tool:IsA("Tool") then
+local handle = tool:FindFirstChild("Handle")
+if handle then
+local bodyPosition = handle:FindFirstChild("BodyPosition")
+
+if IsPlayerDead() then    
+            if not bodyPosition then    
+                bodyPosition = Instance.new("BodyPosition")    
+                bodyPosition.MaxForce = Vector3.new(400000, 400000, 400000)    
+                bodyPosition.D = 10    
+                bodyPosition.Parent = handle    
+            end    
+
+            local rootPart = player.Character:FindFirstChild("HumanoidRootPart")    
+            if rootPart then    
+                bodyPosition.Position = rootPart.Position + Vector3.new(0, deathHeight, 0) -- Flotar 10 studs arriba    
+            end    
+        else    
+            -- Si el jugador revive, eliminar la flotación de las herramientas    
+            if bodyPosition then    
+                bodyPosition:Destroy()    
+            end    
+        end    
+    end    
+end
+
+end
+
+end
+
+-- Monitorear el estado del jugador y aplicar flotación cuando muera
+RunService.Heartbeat:Connect(function()
+FloatToolsOnDeath()
+end)
+
+-- Restaurar gravedad al reaparecer
+player.CharacterAdded:Connect(function(character)
+wait(1) -- Esperar un momento para que se cargue el personaje
+FloatToolsOnDeath() -- Verificar si debe aplicar o quitar la flotación
+end)

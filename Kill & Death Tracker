@@ -1,71 +1,54 @@
--- === Kills & Deaths Counter ===
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
+
+-- GUI setup
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "KillDeathCounter"
+ScreenGui.Parent = game.CoreGui
+
+local CounterLabel = Instance.new("TextLabel")
+CounterLabel.Size = UDim2.new(0, 200, 0, 50)
+CounterLabel.Position = UDim2.new(0.5, -100, 0, 50) -- centered, lowered
+CounterLabel.BackgroundTransparency = 1
+CounterLabel.TextColor3 = Color3.fromRGB(200, 0, 255)
+CounterLabel.Font = Enum.Font.Code
+CounterLabel.TextSize = 20
+CounterLabel.Text = "Kills: 0  |  Deaths: 0"
+CounterLabel.Parent = ScreenGui
 
 local kills = 0
 local deaths = 0
 
--- === UI Setup ===
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "KillsDeathsUI"
-ScreenGui.Parent = game.CoreGui
-ScreenGui.ResetOnSpawn = false
+local function updateCounter()
+	CounterLabel.Text = "Kills: " .. kills .. "  |  Deaths: " .. deaths
+end
 
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 200, 0, 40)
-frame.Position = UDim2.new(0.5, -100, 0, 20)
-frame.BackgroundColor3 = Color3.fromRGB(10, 0, 20)
-frame.BackgroundTransparency = 0.2
-frame.Parent = ScreenGui
+-- Listen for deaths of others
+local function hookPlayer(player)
+	if player == LocalPlayer then return end
+	player.CharacterAdded:Connect(function(character)
+		local hum = character:WaitForChild("Humanoid")
+		hum.Died:Connect(function()
+			local tag = hum:FindFirstChild("creator")
+			if tag and tag.Value == LocalPlayer then
+				kills += 1
+				updateCounter()
+			end
+		end)
+	end)
+end
 
-Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
-local stroke = Instance.new("UIStroke", frame)
-stroke.Color = Color3.fromRGB(180, 0, 255)
-stroke.Thickness = 2
+for _, p in pairs(Players:GetPlayers()) do
+	hookPlayer(p)
+end
 
-local label = Instance.new("TextLabel")
-label.Size = UDim2.new(1, 0, 1, 0)
-label.BackgroundTransparency = 1
-label.Font = Enum.Font.Code
-label.TextSize = 18
-label.TextColor3 = Color3.fromRGB(200, 0, 255)
-label.Text = "Kills: 0  |  Deaths: 0"
-label.Parent = frame
+Players.PlayerAdded:Connect(hookPlayer)
 
--- === Death tracking ===
+-- Listen for your own deaths
 LocalPlayer.CharacterAdded:Connect(function(character)
-    deaths += 1
-    label.Text = "Kills: " .. kills .. "  |  Deaths: " .. deaths
-end)
-
--- === Kills tracking ===
--- Simple version: listens for your tools hitting other players.
-local function hookTool(tool)
-    if not tool:IsA("Tool") then return end
-    local remote = tool:FindFirstChildWhichIsA("RemoteEvent", true)
-    if not remote then return end
-
-    remote.OnClientEvent:Connect(function()
-        kills += 1
-        label.Text = "Kills: " .. kills .. "  |  Deaths: " .. deaths
-    end)
-end
-
-LocalPlayer.CharacterAdded:Connect(function(char)
-    for _, tool in ipairs(char:GetChildren()) do
-        hookTool(tool)
-    end
-
-    char.ChildAdded:Connect(function(child)
-        hookTool(child)
-    end)
-end)
-
--- Also hook tools in Backpack
-for _, tool in ipairs(LocalPlayer.Backpack:GetChildren()) do
-    hookTool(tool)
-end
-
-LocalPlayer.Backpack.ChildAdded:Connect(function(child)
-    hookTool(child)
+	local hum = character:WaitForChild("Humanoid")
+	hum.Died:Connect(function()
+		deaths += 1
+		updateCounter()
+	end)
 end)

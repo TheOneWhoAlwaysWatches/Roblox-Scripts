@@ -1,25 +1,56 @@
+-- === Ultimate No Cooldown V1 ===
+local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
-local function getToolRemote()
-    for _, tool in pairs(LocalPlayer.Backpack:GetChildren()) do
-        if tool:IsA("Tool") then
-            local remote = tool:FindFirstChildWhichIsA("RemoteEvent", true)
-            if remote then return remote end
+-- === 1️⃣ Hook wait & task.wait ===
+hookfunction(wait, function()
+    return RunService.PostSimulation:Wait()
+end)
+
+hookfunction(task.wait, function()
+    return RunService.PostSimulation:Wait()
+end)
+
+-- === 2️⃣ Patch known local cooldowns (if they exist) ===
+local function patchUpvalues()
+    for _, v in pairs(getgc(true)) do
+        if typeof(v) == "function" then
+            for i = 1, debug.getinfo(v).nups do
+                local name, val = debug.getupvalue(v, i)
+                if type(name) == "string" and name:lower():find("cooldown") then
+                    debug.setupvalue(v, i, 0)
+                end
+            end
         end
     end
-    for _, tool in pairs(LocalPlayer.Character:GetChildren()) do
-        if tool:IsA("Tool") then
-            local remote = tool:FindFirstChildWhichIsA("RemoteEvent", true)
-            if remote then return remote end
-        end
-    end
-    return nil
 end
 
-while task.wait(0.001) do
-    local remote = getToolRemote()
-    if remote then
-        remote:FireServer()
+-- === 3️⃣ Spam all Tool Remotes ===
+local function spamTools()
+    local char = LocalPlayer.Character
+    if not char then return end
+
+    for _, tool in ipairs(char:GetChildren()) do
+        if tool:IsA("Tool") then
+            -- Fire ALL RemoteEvents in this tool
+            for _, descendant in ipairs(tool:GetDescendants()) do
+                if descendant:IsA("RemoteEvent") then
+                    for _ = 1, 5 do
+                        descendant:FireServer()
+                    end
+                end
+            end
+        end
     end
 end
+
+-- === 4️⃣ Master Loop ===
+task.spawn(function()
+    while task.wait(0.01) do
+        patchUpvalues()
+        spamTools()
+    end
+end)
+
+print("✅ Ultimate No Cooldown is ACTIVE")

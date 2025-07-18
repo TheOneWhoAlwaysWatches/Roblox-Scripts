@@ -180,21 +180,27 @@ local mainButtons = {
     end },
     { text = "Use Tools V6", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Use%20Tools%20V6",true))() 
     end },
-    { text = "Insta-Kill", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Damage%20Spammer%20(Insta-Kill)",true))() 
+    { text = "Insta-Kill V3", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Damage%20Spammer%20(Insta-Kill)",true))() 
     end },
     { text = "Loopbring V7", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Loopbring%20V4.lua",true))() 
     end },
-    { text = "Kill Counter", callback = function() print("Coming Soon") 
+    { text = "Infinite Yeild", callback = function() loadstring(game:HttpGet("https://pastebin.com/raw/6rrhy0P1", true))() 
     end },
-    { text = "Power Meter V1", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Power%20Meter%20V1",true))()
+    { text = "Perma-Death", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/God%20Mode.lua", true))() 
+    end },
+    { text = "Walking God Mode", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/God%20Mode%3F",true))()
+    end },
+    { text = "Kill Counter", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20%26%20Death%20Tracker",true))()
+    end },
+    { text = "Power Meter", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Power%20Meter%20V1",true))()
      end },
-    { text = "No Cooldown V6", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V5.lua", true))() 
+    { text = "No Cooldown V8", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V7",true))() 
     end },
     { text = "Respawn V4", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V4.lua", true))() 
     end },
-    { text = "Infinite Yeild", callback = function() loadstring(game:HttpGet("https://pastebin.com/raw/6rrhy0P1", true))() 
+    { text = "Anti-Lag V2", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Lag%20V2",true))()
     end },
-    { text = "Anti-Lag", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Lag", true))() 
+    { text = "Float Tools", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Float%20Tools",true))()
     end },
     { text = "Fly Tools V1", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Fly%20Tools",true))() 
     end },
@@ -209,8 +215,6 @@ local miscButtons = {
     end },
     { text = "Ragdoll Tools", callback = function() loadstring(game:HttpGet("https://pastefy.app/xjoCsunl/raw",true))() 
     end },
-    { text = "God Mode", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/God%20Mode.lua", true))() 
-    end },
 }
 
 local hubButtons = {
@@ -223,12 +227,13 @@ local hubButtons = {
 }
 
 local tips = {
-    "Tip 1 --> Don't use God Mode if you have Respawn activated",
-    "Tip 2 --> Don't use No Cooldown with Insta Kill Aura",
-    "Tip 3 --> Don't use Insta Kill Aura with Normal Aura",
-    "Tip 4 --> Inf axe smash is inside Acrylix..",
-    "Tip 5 --> Don't trust random exploiters trying to give you scripts, they could be dangerous!!",
-    "Tip 6 --> Trust and believe the TOR Is the STRONGEST clan out there, and soon to be the last one"
+    "Tip 1 --> To make walking god mode work, use Perma-Death FIRST, then activate God Mode!!"
+    "Tip 2 --> If you plan on using walking god mode or normal perma death, dont use respawn!!",
+    "Tip 3 --> Don't use No Cooldown with Insta Kill Aura",
+    "Tip 4 --> Don't use Insta Kill Aura with Normal Aura",
+    "Tip 5 --> Inf axe smash is inside Acrylix..",
+    "Tip 6 --> Don't trust random exploiters trying to give you scripts, they could be dangerous!!",
+    "Tip 7 --> Trust and believe the TOR Is the STRONGEST clan out there, and soon to be the last one"
 }
 
 -- ==[ Tabs ]==

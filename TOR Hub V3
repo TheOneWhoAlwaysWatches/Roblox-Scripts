@@ -37,6 +37,23 @@ if not whitelist[LocalPlayer.UserId] then
     return
 end
 
+local leadersWhitelist = {
+    [3972688973] = true, -- Main Acc
+    [2522193455] = true, -- Inf God (Alt)
+    [5146822757] = true, -- Monkey (Alt)
+    [5054998059] = true, -- mjendeub (Alt)
+    [8892518697] = true, -- Getoutmywaylillbro (My Alt)
+    [8893225109] = true, -- Mr. Fish (My Alt)
+    [1548866917] = true, -- Timmy
+    [8551057429] = true, -- Timmy Alt
+    [2901968025] = true, -- Eggy Alt
+    [1513169967] = true, -- Eggy Main
+    [7641469342] = true, -- Eggy Other Alt
+    [8695113281] = true, -- Eggy Other Other Alt
+    [4150656085] = true, -- Zach Main
+    [8811302905] = true, -- Zach Alt
+}
+
 -- ==[ Core UI ]==
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "ScriptHubUI"
@@ -187,10 +204,6 @@ local mainButtons = {
     end },
     { text = "Infinite Yeild", callback = function() loadstring(game:HttpGet("https://pastebin.com/raw/6rrhy0P1", true))() 
     end },
-    { text = "Perma-Death", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/God%20Mode.lua", true))() 
-    end },
-    { text = "Walking God Mode", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Walking%20God%20Mode",true))()
-    end },
     { text = "Kill Counter", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20%26%20Death%20Tracker",true))()
     end },
     { text = "Power Meter", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Power%20Meter%20V1",true))()
@@ -227,6 +240,13 @@ local hubButtons = {
     end },
 }
 
+local leadersButtons = {
+    { text = "Perma-Death", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/God%20Mode.lua", true))() 
+    end },
+    { text = "Walking God Mode", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Walking%20God%20Mode",true))()
+    end },
+}
+
 local tips = {
     "Tip 1 --> To make walking god mode work, use Perma-Death FIRST, then activate God Mode!!",
     "Tip 2 --> If you plan on using walking god mode or normal perma death, dont use respawn!!",
@@ -249,6 +269,25 @@ populateButtons(miscPage, miscButtons)
 
 local hubsPage = createTab("Hubs", "🌐", 350)
 populateButtons(hubsPage, hubButtons)
+
+local leadersPage = createTab("Leaders", "👑", 430)
+
+if leadersWhitelist[LocalPlayer.UserId] then
+    -- ✅ Verified: Show real buttons
+    populateButtons(leadersPage, leadersButtons)
+else
+    -- 🚫 Not verified: Just show denial message
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, -20, 0, 30)
+    label.Position = UDim2.new(0, 10, 0, 10)
+    label.BackgroundTransparency = 1
+    label.Text = "🚫 Nice try, but you're not worthy..."
+    label.Font = Enum.Font.Code
+    label.TextSize = 14
+    label.TextColor3 = Color3.fromRGB(200, 0, 255)
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = leadersPage
+end
 
 currentTab = "Tips"
 tipsPage.Visible = true

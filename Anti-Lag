@@ -1,85 +1,61 @@
--- TDW Ultra Anti-Lag (Permanent + Applies to Respawns)
+-- === ULTIMATE ANTI-LAG ===
 
-local Players = game:GetService("Players")
 local Lighting = game:GetService("Lighting")
 local Terrain = workspace:FindFirstChildOfClass("Terrain")
+local RunService = game:GetService("RunService")
 
--- CORE STRIP FUNCTION
-local function stripVisuals(character)
-	if not character then return end
-	for _, item in ipairs(character:GetDescendants()) do
-		if item:IsA("Accessory") or item:IsA("Clothing") or item:IsA("ShirtGraphic") or item:IsA("CharacterMesh") then
-			item:Destroy()
-		elseif item:IsA("Decal") or item:IsA("Texture") then
-			item.Transparency = 1
-		elseif item:IsA("ParticleEmitter") or item:IsA("Trail") or item:IsA("Beam") then
-			item.Enabled = false
-		elseif item:IsA("Sound") then
-			item.Volume = 0
-		end
-	end
+-- Remove visual junk
+for _, v in pairs(workspace:GetDescendants()) do
+    if v:IsA("Decal") or v:IsA("Texture") then
+        v:Destroy()
+    elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
+        v:Destroy()
+    elseif v:IsA("ForceField") or v:IsA("Smoke") or v:IsA("Fire") or v:IsA("Explosion") then
+        v:Destroy()
+    elseif v:IsA("Sound") and v.Parent ~= game.Players.LocalPlayer.Character then
+        v.Volume = 0
+    elseif v:IsA("BasePart") then
+        v.Material = Enum.Material.Plastic
+        v.Reflectance = 0
+    end
 end
 
--- HOOK EACH PLAYER
-local function handlePlayer(player)
-	local function onCharacter(char)
-		stripVisuals(char)
-	end
-	if player.Character then onCharacter(player.Character) end
-	player.CharacterAdded:Connect(onCharacter)
-end
-
--- GLOBAL WORKSPACE STRIP (One-time)
-for _, inst in ipairs(workspace:GetDescendants()) do
-	if inst:IsA("Decal") or inst:IsA("Texture") then
-		inst.Transparency = 1
-	elseif inst:IsA("SurfaceAppearance") or inst:IsA("ForceField") or inst:IsA("Explosion") or inst:IsA("Sparkles") then
-		inst:Destroy()
-	elseif inst:IsA("ParticleEmitter") or inst:IsA("Trail") or inst:IsA("Beam") then
-		inst.Enabled = false
-	elseif inst:IsA("Sound") then
-		inst.Volume = 0
-	elseif inst:IsA("Highlight") or inst:IsA("SelectionBox") or inst:IsA("SelectionSphere") or inst:IsA("SelectionPartLasso") then
-		inst:Destroy()
-	elseif inst:IsA("MeshPart") or inst:IsA("UnionOperation") or inst:IsA("Part") then
-		if inst.Material == Enum.Material.Neon or inst.Material == Enum.Material.Glass then
-			inst.Material = Enum.Material.Plastic
-		end
-	end
-end
-
--- LIGHTING STRIP
-Lighting.GlobalShadows = false
-Lighting.FogEnd = 1e6
-Lighting.FogStart = 1e6
-Lighting.Brightness = 0
-Lighting.EnvironmentDiffuseScale = 0
-Lighting.EnvironmentSpecularScale = 0
-Lighting.OutdoorAmbient = Color3.new()
-Lighting.Ambient = Color3.new()
-Lighting.ColorShift_Top = Color3.new()
-Lighting.ColorShift_Bottom = Color3.new()
-
--- TERRAIN STRIP
+-- Remove terrain water effects
 if Terrain then
-	Terrain.WaterWaveSize = 0
-	Terrain.WaterWaveSpeed = 0
-	Terrain.WaterReflectance = 0
-	Terrain.WaterTransparency = 1
+    Terrain.WaterWaveSize = 0
+    Terrain.WaterWaveSpeed = 0
+    Terrain.WaterReflectance = 0
+    Terrain.WaterTransparency = 0
 end
 
--- EXISTING PLAYERS
-for _, player in ipairs(Players:GetPlayers()) do
-	handlePlayer(player)
-end
-
--- NEW PLAYERS JOINING
-Players.PlayerAdded:Connect(handlePlayer)
-
--- OPTIONAL: Lower quality settings (if exploit supports it)
+-- Lighting tweaks for max FPS
+Lighting.GlobalShadows = false
+Lighting.FogEnd = 1e10
+Lighting.Brightness = 1
 pcall(function()
-	settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
-	settings().Rendering.EditQualityLevel = Enum.QualityLevel.Level01
+    sethiddenproperty(Lighting, "Technology", Enum.Technology.Compatibility)
 end)
 
-print("[TDW Anti-Lag] Applied to all players & future respawns.")
+-- Keep destroying new junk automatically
+workspace.DescendantAdded:Connect(function(v)
+    if v:IsA("Decal") or v:IsA("Texture") then
+        v:Destroy()
+    elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
+        v:Destroy()
+    elseif v:IsA("ForceField") or v:IsA("Smoke") or v:IsA("Fire") or v:IsA("Explosion") then
+        v:Destroy()
+    elseif v:IsA("Sound") and v.Parent ~= game.Players.LocalPlayer.Character then
+        v.Volume = 0
+    elseif v:IsA("BasePart") then
+        v.Material = Enum.Material.Plastic
+        v.Reflectance = 0
+    end
+end)
+
+-- Optional: Throttle your physics for max FPS
+RunService:Set3dRenderingEnabled(true)
+RunService.RenderStepped:Connect(function()
+    settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+end)
+
+print("[ULTIMATE ANTI-LAG] Active.")

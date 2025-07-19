@@ -229,6 +229,8 @@ local miscButtons = {
     end },
     { text = "Ragdoll Tools", callback = function() loadstring(game:HttpGet("https://pastefy.app/xjoCsunl/raw",true))() 
     end },
+    { text = "Anti-Range", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/zephyr10101/ignore-touchinterests/main/main",true))()
+    end },
 }
 
 local hubButtons = {

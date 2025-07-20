@@ -31,7 +31,7 @@ local whitelist = {
     [8129415259] = true, -- Troy Alt
     [7191792176] = true, -- Troy Other Alt
     [8038942934] = true, -- Ethan
-    [1723790049] = = true, -- Angel
+    [1723790049] = = true, -- Angel 
 }
 
 if not whitelist[LocalPlayer.UserId] then
@@ -46,6 +46,8 @@ local leadersWhitelist = {
     [5054998059] = true, -- mjendeub (Alt)
     [8892518697] = true, -- Getoutmywaylillbro (My Alt)
     [8893225109] = true, -- Mr. Fish (My Alt)
+    [3429553477] = true, -- Dyllan144335 (Alt)
+    [2647384879] = true, -- Crainer (Alt)
     [1548866917] = true, -- Timmy
     [8551057429] = true, -- Timmy Alt
     [2901968025] = true, -- Eggy Alt
@@ -64,8 +66,8 @@ ScreenGui.Parent = game.CoreGui
 
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 750, 0, 380)
-MainFrame.Position = UDim2.new(0.5, -325, 0.5, -180)
+MainFrame.Size = UDim2.new(0, 900, 0, 500)
+MainFrame.Position = UDim2.new(0.5, -450, 0.5, -250)
 MainFrame.BackgroundColor3 = Color3.fromRGB(10, 0, 20)
 MainFrame.BorderSizePixel = 0
 MainFrame.Parent = ScreenGui
@@ -115,7 +117,7 @@ local tabs, tabPages, currentTab = {}, {}, nil
 
 local function createTab(name, icon, position)
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0, 90, 0, 28)
+    btn.Size = UDim2.new(0, 110, 0, 32)
     btn.Position = UDim2.new(0, position, 0, 0)
     btn.BackgroundColor3 = Color3.fromRGB(10, 0, 20)
     btn.BorderSizePixel = 0
@@ -156,12 +158,12 @@ end
 
 local function populateButtons(tabFrame, buttonSpecs)
     local columns = 4
-    local spacingX, spacingY = 100, 40
+    local spacingX, spacingY = 130, 50
     local startX, startY = 10, 10
 
     for i, spec in ipairs(buttonSpecs) do
         local button = Instance.new("TextButton")
-        button.Size = UDim2.new(0, 90, 0, 30)
+        button.Size = UDim2.new(0, 120, 0, 40)
         local row = math.floor((i - 1) / columns)
         local col = (i - 1) % columns
         button.Position = UDim2.new(0, startX + col * spacingX, 0, startY + row * spacingY)
@@ -209,7 +211,9 @@ local mainButtons = {
     { text = "Kill Counter", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20%26%20Death%20Tracker",true))()
     end },
     { text = "Power Meter", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Power%20Meter%20V1",true))()
-     end },
+    end },
+    { text = "Axe Smash Sheild", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Axe%20Smash%20Sheild",true))()
+    end }
     { text = "No Cooldown V8", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V7",true))() 
     end },
     { text = "Respawn V4", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V4.lua", true))() 
@@ -259,22 +263,23 @@ local tips = {
     "Tip 5 --> Inf axe smash is inside Acrylix..",
     "Tip 6 --> Don't trust random exploiters trying to give you scripts, they could be dangerous!!",
     "Tip 7 --> Trust and believe the TOR Is the STRONGEST clan out there, and soon to be the last one",
+    "Tip 8 --> Axe Smash Sheild is like the Axe Smash Spam script, but it only goes around your character",
 }
 
 -- ==[ Tabs ]==
-local tipsPage = createTab("Tips", "🧠", 110)
+local tipsPage = createTab("Tips", "🧠", 120)
 populateTips(tipsPage, tips)
 
-local mainPage = createTab("Main", "💀", 190)
+local mainPage = createTab("Main", "💀", 240)
 populateButtons(mainPage, mainButtons)
 
-local miscPage = createTab("Misc", "🔧", 270)
+local miscPage = createTab("Misc", "🔧", 360)
 populateButtons(miscPage, miscButtons)
 
-local hubsPage = createTab("Hubs", "🌐", 350)
+local hubsPage = createTab("Hubs", "🌐", 480)
 populateButtons(hubsPage, hubButtons)
 
-local leadersPage = createTab("Leaders", "👑", 430)
+local leadersPage = createTab("Leaders", "👑", 600)
 
 if leadersWhitelist[LocalPlayer.UserId] then
     -- ✅ Verified: Show real buttons

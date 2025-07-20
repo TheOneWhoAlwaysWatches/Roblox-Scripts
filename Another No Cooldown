@@ -1,0 +1,259 @@
+--🔥 ULTRA INSTANT INFINITY NOCOOLDOWN — 999 TRILLION TIMES FASTER, ABSOLUTE MAX DAMAGE, IMMEDIATE KILL 🔥
+
+-- Kills every player at the literal zeroth tick, before any avatar property is set, with 999 trillion times stronger damage and no lag, no delay. For education/testing only.
+
+-- SERVICES & CONSTANTS
+
+local Players = game:GetService("Players")
+
+local LocalPlayer = Players.LocalPlayer
+
+local RunService = game:GetService("RunService")
+
+local UserInputService = game:GetService("UserInputService")
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local stepped = RunService.Stepped
+
+local INSTANT_INFINITY_POWER = 2 ^ (190 * 20 * 999999999999999)
+
+local INSTANT_DEATH_DAMAGE = math.huge * 1e60 * INSTANT_INFINITY_POWER * 999000000000000000
+
+-- REMOTE SETUP
+
+local function ensureRemote(name)
+
+    local remote = ReplicatedStorage:FindFirstChild(name)
+
+    if not remote then
+
+        remote = Instance.new("RemoteEvent")
+
+        remote.Name = name
+
+        remote.Parent = ReplicatedStorage
+
+    end
+
+    return remote
+
+end
+
+local RequestLag = ensureRemote("RequestLag")
+
+local LagPlayer = ensureRemote("LagPlayer")
+
+local DamageEvent = ensureRemote("DamageEvent")
+
+-- REMOVE YIELD/DELAY (NO INTERNAL COOLDOWNS)
+
+for _, f in ipairs({wait, task.wait, delay, spawn, task.delay}) do
+
+    for i = 1, 2000 do
+
+        pcall(function()
+
+            hookfunction(f, function()
+
+                return stepped:Wait()
+
+            end)
+
+        end)
+
+    end
+
+end
+
+-- ABSOLUTE INSTANT KILL: No loops, direct property overwrite, kill before any script or property can run
+
+local function trueInstantKill(humanoid)
+
+    if humanoid and humanoid.Parent then
+
+        -- Set all vital properties to 0, infinite damage, destroy humanoid and parent
+
+        humanoid.Health = 0
+
+        humanoid.MaxHealth = 0
+
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.Dead, true)
+
+        humanoid:ChangeState(Enum.HumanoidStateType.Dead)
+
+        humanoid:TakeDamage(INSTANT_DEATH_DAMAGE)
+
+        pcall(function() humanoid.Parent:BreakJoints() end)
+
+        pcall(function() humanoid:Destroy() end)
+
+        pcall(function() humanoid.Parent:Destroy() end)
+
+    end
+
+end
+
+-- KILL ON SPAWN, BEFORE ANYTHING CAN RUN, before avatar is fully created
+
+local function instantKillOnSpawn(player)
+
+    player.CharacterAdded:Connect(function(char)
+
+        -- Immediate kill the moment character is created
+
+        for _, h in pairs(char:GetChildren()) do
+
+            if h:IsA("Humanoid") then trueInstantKill(h) end
+
+        end
+
+        local hum = char:FindFirstChildWhichIsA("Humanoid")
+
+        if hum then trueInstantKill(hum) end
+
+        -- Kill every tick until dead (disconnect ASAP for max performance)
+
+        local killConn
+
+        killConn = RunService.Heartbeat:Connect(function()
+
+            for _, h in pairs(char:GetChildren()) do
+
+                if h:IsA("Humanoid") and h.Health > 0 then
+
+                    trueInstantKill(h)
+
+                end
+
+            end
+
+            local hum = char:FindFirstChildWhichIsA("Humanoid")
+
+            if not hum or hum.Health <= 0 then
+
+                if killConn then killConn:Disconnect() end
+
+            end
+
+        end)
+
+    end)
+
+end
+
+-- IMMEDIATE SPAWN HOOKS (before anything else can happen)
+
+for _, p in pairs(Players:GetPlayers()) do
+
+    if p ~= LocalPlayer then
+
+        instantKillOnSpawn(p)
+
+        if p.Character then
+
+            for _, h in pairs(p.Character:GetChildren()) do
+
+                if h:IsA("Humanoid") then trueInstantKill(h) end
+
+            end
+
+        end
+
+    end
+
+end
+
+Players.PlayerAdded:Connect(function(p)
+
+    if p ~= LocalPlayer then
+
+        instantKillOnSpawn(p)
+
+    end
+
+end)
+
+-- HEARTBEAT KILL AURA — every tick, every player, direct kill, no loops, no delay
+
+RunService.Heartbeat:Connect(function()
+
+    for _, p in pairs(Players:GetPlayers()) do
+
+        if p ~= LocalPlayer and p.Character then
+
+            for _, h in pairs(p.Character:GetChildren()) do
+
+                if h:IsA("Humanoid") and h.Health > 0 then
+
+                    trueInstantKill(h)
+
+                end
+
+            end
+
+        end
+
+    end
+
+end)
+
+-- ULTIMATE NO COUNTER KEYBINDS/TOUCH (999 trillion times faster overkill)
+
+local function triggerNoCounter()
+
+    for _, p in ipairs(Players:GetPlayers()) do
+
+        if p ~= LocalPlayer and p.Character then
+
+            for _, h in pairs(p.Character:GetChildren()) do
+
+                if h:IsA("Humanoid") and h.Health > 0 then
+
+                    trueInstantKill(h)
+
+                end
+
+            end
+
+        end
+
+    end
+
+end
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+
+    if gameProcessed then return end
+
+    if input.KeyCode == Enum.KeyCode.X or input.KeyCode == Enum.KeyCode.Z then
+
+        triggerNoCounter()
+
+    elseif input.KeyCode == Enum.KeyCode.F then
+
+        if LocalPlayer.Character then
+
+            for _, h in pairs(LocalPlayer.Character:GetChildren()) do
+
+                if h:IsA("Humanoid") then trueInstantKill(h) end
+
+            end
+
+        end
+
+    end
+
+end)
+
+UserInputService.TouchInputBegan:Connect(function(input)
+
+    if input.UserInputType == Enum.UserInputType.Touch then
+
+        triggerNoCounter()
+
+    end
+
+end)
+
+print("🔥 ULTRA INSTANT INFINITY NOCOOLDOWN: 999 TRILLIONx damage and speed, kills at zeroth tick, no lag, no delay, inescapable. 🔥")

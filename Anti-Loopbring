@@ -1,0 +1,41 @@
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local function protectRoot()
+    local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local root = char:WaitForChild("HumanoidRootPart")
+
+    -- 1️⃣ Add BodyPosition to hold you steady
+    local bp = Instance.new("BodyPosition")
+    bp.MaxForce = Vector3.new(1e9, 1e9, 1e9)
+    bp.Position = root.Position
+    bp.P = 20000
+    bp.D = 1000
+    bp.Parent = root
+
+    -- 2️⃣ Keep reapplying your real position
+    game:GetService("RunService").Heartbeat:Connect(function()
+        bp.Position = root.Position
+    end)
+
+    -- 3️⃣ OPTIONAL: Metamethod hook to block local `CFrame` overwrite
+    local mt = getrawmetatable(game)
+    setreadonly(mt, false)
+    local old = mt.__newindex
+
+    mt.__newindex = function(t, k, v)
+        if t == root and k == "CFrame" then
+            -- Block exploiters trying to set your CFrame
+            return nil
+        end
+        return old(t, k, v)
+    end
+    setreadonly(mt, true)
+
+    print("✅ Anti-Loopbring shield ACTIVE.")
+end
+
+protectRoot()
+
+-- Reprotect on respawn
+Players.LocalPlayer.CharacterAdded:Connect(protectRoot)

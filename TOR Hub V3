@@ -139,7 +139,7 @@ end)
 local toggleButton = Instance.new("TextButton")
 toggleButton.Name = "HubToggle"
 toggleButton.Size = UDim2.new(0, 120, 0, 40)
-toggleButton.Position = UDim2.new(0, 20, 0, 300)
+toggleButton.Position = UDim2.new(0, 20, 0, 330)
 toggleButton.BackgroundColor3 = Color3.fromRGB(10, 0, 20)
 toggleButton.BorderSizePixel = 0
 toggleButton.TextColor3 = Color3.fromRGB(200, 0, 255)

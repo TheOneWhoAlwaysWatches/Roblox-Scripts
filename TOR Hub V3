@@ -31,6 +31,7 @@ local whitelist = {
     [8129415259] = true, -- Troy Alt
     [7191792176] = true, -- Troy Other Alt
     [8038942934] = true, -- Ethan
+    [1723790049] = = true, -- Angel
 }
 
 if not whitelist[LocalPlayer.UserId] then

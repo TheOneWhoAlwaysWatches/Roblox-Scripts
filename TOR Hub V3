@@ -1,8 +1,9 @@
 -- ==[ Services ]==
-local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
 
 -- ==[ Whitelist ]==
 local whitelist = {
@@ -58,6 +59,22 @@ local leadersWhitelist = {
     [8811302905] = true, -- Zach Alt
 }
 
+-- === Device-aware size ===
+local viewport = Camera.ViewportSize
+local isMobile = viewport.X <= 800
+
+local frameWidth = isMobile and 500 or 900
+local frameHeight = isMobile and 350 or 500
+
+-- ==[ Incase Screen Changes ]==
+Camera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
+    local w = Camera.ViewportSize.X
+    local isMobileNow = w <= 800
+    local newWidth = isMobileNow and 500 or 900
+    local newHeight = isMobileNow and 350 or 500
+    MainFrame.Size = UDim2.new(0, newWidth, 0, newHeight)
+end)
+
 -- ==[ Core UI ]==
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "ScriptHubUI"
@@ -66,12 +83,14 @@ ScreenGui.Parent = game.CoreGui
 
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 900, 0, 500)
-MainFrame.Position = UDim2.new(0.5, -450, 0.5, -250)
+MainFrame.Size = UDim2.new(0, frameWidth, 0, frameHeight)
+MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 MainFrame.BackgroundColor3 = Color3.fromRGB(10, 0, 20)
 MainFrame.BorderSizePixel = 0
 MainFrame.Parent = ScreenGui
 
+-- ==[ Style ]==
 local corner = Instance.new("UICorner", MainFrame)
 corner.CornerRadius = UDim.new(0, 8)
 
@@ -85,6 +104,35 @@ grad.Color = ColorSequence.new{
     ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 0, 0))
 }
 grad.Rotation = 45
+
+-- ==[ Dragging with Touch support too ]==
+local drag, dragInput, dragStart, startPos
+
+MainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        drag = true
+        dragStart = input.Position
+        startPos = MainFrame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                drag = false
+            end
+        end)
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+    if drag and input == dragInput then
+        local delta = input.Position - dragStart
+        MainFrame.Position = UDim2.new(
+            startPos.X.Scale, startPos.X.Offset + delta.X,
+            startPos.Y.Scale, startPos.Y.Offset + delta.Y
+        )
+    end
+end)
 
 -- ==[ Toggle Button ]==
 local toggleButton = Instance.new("TextButton")
@@ -300,35 +348,6 @@ end
 
 currentTab = "Tips"
 tipsPage.Visible = true
-
--- ==[ Dragging ]==
-local drag, dragInput, dragStart, startPos
-
-MainFrame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        drag = true
-        dragStart = input.Position
-        startPos = MainFrame.Position
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                drag = false
-            end
-        end)
-    end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement then
-        dragInput = input
-    end
-    if drag and input == dragInput then
-        local delta = input.Position - dragStart
-        MainFrame.Position = UDim2.new(
-            startPos.X.Scale, startPos.X.Offset + delta.X,
-            startPos.Y.Scale, startPos.Y.Offset + delta.Y
-        )
-    end
-end)
 
 -- ==[ Toggle ]==
 toggleButton.MouseButton1Click:Connect(function()

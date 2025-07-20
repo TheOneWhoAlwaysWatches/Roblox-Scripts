@@ -1,5 +1,6 @@
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 
 local radius = 10
@@ -7,48 +8,9 @@ local points = 12
 local spamDelay = 0.1
 
 local running = false
+local autoActive = false
 
--- Create the toggle button early so both can access it
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "ShieldToggleUI"
-ScreenGui.ResetOnSpawn = false
-ScreenGui.Parent = game.CoreGui
-
-local toggleButton = Instance.new("TextButton")
-toggleButton.Size = UDim2.new(0, 120, 0, 40)
-toggleButton.Position = UDim2.new(1, -140, 1, -100)
-toggleButton.AnchorPoint = Vector2.new(0, 0)
-toggleButton.Text = "Shield: OFF"
-toggleButton.Font = Enum.Font.SourceSansBold
-toggleButton.TextSize = 18
-toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-toggleButton.BackgroundColor3 = Color3.fromRGB(40, 0, 40)
-toggleButton.BorderSizePixel = 0
-toggleButton.Parent = ScreenGui
-
-Instance.new("UICorner", toggleButton).CornerRadius = UDim.new(0, 8)
-Instance.new("UIStroke", toggleButton).Color = Color3.fromRGB(180, 0, 255)
-
--- ✅ Shared toggle logic
-local function toggleShield()
-    running = not running
-    toggleButton.Text = running and "Shield: ON" or "Shield: OFF"
-    print("🛡️ Shield Active:", running)
-end
-
--- Button click toggles shield
-toggleButton.MouseButton1Click:Connect(toggleShield)
-
--- Q key toggles shield & syncs button
-UserInputService.InputBegan:Connect(function(input, gpe)
-    if gpe then return end
-    if input.KeyCode == Enum.KeyCode.Q then
-        toggleShield()
-    end
-end)
-
-print("✅ Press Q or use the button to toggle your Axe Smash Shield.")
-
+-- === Shield spam loop ===
 local function muteToolSounds(tool)
     for _, descendant in ipairs(tool:GetDescendants()) do
         if descendant:IsA("Sound") then
@@ -83,3 +45,45 @@ task.spawn(function()
         task.wait(spamDelay)
     end
 end)
+
+-- === Manual toggle ===
+UserInputService.InputBegan:Connect(function(input, gpe)
+    if gpe then return end
+    if input.KeyCode == Enum.KeyCode.Q then
+        running = not running
+        autoActive = false  -- If manually toggled, disable auto mode
+        print("🛡️ Shield Active:", running)
+    end
+end)
+
+-- === Proximity Auto Activate ===
+RunService.Heartbeat:Connect(function()
+    local char = LocalPlayer.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+
+    local someoneNearby = false
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character:FindFirstChild("Humanoid") then
+            local targetHRP = player.Character.HumanoidRootPart
+            local distance = (targetHRP.Position - hrp.Position).Magnitude
+            local alive = player.Character.Humanoid.Health > 0
+            if distance <= radius and alive then
+                someoneNearby = true
+                break
+            end
+        end
+    end
+
+    if someoneNearby and not running then
+        running = true
+        autoActive = true
+        print("⚡ Auto Shield Activated")
+    elseif not someoneNearby and running and autoActive then
+        running = false
+        autoActive = false
+        print("✅ Auto Shield Deactivated")
+    end
+end)
+
+print("✅ Axe Smash Shield loaded. Press Q to toggle manually. Auto-defends in range.")

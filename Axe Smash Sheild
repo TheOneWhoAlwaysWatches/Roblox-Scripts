@@ -8,28 +8,44 @@ local points = 12
 local spamDelay = 0.1
 
 local running = false
-local autoActive = false
+local autoEnabled = true -- auto mode is ON by default
+local autoEngaged = false -- tracking if it’s auto running right now
 
--- === Physical toggle button ===
+-- === GUI ===
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "AxeShieldToggleUI"
+ScreenGui.Name = "AxeShieldUI"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = game.CoreGui
 
-local toggleButton = Instance.new("TextButton")
-toggleButton.Size = UDim2.new(0, 140, 0, 40)
-toggleButton.Position = UDim2.new(0, 50, 0, 50)
-toggleButton.BackgroundColor3 = Color3.fromRGB(10, 0, 20)
-toggleButton.TextColor3 = Color3.fromRGB(200, 0, 255)
-toggleButton.Text = "Shield: OFF"
-toggleButton.Font = Enum.Font.Code
-toggleButton.TextSize = 16
-toggleButton.Parent = ScreenGui
+-- Shield button
+local shieldButton = Instance.new("TextButton")
+shieldButton.Size = UDim2.new(0, 140, 0, 40)
+shieldButton.Position = UDim2.new(0, 50, 0, 50)
+shieldButton.BackgroundColor3 = Color3.fromRGB(10, 0, 20)
+shieldButton.TextColor3 = Color3.fromRGB(200, 0, 255)
+shieldButton.Text = "Shield: OFF"
+shieldButton.Font = Enum.Font.Code
+shieldButton.TextSize = 16
+shieldButton.Parent = ScreenGui
 
-Instance.new("UICorner", toggleButton).CornerRadius = UDim.new(0, 8)
-Instance.new("UIStroke", toggleButton).Color = Color3.fromRGB(180, 0, 255)
+Instance.new("UICorner", shieldButton).CornerRadius = UDim.new(0, 8)
+Instance.new("UIStroke", shieldButton).Color = Color3.fromRGB(180, 0, 255)
 
--- === Shield spam loop ===
+-- Auto mode button
+local autoButton = Instance.new("TextButton")
+autoButton.Size = UDim2.new(0, 140, 0, 40)
+autoButton.Position = UDim2.new(0, 50, 0, 100)
+autoButton.BackgroundColor3 = Color3.fromRGB(10, 0, 20)
+autoButton.TextColor3 = Color3.fromRGB(0, 255, 100)
+autoButton.Text = "Auto Attack: ON"
+autoButton.Font = Enum.Font.Code
+autoButton.TextSize = 16
+autoButton.Parent = ScreenGui
+
+Instance.new("UICorner", autoButton).CornerRadius = UDim.new(0, 8)
+Instance.new("UIStroke", autoButton).Color = Color3.fromRGB(0, 255, 100)
+
+-- === Tool spam loop ===
 local function muteToolSounds(tool)
     for _, descendant in ipairs(tool:GetDescendants()) do
         if descendant:IsA("Sound") then
@@ -65,27 +81,52 @@ task.spawn(function()
     end
 end)
 
--- === Manual Q toggle ===
+-- === Keybinds ===
 UserInputService.InputBegan:Connect(function(input, gpe)
     if gpe then return end
+    -- Q = toggle shield manually
     if input.KeyCode == Enum.KeyCode.Q then
         running = not running
-        autoActive = false -- disables auto if manually toggled
-        toggleButton.Text = "Shield: " .. (running and "ON" or "OFF")
-        print("🛡️ Shield Active:", running)
+        autoEngaged = false -- manual override
+        shieldButton.Text = "Shield: " .. (running and "ON" or "OFF")
+        print("🛡️ Shield:", running)
+    end
+    -- E = toggle auto mode ON/OFF
+    if input.KeyCode == Enum.KeyCode.E then
+        autoEnabled = not autoEnabled
+        if not autoEnabled and autoEngaged then
+            running = false
+            autoEngaged = false
+            shieldButton.Text = "Shield: OFF"
+        end
+        autoButton.Text = "Auto Attack: " .. (autoEnabled and "ON" or "OFF")
+        print("⚙️ Auto Mode:", autoEnabled)
     end
 end)
 
--- === Physical button toggle ===
-toggleButton.MouseButton1Click:Connect(function()
+-- === Buttons ===
+shieldButton.MouseButton1Click:Connect(function()
     running = not running
-    autoActive = false -- disables auto if manually toggled
-    toggleButton.Text = "Shield: " .. (running and "ON" or "OFF")
-    print("🛡️ Shield Active:", running)
+    autoEngaged = false
+    shieldButton.Text = "Shield: " .. (running and "ON" or "OFF")
+    print("🛡️ Shield:", running)
 end)
 
--- === Auto proximity toggle ===
+autoButton.MouseButton1Click:Connect(function()
+    autoEnabled = not autoEnabled
+    if not autoEnabled and autoEngaged then
+        running = false
+        autoEngaged = false
+        shieldButton.Text = "Shield: OFF"
+    end
+    autoButton.Text = "Auto Attack: " .. (autoEnabled and "ON" or "OFF")
+    print("⚙️ Auto Mode:", autoEnabled)
+end)
+
+-- === Auto proximity loop ===
 RunService.Heartbeat:Connect(function()
+    if not autoEnabled then return end
+
     local char = LocalPlayer.Character
     local hrp = char and char:FindFirstChild("HumanoidRootPart")
     if not hrp then return end
@@ -105,15 +146,15 @@ RunService.Heartbeat:Connect(function()
 
     if someoneNearby and not running then
         running = true
-        autoActive = true
-        toggleButton.Text = "Shield: ON"
+        autoEngaged = true
+        shieldButton.Text = "Shield: ON"
         print("⚡ Auto Shield Activated")
-    elseif not someoneNearby and running and autoActive then
+    elseif not someoneNearby and running and autoEngaged then
         running = false
-        autoActive = false
-        toggleButton.Text = "Shield: OFF"
+        autoEngaged = false
+        shieldButton.Text = "Shield: OFF"
         print("✅ Auto Shield Deactivated")
     end
 end)
 
-print("✅ Axe Smash Shield with auto, Q key, and button toggle ready!")
+print("✅ Full Axe Smash Shield: keybinds, auto, buttons, all synced!")

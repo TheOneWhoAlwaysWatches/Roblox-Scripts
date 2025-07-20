@@ -1,41 +1,57 @@
+-- === Anti-LoopBring MAX ===
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 
-local function protectRoot()
-    local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    local root = char:WaitForChild("HumanoidRootPart")
+local function protectHRP()
+    local char = LocalPlayer.Character
+    if not char then return end
 
-    -- 1️⃣ Add BodyPosition to hold you steady
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    local humanoid = char:FindFirstChildOfClass("Humanoid")
+    if not hrp or not humanoid then return end
+
+    -- Keep original position as trusted anchor
+    local safePosition = hrp.Position
+
+    -- Use BodyPosition to resist forced moves
     local bp = Instance.new("BodyPosition")
-    bp.MaxForce = Vector3.new(1e9, 1e9, 1e9)
-    bp.Position = root.Position
-    bp.P = 20000
-    bp.D = 1000
-    bp.Parent = root
+    bp.MaxForce = Vector3.new(9e8, 9e8, 9e8)
+    bp.D = 10
+    bp.P = 10000
+    bp.Position = safePosition
+    bp.Parent = hrp
 
-    -- 2️⃣ Keep reapplying your real position
-    game:GetService("RunService").Heartbeat:Connect(function()
-        bp.Position = root.Position
+    -- Health monitor
+    humanoid.HealthChanged:Connect(function(h)
+        if h < humanoid.MaxHealth then
+            humanoid.Health = humanoid.MaxHealth
+        end
     end)
 
-    -- 3️⃣ OPTIONAL: Metamethod hook to block local `CFrame` overwrite
-    local mt = getrawmetatable(game)
-    setreadonly(mt, false)
-    local old = mt.__newindex
-
-    mt.__newindex = function(t, k, v)
-        if t == root and k == "CFrame" then
-            -- Block exploiters trying to set your CFrame
-            return nil
+    -- Force reset position each frame
+    RunService.Heartbeat:Connect(function()
+        if hrp and bp then
+            safePosition = hrp.Position -- Update in case *you* move
+            bp.Position = safePosition
         end
-        return old(t, k, v)
-    end
-    setreadonly(mt, true)
+    end)
 
-    print("✅ Anti-Loopbring shield ACTIVE.")
+    -- Cleanup on death or respawn
+    humanoid.Died:Connect(function()
+        bp:Destroy()
+    end)
 end
 
-protectRoot()
+-- Auto re-apply on respawn
+LocalPlayer.CharacterAdded:Connect(function()
+    task.wait(1)
+    protectHRP()
+end)
 
--- Reprotect on respawn
-Players.LocalPlayer.CharacterAdded:Connect(protectRoot)
+-- Init if alive
+if LocalPlayer.Character then
+    protectHRP()
+end
+
+print("✅ Anti-LoopBring MAX enabled. Try to drag me now 🤣")

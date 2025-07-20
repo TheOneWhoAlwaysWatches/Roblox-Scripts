@@ -8,6 +8,47 @@ local spamDelay = 0.1
 
 local running = false
 
+-- Create the toggle button early so both can access it
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "ShieldToggleUI"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = game.CoreGui
+
+local toggleButton = Instance.new("TextButton")
+toggleButton.Size = UDim2.new(0, 120, 0, 40)
+toggleButton.Position = UDim2.new(1, -140, 1, -100)
+toggleButton.AnchorPoint = Vector2.new(0, 0)
+toggleButton.Text = "Shield: OFF"
+toggleButton.Font = Enum.Font.SourceSansBold
+toggleButton.TextSize = 18
+toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleButton.BackgroundColor3 = Color3.fromRGB(40, 0, 40)
+toggleButton.BorderSizePixel = 0
+toggleButton.Parent = ScreenGui
+
+Instance.new("UICorner", toggleButton).CornerRadius = UDim.new(0, 8)
+Instance.new("UIStroke", toggleButton).Color = Color3.fromRGB(180, 0, 255)
+
+-- ✅ Shared toggle logic
+local function toggleShield()
+    running = not running
+    toggleButton.Text = running and "Shield: ON" or "Shield: OFF"
+    print("🛡️ Shield Active:", running)
+end
+
+-- Button click toggles shield
+toggleButton.MouseButton1Click:Connect(toggleShield)
+
+-- Q key toggles shield & syncs button
+UserInputService.InputBegan:Connect(function(input, gpe)
+    if gpe then return end
+    if input.KeyCode == Enum.KeyCode.Q then
+        toggleShield()
+    end
+end)
+
+print("✅ Press Q or use the button to toggle your Axe Smash Shield.")
+
 local function muteToolSounds(tool)
     for _, descendant in ipairs(tool:GetDescendants()) do
         if descendant:IsA("Sound") then
@@ -41,42 +82,4 @@ task.spawn(function()
         end
         task.wait(spamDelay)
     end
-end)
-
-UserInputService.InputBegan:Connect(function(input, gpe)
-    if gpe then return end
-    if input.KeyCode == Enum.KeyCode.Q then
-        running = not running
-        print("🛡️ Shield Active:", running)
-    end
-end)
-
-print("✅ Press Q or use the toggle button to toggle your Axe Smash Shield.")
-
--- ✅ == Add Mobile Toggle Button ==
-
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "ShieldToggleUI"
-ScreenGui.ResetOnSpawn = false
-ScreenGui.Parent = game.CoreGui
-
-local toggleButton = Instance.new("TextButton")
-toggleButton.Size = UDim2.new(0, 120, 0, 40)
-toggleButton.Position = UDim2.new(1, -140, 1, -100)
-toggleButton.AnchorPoint = Vector2.new(0, 0)
-toggleButton.Text = "Shield: OFF"
-toggleButton.Font = Enum.Font.SourceSansBold
-toggleButton.TextSize = 18
-toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-toggleButton.BackgroundColor3 = Color3.fromRGB(40, 0, 40)
-toggleButton.BorderSizePixel = 0
-toggleButton.Parent = ScreenGui
-
-Instance.new("UICorner", toggleButton).CornerRadius = UDim.new(0, 8)
-Instance.new("UIStroke", toggleButton).Color = Color3.fromRGB(180, 0, 255)
-
-toggleButton.MouseButton1Click:Connect(function()
-    running = not running
-    toggleButton.Text = running and "Shield: ON" or "Shield: OFF"
-    print("🛡️ Shield Active:", running)
 end)

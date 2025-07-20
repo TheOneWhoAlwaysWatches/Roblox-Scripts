@@ -107,7 +107,7 @@ Instance.new("UIGradient", toggleButton).Color = grad.Color
 -- === Top Divider ===
 local TopDivider = Instance.new("Frame")
 TopDivider.Size = UDim2.new(1, 0, 0, 2)
-TopDivider.Position = UDim2.new(0, 0, 0, 28)
+TopDivider.Position = UDim2.new(0, 0, 0, 36)
 TopDivider.BackgroundColor3 = Color3.fromRGB(180, 0, 255)
 TopDivider.BorderSizePixel = 0
 TopDivider.Parent = MainFrame
@@ -132,8 +132,8 @@ local function createTab(name, icon, position)
 
     local page = Instance.new("Frame")
     page.Name = name .. "Page"
-    page.Position = UDim2.new(0, 0, 0, 30)
-    page.Size = UDim2.new(1, 0, 1, -30)
+    page.Position = UDim2.new(0, 0, 0, 40)
+    page.Size = UDim2.new(1, 0, 1, -40)
     page.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
     page.BackgroundTransparency = 0.1 -- slight see-through to show cracks
     page.Visible = false

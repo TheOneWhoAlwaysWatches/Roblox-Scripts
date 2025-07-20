@@ -29,6 +29,7 @@ local whitelist = {
     [8811302905] = true, -- Zach Alt
     [8062979485] = true, -- Troy Main
     [8129415259] = true, -- Troy Alt
+    [7191792176] = true, -- Troy Other Alt
     [8038942934] = true, -- Ethan
 }
 

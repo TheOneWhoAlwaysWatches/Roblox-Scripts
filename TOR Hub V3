@@ -32,7 +32,7 @@ local whitelist = {
     [8129415259] = true, -- Troy Alt
     [7191792176] = true, -- Troy Other Alt
     [8038942934] = true, -- Ethan
-    [1723790049] = true, -- Angel 
+    [1723790049] = true, -- Angel
 }
 
 if not whitelist[LocalPlayer.UserId] then
@@ -139,7 +139,7 @@ end)
 local toggleButton = Instance.new("TextButton")
 toggleButton.Name = "HubToggle"
 toggleButton.Size = UDim2.new(0, 120, 0, 40)
-toggleButton.Position = UDim2.new(0, 80, 0, 20)
+toggleButton.Position = UDim2.new(0, 130, 0, 10)
 toggleButton.BackgroundColor3 = Color3.fromRGB(10, 0, 20)
 toggleButton.BorderSizePixel = 0
 toggleButton.TextColor3 = Color3.fromRGB(200, 0, 255)
@@ -263,7 +263,7 @@ local mainButtons = {
     end },
     { text = "Axe Smash Shield", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Axe%20Smash%20Sheild",true))()
     end },
-    { text = "No Cooldown V8", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V7",true))() 
+    { text = "STRONGEST NO COOLDOWN", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Another%20No%20Cooldown",true))()
     end },
     { text = "Respawn V4", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V4.lua", true))() 
     end },

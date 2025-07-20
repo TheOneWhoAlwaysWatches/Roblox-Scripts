@@ -20,7 +20,7 @@ ScreenGui.Parent = game.CoreGui
 -- Shield button
 local shieldButton = Instance.new("TextButton")
 shieldButton.Size = UDim2.new(0, 140, 0, 40)
-shieldButton.Position = UDim2.new(0, 50, 0, 50)
+shieldButton.Position = UDim2.new(0, 20, 0, 200)
 shieldButton.BackgroundColor3 = Color3.fromRGB(10, 0, 20)
 shieldButton.TextColor3 = Color3.fromRGB(200, 0, 255)
 shieldButton.Text = "Shield: OFF"
@@ -34,7 +34,7 @@ Instance.new("UIStroke", shieldButton).Color = Color3.fromRGB(180, 0, 255)
 -- Auto mode button
 local autoButton = Instance.new("TextButton")
 autoButton.Size = UDim2.new(0, 140, 0, 40)
-autoButton.Position = UDim2.new(0, 50, 0, 100)
+autoButton.Position = UDim2.new(0, 20, 0, 250)
 autoButton.BackgroundColor3 = Color3.fromRGB(10, 0, 20)
 autoButton.TextColor3 = Color3.fromRGB(0, 255, 100)
 autoButton.Text = "Auto Attack: ON"

@@ -263,7 +263,7 @@ local mainButtons = {
     end },
     { text = "Axe Smash Shield", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Axe%20Smash%20Sheild",true))()
     end },
-    { text = "STRONGEST NO COOLDOWN", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Another%20No%20Cooldown",true))()
+    { text = "OP NO COOLDOWN", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Another%20No%20Cooldown",true))()
     end },
     { text = "Respawn V4", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V4.lua", true))() 
     end },

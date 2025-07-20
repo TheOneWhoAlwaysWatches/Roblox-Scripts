@@ -10,6 +10,25 @@ local spamDelay = 0.1
 local running = false
 local autoActive = false
 
+-- === Physical toggle button ===
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "AxeShieldToggleUI"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = game.CoreGui
+
+local toggleButton = Instance.new("TextButton")
+toggleButton.Size = UDim2.new(0, 140, 0, 40)
+toggleButton.Position = UDim2.new(0, 50, 0, 50)
+toggleButton.BackgroundColor3 = Color3.fromRGB(10, 0, 20)
+toggleButton.TextColor3 = Color3.fromRGB(200, 0, 255)
+toggleButton.Text = "Shield: OFF"
+toggleButton.Font = Enum.Font.Code
+toggleButton.TextSize = 16
+toggleButton.Parent = ScreenGui
+
+Instance.new("UICorner", toggleButton).CornerRadius = UDim.new(0, 8)
+Instance.new("UIStroke", toggleButton).Color = Color3.fromRGB(180, 0, 255)
+
 -- === Shield spam loop ===
 local function muteToolSounds(tool)
     for _, descendant in ipairs(tool:GetDescendants()) do
@@ -46,17 +65,26 @@ task.spawn(function()
     end
 end)
 
--- === Manual toggle ===
+-- === Manual Q toggle ===
 UserInputService.InputBegan:Connect(function(input, gpe)
     if gpe then return end
     if input.KeyCode == Enum.KeyCode.Q then
         running = not running
-        autoActive = false  -- If manually toggled, disable auto mode
+        autoActive = false -- disables auto if manually toggled
+        toggleButton.Text = "Shield: " .. (running and "ON" or "OFF")
         print("🛡️ Shield Active:", running)
     end
 end)
 
--- === Proximity Auto Activate ===
+-- === Physical button toggle ===
+toggleButton.MouseButton1Click:Connect(function()
+    running = not running
+    autoActive = false -- disables auto if manually toggled
+    toggleButton.Text = "Shield: " .. (running and "ON" or "OFF")
+    print("🛡️ Shield Active:", running)
+end)
+
+-- === Auto proximity toggle ===
 RunService.Heartbeat:Connect(function()
     local char = LocalPlayer.Character
     local hrp = char and char:FindFirstChild("HumanoidRootPart")
@@ -78,12 +106,14 @@ RunService.Heartbeat:Connect(function()
     if someoneNearby and not running then
         running = true
         autoActive = true
+        toggleButton.Text = "Shield: ON"
         print("⚡ Auto Shield Activated")
     elseif not someoneNearby and running and autoActive then
         running = false
         autoActive = false
+        toggleButton.Text = "Shield: OFF"
         print("✅ Auto Shield Deactivated")
     end
 end)
 
-print("✅ Axe Smash Shield loaded. Press Q to toggle manually. Auto-defends in range.")
+print("✅ Axe Smash Shield with auto, Q key, and button toggle ready!")

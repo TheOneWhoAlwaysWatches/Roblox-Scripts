@@ -1,0 +1,54 @@
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local LocalPlayer = Players.LocalPlayer
+
+local radius = 10
+local points = 12
+local spamDelay = 0.1
+
+local running = false
+
+local function muteToolSounds(tool)
+    for _, descendant in ipairs(tool:GetDescendants()) do
+        if descendant:IsA("Sound") then
+            descendant.Volume = 0
+            descendant.Playing = false
+        end
+    end
+end
+
+local function findToolAndRemote()
+    local tool = LocalPlayer.Backpack:FindFirstChild("Axe Smash") or LocalPlayer.Character:FindFirstChild("Axe Smash")
+    local remote = tool and tool:FindFirstChild("Remote")
+    if tool then muteToolSounds(tool) end
+    return tool, remote
+end
+
+task.spawn(function()
+    while true do
+        if running then
+            local _, remote = findToolAndRemote()
+            local char = LocalPlayer.Character
+            local hrp = char and char:FindFirstChild("HumanoidRootPart")
+            if remote and hrp then
+                for i = 1, points do
+                    local angle = math.rad((360 / points) * i)
+                    local offset = Vector3.new(math.cos(angle) * radius, 0, math.sin(angle) * radius)
+                    local pos = hrp.Position + offset + Vector3.new(0, 2, 0)
+                    remote:FireServer(CFrame.new(pos))
+                end
+            end
+        end
+        task.wait(spamDelay)
+    end
+end)
+
+UserInputService.InputBegan:Connect(function(input, gpe)
+    if gpe then return end
+    if input.KeyCode == Enum.KeyCode.Q then
+        running = not running
+        print("🛡️ Shield Active:", running)
+    end
+end)
+
+print("✅ Press Q to toggle your Axe Smash Shield.")

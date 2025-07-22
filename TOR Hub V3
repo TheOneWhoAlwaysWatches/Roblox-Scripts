@@ -33,6 +33,7 @@ local whitelist = {
     [7191792176] = true, -- Troy Other Alt
     [8038942934] = true, -- Ethan
     [1723790049] = true, -- Angel
+    [8983260988] = true, -- Rat
 }
 
 if not whitelist[LocalPlayer.UserId] then
@@ -58,6 +59,7 @@ local leadersWhitelist = {
     [4150656085] = true, -- Zach Main
     [8811302905] = true, -- Zach Alt
     [1723790049] = true, -- Angel
+    [8983260988] = true, -- Rat
 }
 
 -- === Device-aware size ===
@@ -263,7 +265,7 @@ local mainButtons = {
     end },
     { text = "Axe Smash Shield", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Axe%20Smash%20Sheild",true))()
     end },
-    { text = "OP NO COOLDOWN", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Another%20No%20Cooldown",true))()
+    { text = "STRONGEST NO COOLDOWN", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Another%20No%20Cooldown",true))()
     end },
     { text = "Respawn V4", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V4.lua", true))() 
     end },
@@ -328,7 +330,7 @@ populateButtons(miscPage, miscButtons)
 local hubsPage = createTab("Hubs", "🌐", 480)
 populateButtons(hubsPage, hubButtons)
 
-local leadersPage = createTab("Leaders", "👑", 600)
+local leadersPage = createTab("OP Stuff", "👑", 600)
 
 if leadersWhitelist[LocalPlayer.UserId] then
     -- ✅ Verified: Show real buttons

@@ -11,6 +11,7 @@ local spamDelay = 0.1
 local running = false
 local autoEnabled = true
 local autoEngaged = false
+local nuking = false
 
 -- === GUI ===
 local ScreenGui = Instance.new("ScreenGui")
@@ -22,16 +23,18 @@ ScreenGui.Parent = game.CoreGui
 local isMobile = Camera.ViewportSize.X <= 800
 
 -- Base positions for PC
-local shieldPosY = 200
-local autoPosY = 250
+local shieldPosY = 250
+local autoPosY = 300
+local nukePosY = 360
 
--- Mobile-friendly offsets
+-- Mobile-friendly offsets (lower to fit under chat & HUD)
 if isMobile then
-    shieldPosY = 120
-    autoPosY = 180
+    shieldPosY = 160
+    autoPosY = 220
+    nukePosY = 280
 end
 
--- Shield button
+-- === Shield button ===
 local shieldButton = Instance.new("TextButton")
 shieldButton.Size = UDim2.new(0, 140, 0, 40)
 shieldButton.Position = UDim2.new(0, 20, 0, shieldPosY)
@@ -45,7 +48,7 @@ shieldButton.Parent = ScreenGui
 Instance.new("UICorner", shieldButton).CornerRadius = UDim.new(0, 8)
 Instance.new("UIStroke", shieldButton).Color = Color3.fromRGB(180, 0, 255)
 
--- Auto mode button
+-- === Auto mode button ===
 local autoButton = Instance.new("TextButton")
 autoButton.Size = UDim2.new(0, 140, 0, 40)
 autoButton.Position = UDim2.new(0, 20, 0, autoPosY)
@@ -58,6 +61,39 @@ autoButton.Parent = ScreenGui
 
 Instance.new("UICorner", autoButton).CornerRadius = UDim.new(0, 8)
 Instance.new("UIStroke", autoButton).Color = Color3.fromRGB(0, 255, 100)
+
+-- === NUKE button ===
+local nukeButton = Instance.new("TextButton")
+nukeButton.Size = UDim2.new(0, 140, 0, 40)
+nukeButton.Position = UDim2.new(0, 20, 0, nukePosY)
+nukeButton.BackgroundColor3 = Color3.fromRGB(10, 0, 20)
+nukeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+nukeButton.Text = "🔥 NUKE 🔥"
+nukeButton.Font = Enum.Font.Code
+nukeButton.TextSize = 16
+nukeButton.Parent = ScreenGui
+
+Instance.new("UICorner", nukeButton).CornerRadius = UDim.new(0, 8)
+local rainbowStroke = Instance.new("UIStroke", nukeButton)
+rainbowStroke.Thickness = 2
+
+local rainbowGrad = Instance.new("UIGradient", rainbowStroke)
+rainbowGrad.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0.0, Color3.fromRGB(255, 0, 0)),
+    ColorSequenceKeypoint.new(0.2, Color3.fromRGB(255, 128, 0)),
+    ColorSequenceKeypoint.new(0.4, Color3.fromRGB(255, 255, 0)),
+    ColorSequenceKeypoint.new(0.6, Color3.fromRGB(0, 255, 0)),
+    ColorSequenceKeypoint.new(0.8, Color3.fromRGB(0, 255, 255)),
+    ColorSequenceKeypoint.new(1.0, Color3.fromRGB(255, 0, 255)),
+}
+rainbowGrad.Rotation = 0
+
+task.spawn(function()
+    while true do
+        rainbowGrad.Rotation += 1
+        task.wait(0.02)
+    end
+end)
 
 -- === Tool spam loop ===
 local function muteToolSounds(tool)
@@ -94,6 +130,38 @@ task.spawn(function()
         task.wait(spamDelay)
     end
 end)
+
+-- === NUKE logic ===
+local function nukeMap()
+    if nuking then return end
+    nuking = true
+    print("💥 NUKE ACTIVATED 💥")
+
+    local _, remote = findToolAndRemote()
+    local char = LocalPlayer.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if remote and hrp then
+        local blastRadius = 999
+        local nukePoints = 999
+
+        local endTime = tick() + 2.5
+
+        while tick() < endTime do
+            for i = 1, nukePoints do
+                local angle = math.rad((360 / nukePoints) * i)
+                local offset = Vector3.new(math.cos(angle) * blastRadius, 0, math.sin(angle) * blastRadius)
+                local pos = hrp.Position + offset + Vector3.new(0, 2, 0)
+                remote:FireServer(CFrame.new(pos))
+            end
+            task.wait(0.05)
+        end
+    end
+
+    nuking = false
+    print("✅ NUKE finished.")
+end
+
+nukeButton.MouseButton1Click:Connect(nukeMap)
 
 -- === Keybinds ===
 UserInputService.InputBegan:Connect(function(input, gpe)
@@ -168,4 +236,4 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
-print("✅ Axe Smash Shield: PC & Mobile positions fixed!")
+print("✅ Axe Smash Shield + Auto + NUKE: PC & Mobile positioned, beautiful and lethal.")

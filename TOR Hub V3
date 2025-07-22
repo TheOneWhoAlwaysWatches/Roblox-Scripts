@@ -241,7 +241,7 @@ local mainButtons = {
     end },
     { text = "Power Meter", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Power%20Meter%20V1",true))()
     end },
-    { text = "Axe Smash Shield", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Axe%20Smash%20Sheild",true))()
+    { text = "Axe Smash Spam", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Axe%20Smash%20Spam",true))()
     end },
     { text = "No-Co V8 (OP)", callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V8",true))()
     end },

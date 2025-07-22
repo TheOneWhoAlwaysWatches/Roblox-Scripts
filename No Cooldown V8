@@ -1,0 +1,104 @@
+-- 🔥 FINAL BOSS ULTIMATE NO COOLDOWN HYBRID
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+
+-- === 1️⃣ Hook waits for max speed ===
+hookfunction(wait, function() return RunService.PostSimulation:Wait() end)
+hookfunction(task.wait, function() return RunService.PostSimulation:Wait() end)
+hookfunction(delay, function(_, f) task.spawn(f) end)
+hookfunction(spawn, function(f) task.spawn(f) end)
+
+-- === 2️⃣ Patch known local cooldown upvalues ===
+local function patchUpvalues()
+    for _, v in pairs(getgc(true)) do
+        if typeof(v) == "function" then
+            for i = 1, debug.getinfo(v).nups do
+                local name, val = debug.getupvalue(v, i)
+                if type(name) == "string" and name:lower():find("cooldown") then
+                    debug.setupvalue(v, i, 0)
+                end
+            end
+        end
+    end
+end
+
+-- === 3️⃣ Hybrid kill system ===
+local function spamRemoteDamage(target)
+    local char = LocalPlayer.Character
+    if not char then return end
+
+    local tool = char:FindFirstChildOfClass("Tool")
+    if not tool then return end
+
+    for _, remote in ipairs(tool:GetDescendants()) do
+        if remote:IsA("RemoteEvent") then
+            remote:FireServer(target)
+        end
+    end
+end
+
+local function safeKill(humanoid)
+    if humanoid and humanoid.Health > 0 then
+        humanoid.Health = 0
+    end
+end
+
+local function hardBreak(humanoid)
+    if humanoid and humanoid.Parent then
+        humanoid:Destroy()
+        if humanoid.Parent then
+            humanoid.Parent:Destroy()
+        end
+    end
+end
+
+-- === 4️⃣ Optional: Toggle for hard break mode ===
+local hardBreakMode = false
+
+local UserInputService = game:GetService("UserInputService")
+
+UserInputService.InputBegan:Connect(function(input, gpe)
+    if gpe then return end
+    if input.KeyCode == Enum.KeyCode.H then
+        hardBreakMode = not hardBreakMode
+        print("💀 Hard Break Mode:", hardBreakMode)
+    end
+end)
+
+print("✅ Press [H] to toggle Hard Break mode ON/OFF")
+
+-- === 5️⃣ Main unstoppable kill loop ===
+RunService.Heartbeat:Connect(function()
+    patchUpvalues()
+
+    local myChar = LocalPlayer.Character
+    local myHRP = myChar and myChar:FindFirstChild("HumanoidRootPart")
+    if not myHRP then return end
+
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character then
+            local hum = player.Character:FindFirstChildOfClass("Humanoid")
+            local enemyHRP = player.Character:FindFirstChild("HumanoidRootPart")
+
+            if hum and enemyHRP and hum.Health > 0 then
+                local dist = (myHRP.Position - enemyHRP.Position).Magnitude
+                if dist <= 30 then
+                    -- 1. Fire legit Remote
+                    spamRemoteDamage(enemyHRP)
+
+                    -- 2. Safe kill fallback
+                    safeKill(hum)
+
+                    -- 3. Hard break fallback
+                    if hardBreakMode then
+                        hardBreak(hum)
+                    end
+                end
+            end
+        end
+    end
+end)
+
+print("🔥 FINAL BOSS NO COOLDOWN HYBRID — Remote spam + cooldown patch + fallback kill + Hard Break toggle.")

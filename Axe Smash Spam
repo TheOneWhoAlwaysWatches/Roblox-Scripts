@@ -10,10 +10,8 @@ local shieldPoints = 12
 local spamDelay = 0.1
 
 local nuking = false
-local nukeDuration = 2.5
-
--- Adjust this to match your whole map size
-local mapSize = 300 -- map area side length
+local nukeDuration = 3
+local mapSize = 700 -- adjust to your FULL map
 
 local running = false
 local autoEnabled = true
@@ -49,6 +47,7 @@ end
 local shieldButton = makeButton("Shield: OFF", shieldPosY, Color3.fromRGB(200, 0, 255))
 local autoButton = makeButton("Auto Attack: ON", autoPosY, Color3.fromRGB(0, 255, 100))
 local nukeButton = makeButton("🔥 NUKE 🔥", nukePosY, Color3.fromRGB(255, 255, 255))
+
 local rainbowGrad = Instance.new("UIGradient", nukeButton:FindFirstChildOfClass("UIStroke"))
 rainbowGrad.Color = ColorSequence.new{
     ColorSequenceKeypoint.new(0, Color3.fromRGB(255,0,0)),
@@ -82,23 +81,28 @@ local function spamCircle(radius, points)
 end
 
 local function spamNuke()
-    local _, remote = findToolAndRemote()
+    local tool, remote = findToolAndRemote()
     local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
     if not remote or not hrp then return end
 
+    print("💣 NUKE GRID START")
+
+    local gridStep = 30 -- distance between points, tweak for density!
+    local halfMap = mapSize / 2
+
     local endTime = tick() + nukeDuration
-    print("💣 NUKE START")
     while tick() < endTime do
-        -- Fill the entire square map area with random hits
-        for i = 1, 100 do
-            local x = hrp.Position.X + math.random(-mapSize/2, mapSize/2)
-            local z = hrp.Position.Z + math.random(-mapSize/2, mapSize/2)
-            local pos = Vector3.new(x, hrp.Position.Y + 2, z)
-            remote:FireServer(CFrame.new(pos))
+        for x = -halfMap, halfMap, gridStep do
+            for z = -halfMap, halfMap, gridStep do
+                local pos = hrp.Position + Vector3.new(x, 2, z)
+                local checkTool, checkRemote = findToolAndRemote()
+                if checkRemote then checkRemote:FireServer(CFrame.new(pos)) end
+            end
         end
-        task.wait(0.05)
+        task.wait(0.1)
     end
-    print("✅ NUKE FINISHED")
+
+    print("✅ NUKE GRID FINISHED")
 end
 
 -- === Continuous shield spam ===
@@ -181,4 +185,4 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
-print("✅ NEW: Tight Shield & Mapwide NUKE work perfectly.")
+print("✅ Rebuilt: Infinite nukes, re-finding Remote, no breaks!")

@@ -4,7 +4,7 @@ local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
-local radius = 10
+local radius = 50
 local points = 12
 local spamDelay = 0.1
 

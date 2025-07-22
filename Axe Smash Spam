@@ -4,10 +4,12 @@ local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
-local radius = 50
-local points = 12
-local spamDelay = 0.1
+local normalRadius = 50 -- for shield
+local normalPoints = 12
+local nukeRadius = 999 -- your huge map nuke
+local nukePoints = 999
 
+local spamDelay = 0.1
 local running = false
 local autoEnabled = true
 local autoEngaged = false
@@ -19,221 +21,146 @@ ScreenGui.Name = "AxeShieldUI"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = game.CoreGui
 
--- Detect mobile or PC once
 local isMobile = Camera.ViewportSize.X <= 800
+local shieldPosY = isMobile and 160 or 250
+local autoPosY = isMobile and 220 or 300
+local nukePosY = isMobile and 280 or 360
 
--- Base positions for PC
-local shieldPosY = 250
-local autoPosY = 300
-local nukePosY = 360
-
--- Mobile-friendly offsets (lower to fit under chat & HUD)
-if isMobile then
-    shieldPosY = 160
-    autoPosY = 220
-    nukePosY = 280
+local function makeButton(text, yPos, color)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0, 140, 0, 40)
+    btn.Position = UDim2.new(0, 20, 0, yPos)
+    btn.BackgroundColor3 = Color3.fromRGB(10, 0, 20)
+    btn.TextColor3 = color
+    btn.Text = text
+    btn.Font = Enum.Font.Code
+    btn.TextSize = 16
+    btn.Parent = ScreenGui
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", btn)
+    stroke.Color = color
+    return btn
 end
 
--- === Shield button ===
-local shieldButton = Instance.new("TextButton")
-shieldButton.Size = UDim2.new(0, 140, 0, 40)
-shieldButton.Position = UDim2.new(0, 20, 0, shieldPosY)
-shieldButton.BackgroundColor3 = Color3.fromRGB(10, 0, 20)
-shieldButton.TextColor3 = Color3.fromRGB(200, 0, 255)
-shieldButton.Text = "Shield: OFF"
-shieldButton.Font = Enum.Font.Code
-shieldButton.TextSize = 16
-shieldButton.Parent = ScreenGui
-
-Instance.new("UICorner", shieldButton).CornerRadius = UDim.new(0, 8)
-Instance.new("UIStroke", shieldButton).Color = Color3.fromRGB(180, 0, 255)
-
--- === Auto mode button ===
-local autoButton = Instance.new("TextButton")
-autoButton.Size = UDim2.new(0, 140, 0, 40)
-autoButton.Position = UDim2.new(0, 20, 0, autoPosY)
-autoButton.BackgroundColor3 = Color3.fromRGB(10, 0, 20)
-autoButton.TextColor3 = Color3.fromRGB(0, 255, 100)
-autoButton.Text = "Auto Attack: ON"
-autoButton.Font = Enum.Font.Code
-autoButton.TextSize = 16
-autoButton.Parent = ScreenGui
-
-Instance.new("UICorner", autoButton).CornerRadius = UDim.new(0, 8)
-Instance.new("UIStroke", autoButton).Color = Color3.fromRGB(0, 255, 100)
-
--- === NUKE button ===
-local nukeButton = Instance.new("TextButton")
-nukeButton.Size = UDim2.new(0, 140, 0, 40)
-nukeButton.Position = UDim2.new(0, 20, 0, nukePosY)
-nukeButton.BackgroundColor3 = Color3.fromRGB(10, 0, 20)
-nukeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-nukeButton.Text = "🔥 NUKE 🔥"
-nukeButton.Font = Enum.Font.Code
-nukeButton.TextSize = 16
-nukeButton.Parent = ScreenGui
-
-Instance.new("UICorner", nukeButton).CornerRadius = UDim.new(0, 8)
-local rainbowStroke = Instance.new("UIStroke", nukeButton)
-rainbowStroke.Thickness = 2
-
-local rainbowGrad = Instance.new("UIGradient", rainbowStroke)
+local shieldButton = makeButton("Shield: OFF", shieldPosY, Color3.fromRGB(200, 0, 255))
+local autoButton = makeButton("Auto Attack: ON", autoPosY, Color3.fromRGB(0, 255, 100))
+local nukeButton = makeButton("🔥 NUKE 🔥", nukePosY, Color3.fromRGB(255, 255, 255))
+local rainbowGrad = Instance.new("UIGradient", nukeButton:FindFirstChildOfClass("UIStroke"))
 rainbowGrad.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0.0, Color3.fromRGB(255, 0, 0)),
-    ColorSequenceKeypoint.new(0.2, Color3.fromRGB(255, 128, 0)),
-    ColorSequenceKeypoint.new(0.4, Color3.fromRGB(255, 255, 0)),
-    ColorSequenceKeypoint.new(0.6, Color3.fromRGB(0, 255, 0)),
-    ColorSequenceKeypoint.new(0.8, Color3.fromRGB(0, 255, 255)),
-    ColorSequenceKeypoint.new(1.0, Color3.fromRGB(255, 0, 255)),
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255,0,0)),
+    ColorSequenceKeypoint.new(0.2, Color3.fromRGB(255,128,0)),
+    ColorSequenceKeypoint.new(0.4, Color3.fromRGB(255,255,0)),
+    ColorSequenceKeypoint.new(0.6, Color3.fromRGB(0,255,0)),
+    ColorSequenceKeypoint.new(0.8, Color3.fromRGB(0,255,255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(255,0,255)),
 }
-rainbowGrad.Rotation = 0
+task.spawn(function() while true do rainbowGrad.Rotation += 1; task.wait(0.02) end end)
 
-task.spawn(function()
-    while true do
-        rainbowGrad.Rotation += 1
-        task.wait(0.02)
-    end
-end)
+-- === Core spam ===
+local function findToolAndRemote()
+    local tool = LocalPlayer.Backpack:FindFirstChild("Axe Smash") or LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Axe Smash")
+    local remote = tool and tool:FindFirstChild("Remote")
+    return tool, remote
+end
 
--- === Tool spam loop ===
-local function muteToolSounds(tool)
-    for _, descendant in ipairs(tool:GetDescendants()) do
-        if descendant:IsA("Sound") then
-            descendant.Volume = 0
-            descendant.Playing = false
+local function spamCircle(radius, points)
+    local _, remote = findToolAndRemote()
+    local char = LocalPlayer.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if remote and hrp then
+        for i = 1, points do
+            local angle = math.rad((360 / points) * i)
+            local offset = Vector3.new(math.cos(angle) * radius, 0, math.sin(angle) * radius)
+            local pos = hrp.Position + offset + Vector3.new(0, 2, 0)
+            remote:FireServer(CFrame.new(pos))
         end
     end
 end
 
-local function findToolAndRemote()
-    local tool = LocalPlayer.Backpack:FindFirstChild("Axe Smash") or LocalPlayer.Character:FindFirstChild("Axe Smash")
-    local remote = tool and tool:FindFirstChild("Remote")
-    if tool then muteToolSounds(tool) end
-    return tool, remote
-end
-
+-- === Continuous shield spam ===
 task.spawn(function()
     while true do
         if running then
-            local _, remote = findToolAndRemote()
-            local char = LocalPlayer.Character
-            local hrp = char and char:FindFirstChild("HumanoidRootPart")
-            if remote and hrp then
-                for i = 1, points do
-                    local angle = math.rad((360 / points) * i)
-                    local offset = Vector3.new(math.cos(angle) * radius, 0, math.sin(angle) * radius)
-                    local pos = hrp.Position + offset + Vector3.new(0, 2, 0)
-                    remote:FireServer(CFrame.new(pos))
-                end
-            end
+            spamCircle(normalRadius, normalPoints)
         end
         task.wait(spamDelay)
     end
 end)
 
--- === NUKE logic ===
-local function nukeMap()
+-- === NUKE once ===
+nukeButton.MouseButton1Click:Connect(function()
     if nuking then return end
     nuking = true
-    print("💥 NUKE ACTIVATED 💥")
-
-    local _, remote = findToolAndRemote()
-    local char = LocalPlayer.Character
-    local hrp = char and char:FindFirstChild("HumanoidRootPart")
-    if remote and hrp then
-        local blastRadius = 999
-        local nukePoints = 999
-
-        local endTime = tick() + 2.5
-
-        while tick() < endTime do
-            for i = 1, nukePoints do
-                local angle = math.rad((360 / nukePoints) * i)
-                local offset = Vector3.new(math.cos(angle) * blastRadius, 0, math.sin(angle) * blastRadius)
-                local pos = hrp.Position + offset + Vector3.new(0, 2, 0)
-                remote:FireServer(CFrame.new(pos))
-            end
-            task.wait(0.05)
-        end
+    local endTime = tick() + 2.5
+    print("💣 NUKE START")
+    while tick() < endTime do
+        spamCircle(nukeRadius, nukePoints)
+        task.wait(0.05)
     end
-
     nuking = false
-    print("✅ NUKE finished.")
-end
+    print("✅ NUKE FINISHED")
+end)
 
-nukeButton.MouseButton1Click:Connect(nukeMap)
-
--- === Keybinds ===
+-- === Inputs ===
 UserInputService.InputBegan:Connect(function(input, gpe)
     if gpe then return end
     if input.KeyCode == Enum.KeyCode.Q then
         running = not running
         autoEngaged = false
         shieldButton.Text = "Shield: " .. (running and "ON" or "OFF")
-        print("🛡️ Shield:", running)
-    end
-    if input.KeyCode == Enum.KeyCode.E then
+    elseif input.KeyCode == Enum.KeyCode.E then
         autoEnabled = not autoEnabled
-        if not autoEnabled and autoEngaged then
+        if not autoEnabled then
             running = false
             autoEngaged = false
             shieldButton.Text = "Shield: OFF"
         end
         autoButton.Text = "Auto Attack: " .. (autoEnabled and "ON" or "OFF")
-        print("⚙️ Auto Mode:", autoEnabled)
     end
 end)
 
--- === Clicks ===
 shieldButton.MouseButton1Click:Connect(function()
     running = not running
     autoEngaged = false
     shieldButton.Text = "Shield: " .. (running and "ON" or "OFF")
-    print("🛡️ Shield:", running)
 end)
 
 autoButton.MouseButton1Click:Connect(function()
     autoEnabled = not autoEnabled
-    if not autoEnabled and autoEngaged then
+    if not autoEnabled then
         running = false
         autoEngaged = false
         shieldButton.Text = "Shield: OFF"
     end
     autoButton.Text = "Auto Attack: " .. (autoEnabled and "ON" or "OFF")
-    print("⚙️ Auto Mode:", autoEnabled)
 end)
 
--- === Auto proximity loop ===
+-- === Auto detect loop ===
 RunService.Heartbeat:Connect(function()
     if not autoEnabled then return end
     local char = LocalPlayer.Character
     local hrp = char and char:FindFirstChild("HumanoidRootPart")
     if not hrp then return end
 
-    local someoneNearby = false
+    local nearby = false
     for _, player in ipairs(Players:GetPlayers()) do
         if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character:FindFirstChild("Humanoid") then
-            local targetHRP = player.Character.HumanoidRootPart
-            local distance = (targetHRP.Position - hrp.Position).Magnitude
-            local alive = player.Character.Humanoid.Health > 0
-            if distance <= radius and alive then
-                someoneNearby = true
-                break
+            local dist = (player.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
+            if dist <= normalRadius and player.Character.Humanoid.Health > 0 then
+                nearby = true break
             end
         end
     end
 
-    if someoneNearby and not running then
+    if nearby and not running then
         running = true
         autoEngaged = true
         shieldButton.Text = "Shield: ON"
-        print("⚡ Auto Shield Activated")
-    elseif not someoneNearby and running and autoEngaged then
+    elseif not nearby and running and autoEngaged then
         running = false
         autoEngaged = false
         shieldButton.Text = "Shield: OFF"
-        print("✅ Auto Shield Deactivated")
     end
 end)
 
-print("✅ Axe Smash Shield + Auto + NUKE: PC & Mobile positioned, beautiful and lethal.")
+print("✅ REBUILT: Shield + Auto + NUKE all work, huge radius safe.")

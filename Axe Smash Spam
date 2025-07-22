@@ -4,16 +4,20 @@ local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
-local normalRadius = 50 -- for shield
-local normalPoints = 12
-local nukeRadius = 999 -- your huge map nuke
-local nukePoints = 999
-
+-- === CONFIG ===
+local shieldRadius = 20
+local shieldPoints = 12
 local spamDelay = 0.1
+
+local nuking = false
+local nukeDuration = 2.5
+
+-- Adjust this to match your whole map size
+local mapSize = 300 -- map area side length
+
 local running = false
 local autoEnabled = true
 local autoEngaged = false
-local nuking = false
 
 -- === GUI ===
 local ScreenGui = Instance.new("ScreenGui")
@@ -56,7 +60,7 @@ rainbowGrad.Color = ColorSequence.new{
 }
 task.spawn(function() while true do rainbowGrad.Rotation += 1; task.wait(0.02) end end)
 
--- === Core spam ===
+-- === Helpers ===
 local function findToolAndRemote()
     local tool = LocalPlayer.Backpack:FindFirstChild("Axe Smash") or LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Axe Smash")
     local remote = tool and tool:FindFirstChild("Remote")
@@ -77,28 +81,42 @@ local function spamCircle(radius, points)
     end
 end
 
+local function spamNuke()
+    local _, remote = findToolAndRemote()
+    local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if not remote or not hrp then return end
+
+    local endTime = tick() + nukeDuration
+    print("💣 NUKE START")
+    while tick() < endTime do
+        -- Fill the entire square map area with random hits
+        for i = 1, 100 do
+            local x = hrp.Position.X + math.random(-mapSize/2, mapSize/2)
+            local z = hrp.Position.Z + math.random(-mapSize/2, mapSize/2)
+            local pos = Vector3.new(x, hrp.Position.Y + 2, z)
+            remote:FireServer(CFrame.new(pos))
+        end
+        task.wait(0.05)
+    end
+    print("✅ NUKE FINISHED")
+end
+
 -- === Continuous shield spam ===
 task.spawn(function()
     while true do
         if running then
-            spamCircle(normalRadius, normalPoints)
+            spamCircle(shieldRadius, shieldPoints)
         end
         task.wait(spamDelay)
     end
 end)
 
--- === NUKE once ===
+-- === NUKE click ===
 nukeButton.MouseButton1Click:Connect(function()
     if nuking then return end
     nuking = true
-    local endTime = tick() + 2.5
-    print("💣 NUKE START")
-    while tick() < endTime do
-        spamCircle(nukeRadius, nukePoints)
-        task.wait(0.05)
-    end
+    spamNuke()
     nuking = false
-    print("✅ NUKE FINISHED")
 end)
 
 -- === Inputs ===
@@ -146,7 +164,7 @@ RunService.Heartbeat:Connect(function()
     for _, player in ipairs(Players:GetPlayers()) do
         if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character:FindFirstChild("Humanoid") then
             local dist = (player.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
-            if dist <= normalRadius and player.Character.Humanoid.Health > 0 then
+            if dist <= shieldRadius and player.Character.Humanoid.Health > 0 then
                 nearby = true break
             end
         end
@@ -163,4 +181,4 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
-print("✅ REBUILT: Shield + Auto + NUKE all work, huge radius safe.")
+print("✅ NEW: Tight Shield & Mapwide NUKE work perfectly.")

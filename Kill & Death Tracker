@@ -1,50 +1,31 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
 
--- GUI setup
+-- GUI
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "KillDeathCounter"
 ScreenGui.Parent = game.CoreGui
 
 local CounterLabel = Instance.new("TextLabel")
 CounterLabel.Size = UDim2.new(0, 200, 0, 50)
-CounterLabel.Position = UDim2.new(0.5, -100, 0, 50) -- centered, lowered
+CounterLabel.Position = UDim2.new(0.5, -100, 0, 50)
 CounterLabel.BackgroundTransparency = 1
 CounterLabel.TextColor3 = Color3.fromRGB(200, 0, 255)
 CounterLabel.Font = Enum.Font.Code
 CounterLabel.TextSize = 20
-CounterLabel.Text = "Kills: 0  |  Deaths: 0"
+CounterLabel.Text = "Kills: 0 | Deaths: 0"
 CounterLabel.Parent = ScreenGui
 
-local kills = 0
-local deaths = 0
+local kills, deaths = 0, 0
+local lastHealth = {}
+local lastHit = {}
 
 local function updateCounter()
-	CounterLabel.Text = "Kills: " .. kills .. "  |  Deaths: " .. deaths
+	CounterLabel.Text = "Kills: " .. kills .. " | Deaths: " .. deaths
 end
 
--- Listen for deaths of others
-local function hookPlayer(player)
-	if player == LocalPlayer then return end
-	player.CharacterAdded:Connect(function(character)
-		local hum = character:WaitForChild("Humanoid")
-		hum.Died:Connect(function()
-			local tag = hum:FindFirstChild("creator")
-			if tag and tag.Value == LocalPlayer then
-				kills += 1
-				updateCounter()
-			end
-		end)
-	end)
-end
-
-for _, p in pairs(Players:GetPlayers()) do
-	hookPlayer(p)
-end
-
-Players.PlayerAdded:Connect(hookPlayer)
-
--- Listen for your own deaths
+-- === Track your own deaths ===
 LocalPlayer.CharacterAdded:Connect(function(character)
 	local hum = character:WaitForChild("Humanoid")
 	hum.Died:Connect(function()
@@ -52,3 +33,48 @@ LocalPlayer.CharacterAdded:Connect(function(character)
 		updateCounter()
 	end)
 end)
+
+-- === Track everyone ===
+local function watchPlayer(p)
+	if p == LocalPlayer then return end
+
+	p.CharacterAdded:Connect(function(char)
+		local hum = char:WaitForChild("Humanoid")
+		lastHealth[p] = hum.Health
+
+		RunService.Heartbeat:Connect(function()
+			if not hum or hum.Health <= 0 then return end
+
+			local currentHealth = hum.Health
+			local prevHealth = lastHealth[p] or currentHealth
+
+			-- If health dropped AND they were near you, mark as hit
+			if currentHealth < prevHealth then
+				local myChar = LocalPlayer.Character
+				if myChar and myChar:FindFirstChild("HumanoidRootPart") and char:FindFirstChild("HumanoidRootPart") then
+					local dist = (myChar.HumanoidRootPart.Position - char.HumanoidRootPart.Position).Magnitude
+					if dist <= 40 then -- within 40 studs, adjust as needed
+						lastHit[p] = tick()
+					end
+				end
+			end
+
+			lastHealth[p] = currentHealth
+
+			-- Check if they just died
+			if currentHealth <= 0 and prevHealth > 0 then
+				if lastHit[p] and tick() - lastHit[p] <= 3 then
+					kills += 1
+					updateCounter()
+				end
+				lastHit[p] = nil
+			end
+		end)
+	end)
+end
+
+-- Init
+for _, p in pairs(Players:GetPlayers()) do watchPlayer(p) end
+Players.PlayerAdded:Connect(watchPlayer)
+
+print("✅ Universal Kill & Death Tracker is active")

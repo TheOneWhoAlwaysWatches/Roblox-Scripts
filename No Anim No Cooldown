@@ -1,25 +1,33 @@
--- 🔥 ULTIMATE AURA + NO ANIM + NO COOLDOWN SCRIPT
+-- 💀 ANIMATION BREAKER 2025 (No Anim + Optional Cooldown Patch)
 
--- === CONFIG ===
-local auraRange = 55
-local auraSize = Vector3.new(30, 30, 30)
-local attackRate = 0.005
-
--- === SERVICES ===
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+
 local LocalPlayer = Players.LocalPlayer
-local PostSimulation = RunService.PostSimulation
+local Char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 
--- === NO ANIM / NO COOLDOWN PATCHES ===
-hookfunction(wait, function() return PostSimulation:Wait() end)
-hookfunction(task.wait, function() return PostSimulation:Wait() end)
-hookfunction(delay, function(_, f) task.spawn(f) end)
-hookfunction(spawn, function(f) task.spawn(f) end)
+-- === 1️⃣ Disable or destroy Animator
+local function nukeAnimator(char)
+    for _, obj in pairs(char:GetDescendants()) do
+        if obj:IsA("Animator") then
+            obj:Destroy()
+        end
+    end
+end
 
-local function patchUpvalues()
-    for _, v in pairs(getgc(true)) do
-        if typeof(v) == "function" then
+-- === 2️⃣ Hook animation loading to block playback
+hookfunction(Instance.new("Animation").Clone, function(self)
+    return setmetatable({}, {
+        __index = function()
+            return function() end -- disable methods like Play(), Stop(), etc.
+        end
+    })
+end)
+
+-- === 3️⃣ Cooldown Upvalue patcher (optional)
+local function patchCooldowns()
+    for _, v in ipairs(getgc(true)) do
+        if typeof(v) == "function" and islclosure(v) then
             for i = 1, debug.getinfo(v).nups do
                 local name, val = debug.getupvalue(v, i)
                 if type(name) == "string" and name:lower():find("cooldown") then
@@ -30,100 +38,20 @@ local function patchUpvalues()
     end
 end
 
--- === AURA ATTACK HELPERS ===
-local auraParams = OverlapParams.new()
-auraParams.FilterType = Enum.RaycastFilterType.Include
-local running = true
-
-local function getChar(plr)
-    return plr and plr.Character
-end
-
-local function getHRP(plr)
-    local char = getChar(plr)
-    return char and char:FindFirstChild("HumanoidRootPart")
-end
-
-local function getValidTargets()
-    local myHRP = getHRP(LocalPlayer)
-    if not myHRP then return {}, {} end
-
-    local playersInRange = {}
-    local chars = {}
-
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer then
-            local hrp = getHRP(player)
-            if hrp and (hrp.Position - myHRP.Position).Magnitude <= auraRange then
-                table.insert(playersInRange, player)
-                local char = getChar(player)
-                if char then table.insert(chars, char) end
-            end
-        end
+-- === 4️⃣ Keep checking for new Animators (in case of respawn)
+RunService.Heartbeat:Connect(function()
+    local char = LocalPlayer.Character
+    if char then
+        nukeAnimator(char)
     end
+end)
 
-    return playersInRange, chars
-end
-
-local function getTouchPart(tool)
-    local tt = tool and tool:FindFirstChildWhichIsA("TouchTransmitter", true)
-    return tt and tt.Parent
-end
-
-local function autoEquip(tool)
-    if not tool:IsDescendantOf(workspace) then
-        tool.Parent = getChar(LocalPlayer)
-    end
-    tool:Activate()
-end
-
--- === MAIN LOOP ===
+-- Optional: Run cooldown patch every few seconds
 task.spawn(function()
-    while running do
-        patchUpvalues()
-
-        local myChar = getChar(LocalPlayer)
-        if not myChar then task.wait(1) continue end
-
-        local _, enemyChars = getValidTargets()
-        auraParams.FilterDescendantsInstances = enemyChars
-
-        for _, tool in ipairs(myChar:GetChildren()) do
-            if tool:IsA("Tool") then
-                local fightEvent = tool:FindFirstChild("FightEvent")
-                local touchPart = getTouchPart(tool)
-
-                if fightEvent then
-                    autoEquip(tool)
-                    fightEvent:FireServer()
-                end
-
-                if touchPart then
-                    local partsInBox = workspace:GetPartBoundsInBox(
-                        touchPart.CFrame,
-                        touchPart.Size + auraSize,
-                        auraParams
-                    )
-
-                    for _, part in ipairs(partsInBox) do
-                        local model = part:FindFirstAncestorWhichIsA("Model")
-                        if model and table.find(enemyChars, model) then
-                            firetouchinterest(touchPart, part, 1)
-                            firetouchinterest(touchPart, part, 0)
-                        end
-                    end
-                end
-            end
-        end
-
-        task.wait(attackRate)
+    while true do
+        patchCooldowns()
+        task.wait(3)
     end
 end)
 
--- === RESET ON DEATH ===
-LocalPlayer.CharacterAdded:Connect(function()
-    task.wait(1)
-    running = true
-end)
-
-print("⚔️ ULTIMATE NO ANIM + NO COOLDOWN + AURA ATTACK ENABLED!")
+print("🚫 No Animation & ⏱️ No Cooldown patch active.")

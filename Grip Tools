@@ -1,0 +1,45 @@
+local function configureToolGrip(tool)
+    if tool:IsA("Tool") then
+        if tool.Name == "Energy Sword" then
+            tool.GripPos = Vector3.new(0, -4, -5) -- Lower and further back
+            tool.GripForward = Vector3.new(0, -1, 0) -- Adjusted angle
+            tool.GripRight = Vector3.new(1, 0, 0)
+            tool.GripUp = Vector3.new(0, 0, -1)
+
+        elseif tool.Name == "Axe" then
+            tool.GripPos = Vector3.new(1.2, -5, -4.5) -- Slightly right and lower
+            tool.GripForward = Vector3.new(0, -1, 0)
+            tool.GripRight = Vector3.new(1, 0, 0)
+            tool.GripUp = Vector3.new(0, 0, -1)
+
+        elseif tool.Name == "Staff" then
+            tool.GripPos = Vector3.new(-1.2, -5.5, -5) -- Slightly left and lower
+            tool.GripForward = Vector3.new(0, -1, 0)
+            tool.GripRight = Vector3.new(1, 0, 0)
+            tool.GripUp = Vector3.new(0, 0, -1)
+        end
+    end
+end
+
+local function processTools()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local backpack = player:WaitForChild("Backpack")
+
+    for _, tool in pairs(backpack:GetChildren()) do
+        configureToolGrip(tool)
+    end
+    
+    for _, tool in pairs(character:GetChildren()) do
+        configureToolGrip(tool)
+    end
+
+    backpack.ChildAdded:Connect(configureToolGrip)
+    character.ChildAdded:Connect(configureToolGrip)
+end
+
+local function updateToolGripPositions()
+    processTools()
+end
+
+game:GetService("RunService").RenderStepped:Connect(updateToolGripPositions)

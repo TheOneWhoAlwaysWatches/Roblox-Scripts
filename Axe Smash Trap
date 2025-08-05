@@ -6,7 +6,7 @@ local LocalPlayer = Players.LocalPlayer
 
 local selectedPlayer = nil
 local running = false
-local radius = 15 -- radius away from target to keep the smash ring
+local radius = 50 -- radius away from target to keep the smash ring
 local points = 20
 local spacing = 0.1
 

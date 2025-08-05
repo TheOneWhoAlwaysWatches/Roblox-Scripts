@@ -1,0 +1,7 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+            for i = -10, 81873 do
+
+                ReplicatedStorage:WaitForChild("Guide"):FireServer()
+
+            end

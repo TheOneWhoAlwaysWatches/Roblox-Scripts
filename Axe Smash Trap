@@ -5,10 +5,9 @@ local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
 local selectedTargets = {}
-local safeDistance = 45 -- minimum safe distance from target (adjust if needed)
-local axeHitSize = 20 -- rough diameter of Axe Smash hit area (change if it's bigger)
-local radius = safeDistance + (axeHitSize / 2) -- ensures ring won't hit target
-local points = 24 -- more points = tighter ring
+local trapRadius = 45
+local trapPoints = 25
+local spamDelay = 0.15
 
 -- GUI
 local ScreenGui = Instance.new("ScreenGui")

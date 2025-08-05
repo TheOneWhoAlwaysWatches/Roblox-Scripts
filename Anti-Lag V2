@@ -1,61 +1,223 @@
--- === ULTIMATE ANTI-LAG ===
+-- Variables del Hub
+local ToDisable = {
+    Textures = true,
+    VisualEffects = true,
+    Parts = true,
+    Particles = true,
+    Sky = true,
+    Sounds = true -- Deshabilitar sonidos también
+}
 
+local ToEnable = {
+    FullBright = true -- Garantizar que el FullBright se active
+}
+
+local Stuff = {}
 local Lighting = game:GetService("Lighting")
-local Terrain = workspace:FindFirstChildOfClass("Terrain")
+local Workspace = game:GetService("Workspace")
+local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
--- Remove visual junk
-for _, v in pairs(workspace:GetDescendants()) do
-    if v:IsA("Decal") or v:IsA("Texture") then
-        v:Destroy()
-    elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
-        v:Destroy()
-    elseif v:IsA("ForceField") or v:IsA("Smoke") or v:IsA("Fire") or v:IsA("Explosion") then
-        v:Destroy()
-    elseif v:IsA("Sound") and v.Parent ~= game.Players.LocalPlayer.Character then
-        v.Volume = 0
-    elseif v:IsA("BasePart") then
-        v.Material = Enum.Material.Plastic
-        v.Reflectance = 0
+-- Configuración para optimización de memoria
+local MAX_MEMORY_USAGE = 50 -- Umbral máximo de memoria en MB
+local CHECK_INTERVAL = 5 -- Tiempo entre comprobaciones en segundos
+local OBJECTS_TO_DISABLE = {"PartGeneradorDeLag", "NPCGeneradorDeLag"} -- Lista de objetos que se pueden desactivar
+
+-- Funciones de Anti-Lag
+local function disableEffects()
+    if ToDisable.Parts then
+        for _, v in ipairs(game:GetDescendants()) do
+            if v:IsA("Part") or v:IsA("Union") or v:IsA("BasePart") then
+                v.Material = Enum.Material.SmoothPlastic
+                table.insert(Stuff, v)
+            end
+        end
+    end
+
+    if ToDisable.Particles then
+        for _, v in ipairs(game:GetDescendants()) do
+            if v:IsA("ParticleEmitter") or v:IsA("Smoke") or v:IsA("Explosion") or v:IsA("Sparkles") or v:IsA("Fire") then
+                v.Enabled = false
+                table.insert(Stuff, v)
+            end
+        end
+    end
+
+    if ToDisable.VisualEffects then
+        for _, v in ipairs(game:GetDescendants()) do
+            if v:IsA("BloomEffect") or v:IsA("BlurEffect") or v:IsA("DepthOfFieldEffect") or v:IsA("SunRaysEffect") then
+                v.Enabled = false
+                table.insert(Stuff, v)
+            end
+        end
+    end
+
+    if ToDisable.Textures then
+        for _, v in ipairs(game:GetDescendants()) do
+            if v:IsA("Decal") or v:IsA("Texture") then
+                v.Texture = ""
+                table.insert(Stuff, v)
+            end
+        end
     end
 end
 
--- Remove terrain water effects
-if Terrain then
-    Terrain.WaterWaveSize = 0
-    Terrain.WaterWaveSpeed = 0
-    Terrain.WaterReflectance = 0
-    Terrain.WaterTransparency = 0
+local function enableFullBright()
+    if ToEnable.FullBright then
+        Lighting.FogColor = Color3.fromRGB(255, 255, 255)
+        Lighting.FogEnd = math.huge
+        Lighting.FogStart = math.huge
+        Lighting.Ambient = Color3.fromRGB(255, 255, 255)
+        Lighting.Brightness = 5
+        Lighting.ColorShift_Bottom = Color3.fromRGB(255, 255, 255)
+        Lighting.ColorShift_Top = Color3.fromRGB(255, 255, 255)
+        Lighting.OutdoorAmbient = Color3.fromRGB(255, 255, 255)
+        Lighting.Outlines = true
+    end
 end
 
--- Lighting tweaks for max FPS
-Lighting.GlobalShadows = false
-Lighting.FogEnd = 1e10
-Lighting.Brightness = 1
-pcall(function()
-    sethiddenproperty(Lighting, "Technology", Enum.Technology.Compatibility)
-end)
+local function applyAntiLagSettings()
+    disableEffects()
+    enableFullBright()
+end
 
--- Keep destroying new junk automatically
-workspace.DescendantAdded:Connect(function(v)
-    if v:IsA("Decal") or v:IsA("Texture") then
-        v:Destroy()
-    elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
-        v:Destroy()
-    elseif v:IsA("ForceField") or v:IsA("Smoke") or v:IsA("Fire") or v:IsA("Explosion") then
-        v:Destroy()
-    elseif v:IsA("Sound") and v.Parent ~= game.Players.LocalPlayer.Character then
-        v.Volume = 0
-    elseif v:IsA("BasePart") then
-        v.Material = Enum.Material.Plastic
-        v.Reflectance = 0
+-- Función para eliminar la ropa, accesorios y la bola de aparición
+local function removeSkinAndSpawnBall(character)
+    -- Eliminar ropa y accesorios
+    for _, item in ipairs(character:GetChildren()) do
+        if item:IsA("Shirt") or item:IsA("Pants") or item:IsA("Accessory") or item:IsA("ShirtGraphic") then
+            item:Destroy()
+        end
     end
+
+    -- Eliminar la bola de aparición (Spawn ball)
+    local spawnBall = character:FindFirstChild("SpawnLocation") -- La "bola de aparición" se llama "SpawnLocation" por defecto
+    if spawnBall then
+        spawnBall:Destroy()
+    end
+end
+
+-- Función para aplicar la eliminación a todos los jugadores actuales y futuros
+local function enforceRemovalAll()
+    for _, player in ipairs(Players:GetPlayers()) do
+        -- Eliminar la skin y la bola de aparición cuando el jugador se una
+        player.CharacterAdded:Connect(function(character)
+            repeat
+                wait(0.1) -- Espera a que el personaje cargue completamente
+            until character:FindFirstChild("Humanoid")
+            removeSkinAndSpawnBall(character) -- Elimina la skin y la bola de aparición
+        end)
+
+        -- Si el jugador ya tiene un personaje, lo limpia inmediatamente
+        if player.Character then
+            removeSkinAndSpawnBall(player.Character)
+        end
+    end
+
+    -- Asegura que cualquier nuevo jugador también tenga la eliminación aplicada
+    Players.PlayerAdded:Connect(function(player)
+        player.CharacterAdded:Connect(function(character)
+            removeSkinAndSpawnBall(character)
+        end)
+    end)
+end
+
+-- Función para gestionar el uso de memoria
+local function checkMemoryUsage()
+    local memoryUsage = collectgarbage("count") / 1024 -- Convertir a MB
+    if memoryUsage > MAX_MEMORY_USAGE then
+        print("Uso de memoria alto: " .. memoryUsage .. "MB. Se están tomando medidas.")
+        for _, objectName in ipairs(OBJECTS_TO_DISABLE) do
+            local object = Workspace:FindFirstChild(objectName)
+            if object then
+                object:Destroy() -- Destruye los objetos generadores de lag
+            end
+        end
+    end
+end
+
+-- Optimización adicional utilizando RunService
+RunService.Heartbeat:Connect(function()
+    checkMemoryUsage()
 end)
 
--- Optional: Throttle your physics for max FPS
-RunService:Set3dRenderingEnabled(true)
-RunService.RenderStepped:Connect(function()
-    settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
-end)
+-- Habilitar modo noche
+local function enableNightMode()
+    Lighting.TimeOfDay = "00:00:00"
+    Lighting.Brightness = 0.5
+end
 
-print("[ULTIMATE ANTI-LAG] Active.")
+-- Función para eliminar efectos que causan lag
+local function removeLaggyEffects()
+    while true do
+        for _, effect in ipairs(Lighting:GetChildren()) do
+            if effect:IsA("BlurEffect") or effect:IsA("BloomEffect") or effect:IsA("ColorCorrectionEffect") or effect:IsA("SunRaysEffect") or effect:IsA("DepthOfFieldEffect") then
+                effect:Destroy()
+            end
+        end
+
+        for _, player in ipairs(Players:GetPlayers()) do
+            if player.Character then
+                for _, effect in ipairs(player.Character:GetDescendants()) do
+                    if effect:IsA("ParticleEmitter") or effect:IsA("Smoke") or effect:IsA("Fire") or effect:IsA("Sparkles") then
+                        effect:Destroy()
+                    end
+                end
+            end
+        end
+
+        wait(0.5)
+    end
+end
+
+-- Detección y mitigación de jugadores con lag severo (Time Stop)
+local function pauseForAdminIfHighPing(player)
+    -- Verificar la latencia del jugador (Ping)
+    player.CharacterAdded:Connect(function(character)
+        -- Espera a que el personaje esté completamente cargado
+        repeat
+            wait(0.1)
+        until character:FindFirstChild("Humanoid")
+
+        -- Detecta el ping del jugador
+        local ping = player.Stats.Ping -- Obtener el ping del jugador (ajusta según la variable de ping de tu juego)
+        if ping > 200 then -- Si el ping es mayor a 200 ms (puedes ajustar este umbral)
+            -- Congelar al jugador solo para ti (admin)
+            print(player.Name .. " tiene un ping alto: " .. ping .. "ms. Aplicando 'Time Stop'.")
+
+            -- Detener las animaciones y movimiento del personaje
+            local humanoid = character:FindFirstChild("Humanoid")
+            if humanoid then
+                humanoid.PlatformStand = true -- Desactiva el movimiento del personaje
+                humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+            end
+
+            -- Detener las animaciones
+            local animator = character:FindFirstChild("Animator")
+            if animator then
+                animator:Stop()
+            end
+
+            -- Congelar su posición
+            local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+            if humanoidRootPart then
+                humanoidRootPart.Anchored = true
+            end
+        end
+    end)
+end
+
+-- Aplicar el "Time Stop" a los jugadores actuales y futuros
+local function applyAntiLagToAllPlayers()
+    for _, player in ipairs(Players:GetPlayers()) do
+        pauseForAdminIfHighPing(player)
+    end
+    Players.PlayerAdded:Connect(pauseForAdminIfHighPing)
+end
+
+-- Ejecutar optimizaciones y funciones adicionales
+applyAntiLagSettings()
+enableNightMode()
+spawn(removeLaggyEffects)
+enforceRemovalAll()
+applyAntiLagToAllPlayers()

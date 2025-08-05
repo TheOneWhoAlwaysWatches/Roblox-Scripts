@@ -1,0 +1,156 @@
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local Humanoid = Character:WaitForChild("Humanoid")
+local HRP = Character:WaitForChild("HumanoidRootPart")
+
+-- Create ScreenGui
+local screenGui = Instance.new("ScreenGui", game:GetService("CoreGui"))
+screenGui.Name = "PunchFlingGui"
+
+-- Frame
+local frame = Instance.new("Frame", screenGui)
+frame.Size = UDim2.new(0, 250, 0, 150)
+frame.Position = UDim2.new(0.5, -125, 0.5, -75)
+frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+frame.BorderSizePixel = 0
+frame.AnchorPoint = Vector2.new(0.5, 0.5)
+frame.Visible = true
+
+-- Dropdown (simple player list)
+local dropdown = Instance.new("TextBox", frame)
+dropdown.PlaceholderText = "Enter player name"
+dropdown.Size = UDim2.new(0.8, 0, 0, 30)
+dropdown.Position = UDim2.new(0.1, 0, 0.1, 0)
+dropdown.Text = ""
+dropdown.ClearTextOnFocus = false
+dropdown.TextColor3 = Color3.new(1, 1, 1)
+dropdown.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+dropdown.Font = Enum.Font.SourceSans
+dropdown.TextSize = 20
+
+-- Button to execute punch
+local punchButton = Instance.new("TextButton", frame)
+punchButton.Size = UDim2.new(0.6, 0, 0, 40)
+punchButton.Position = UDim2.new(0.2, 0, 0.5, 0)
+punchButton.Text = "Punch & Fling!"
+punchButton.BackgroundColor3 = Color3.fromRGB(150, 0, 150)
+punchButton.TextColor3 = Color3.new(1, 1, 1)
+punchButton.Font = Enum.Font.SourceSansBold
+punchButton.TextSize = 22
+punchButton.AutoButtonColor = true
+
+-- Function to find player by partial name
+local function findPlayerByName(name)
+    name = name:lower()
+    for _, plr in pairs(Players:GetPlayers()) do
+        if plr.Name:lower():find(name) then
+            return plr
+        end
+    end
+    return nil
+end
+
+-- Load punch animation from Roblox asset (replace this with your own if you want)
+local animationId = "rbxassetid://6561631019" -- A basic punch animation (you can change this)
+local animation = Instance.new("Animation")
+animation.AnimationId = animationId
+local animator = Humanoid:FindFirstChildWhichIsA("Animator") or Instance.new("Animator", Humanoid)
+local animTrack = animator:LoadAnimation(animation)
+
+-- Function to fling a target player
+local function flingTarget(targetChar)
+    local targetHRP = targetChar:FindFirstChild("HumanoidRootPart")
+    if not targetHRP then return end
+
+    -- Apply a BodyVelocity to fling them
+    local bodyVel = Instance.new("BodyVelocity")
+    bodyVel.MaxForce = Vector3.new(1e5, 1e5, 1e5)
+    bodyVel.Velocity = Vector3.new(math.random(-100, 100), 200, math.random(-100, 100))
+    bodyVel.P = 1e4
+    bodyVel.Parent = targetHRP
+
+    -- Remove BodyVelocity after 0.5 seconds
+    game:GetService("Debris"):AddItem(bodyVel, 0.5)
+end
+
+-- Setup invisible hitbox on fist for hit detection
+local function createHitbox()
+    local hitbox = Instance.new("Part")
+    hitbox.Size = Vector3.new(1, 1, 1)
+    hitbox.Transparency = 1
+    hitbox.CanCollide = false
+    hitbox.Anchored = false
+    hitbox.Massless = true
+    hitbox.Name = "PunchHitbox"
+    hitbox.Parent = Character
+
+    -- Weld hitbox to right hand
+    local rightHand = Character:FindFirstChild("RightHand") or Character:FindFirstChild("Right Arm")
+    if not rightHand then
+        hitbox:Destroy()
+        return nil
+    end
+    local weld = Instance.new("WeldConstraint")
+    weld.Part0 = rightHand
+    weld.Part1 = hitbox
+    weld.Parent = hitbox
+
+    return hitbox
+end
+
+-- The main punch & fling logic
+local function punchAndFling(targetPlayer)
+    local targetChar = targetPlayer.Character
+    if not targetChar or not targetChar:FindFirstChild("HumanoidRootPart") then
+        warn("Target character or HumanoidRootPart missing")
+        return
+    end
+
+    -- Teleport you near the target (1.5 studs behind them)
+    local targetHRP = targetChar.HumanoidRootPart
+    HRP.CFrame = targetHRP.CFrame * CFrame.new(0, 0, 1.5)
+
+    -- Create hitbox and connect Touched event
+    local hitbox = createHitbox()
+    if not hitbox then
+        warn("Failed to create hitbox")
+        return
+    end
+
+    local touchedConnection
+    touchedConnection = hitbox.Touched:Connect(function(hit)
+        local hitParent = hit.Parent
+        if hitParent == targetChar then
+            touchedConnection:Disconnect()
+            -- Play fling after hit
+            flingTarget(targetChar)
+            -- Cleanup hitbox
+            hitbox:Destroy()
+        end
+    end)
+
+    -- Play punch animation
+    animTrack:Play()
+
+    -- Remove hitbox after 3 seconds just in case
+    delay(3, function()
+        if hitbox and hitbox.Parent then
+            hitbox:Destroy()
+        end
+        if touchedConnection then
+            touchedConnection:Disconnect()
+        end
+    end)
+end
+
+-- Button click handler
+punchButton.MouseButton1Click:Connect(function()
+    local targetName = dropdown.Text
+    local targetPlayer = findPlayerByName(targetName)
+    if targetPlayer and targetPlayer ~= LocalPlayer then
+        punchAndFling(targetPlayer)
+    else
+        warn("Player not found or invalid")
+    end
+end)

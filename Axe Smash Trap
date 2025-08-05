@@ -4,7 +4,8 @@ local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
-local safeDistance = 30 -- minimum safe distance from target (adjust if needed)
+local selectedTargets = {}
+local safeDistance = 45 -- minimum safe distance from target (adjust if needed)
 local axeHitSize = 20 -- rough diameter of Axe Smash hit area (change if it's bigger)
 local radius = safeDistance + (axeHitSize / 2) -- ensures ring won't hit target
 local points = 24 -- more points = tighter ring

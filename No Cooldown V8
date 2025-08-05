@@ -1,19 +1,19 @@
--- 🔥 FINAL BOSS ULTIMATE NO COOLDOWN HYBRID
+-- 💥 ULTIMATE FINAL BOSS NO COOLDOWN ++ VERSION
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+
 local LocalPlayer = Players.LocalPlayer
+local Stepped = RunService.Stepped
 
--- === 1️⃣ Hook waits for max speed ===
-hookfunction(wait, function() return RunService.PostSimulation:Wait() end)
-hookfunction(task.wait, function() return RunService.PostSimulation:Wait() end)
-hookfunction(delay, function(_, f) task.spawn(f) end)
-hookfunction(spawn, function(f) task.spawn(f) end)
+-- === 1️⃣ Minimal wait hook (best performance & compatibility)
+hookfunction(wait, function() return Stepped:Wait() end)
 
--- === 2️⃣ Patch known local cooldown upvalues ===
+-- === 2️⃣ Optimized cooldown patcher (runs in background)
 local function patchUpvalues()
     for _, v in pairs(getgc(true)) do
-        if typeof(v) == "function" then
+        if typeof(v) == "function" and islclosure(v) then
             for i = 1, debug.getinfo(v).nups do
                 local name, val = debug.getupvalue(v, i)
                 if type(name) == "string" and name:lower():find("cooldown") then
@@ -24,8 +24,15 @@ local function patchUpvalues()
     end
 end
 
--- === 3️⃣ Hybrid kill system ===
-local function spamRemoteDamage(target)
+task.spawn(function()
+    while true do
+        patchUpvalues()
+        task.wait(4) -- less frequent = less lag
+    end
+end)
+
+-- === 3️⃣ Advanced kill logic
+local function spamToolRemotes(target)
     local char = LocalPlayer.Character
     if not char then return end
 
@@ -34,12 +41,14 @@ local function spamRemoteDamage(target)
 
     for _, remote in ipairs(tool:GetDescendants()) do
         if remote:IsA("RemoteEvent") then
-            remote:FireServer(target)
+            pcall(function()
+                remote:FireServer(target)
+            end)
         end
     end
 end
 
-local function safeKill(humanoid)
+local function softKill(humanoid)
     if humanoid and humanoid.Health > 0 then
         humanoid.Health = 0
     end
@@ -54,10 +63,8 @@ local function hardBreak(humanoid)
     end
 end
 
--- === 4️⃣ Optional: Toggle for hard break mode ===
+-- === 4️⃣ Hard break toggle
 local hardBreakMode = false
-
-local UserInputService = game:GetService("UserInputService")
 
 UserInputService.InputBegan:Connect(function(input, gpe)
     if gpe then return end
@@ -67,12 +74,10 @@ UserInputService.InputBegan:Connect(function(input, gpe)
     end
 end)
 
-print("✅ Press [H] to toggle Hard Break mode ON/OFF")
+print("✅ [H] to toggle Hard Break mode")
 
--- === 5️⃣ Main unstoppable kill loop ===
+-- === 5️⃣ Main unstoppable loop
 RunService.Heartbeat:Connect(function()
-    patchUpvalues()
-
     local myChar = LocalPlayer.Character
     local myHRP = myChar and myChar:FindFirstChild("HumanoidRootPart")
     if not myHRP then return end
@@ -85,13 +90,8 @@ RunService.Heartbeat:Connect(function()
             if hum and enemyHRP and hum.Health > 0 then
                 local dist = (myHRP.Position - enemyHRP.Position).Magnitude
                 if dist <= 30 then
-                    -- 1. Fire legit Remote
-                    spamRemoteDamage(enemyHRP)
-
-                    -- 2. Safe kill fallback
-                    safeKill(hum)
-
-                    -- 3. Hard break fallback
+                    spamToolRemotes(enemyHRP)
+                    softKill(hum)
                     if hardBreakMode then
                         hardBreak(hum)
                     end
@@ -101,4 +101,4 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
-print("🔥 FINAL BOSS NO COOLDOWN HYBRID — Remote spam + cooldown patch + fallback kill + Hard Break toggle.")
+print("🔥 ULTIMATE FINAL BOSS HYBRID ENABLED — Cooldown hook, Remote spam, Soft kill, Hard Break.")

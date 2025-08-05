@@ -255,8 +255,6 @@ local function createPageSelectorButton(text, position, parent)
 
     local uiCorner = Instance.new("UICorner", button)
     uiCorner.CornerRadius = UDim.new(0.3, 0)
-    button.TextStrokeTransparency = 0.4
-    button.TextStrokeColor3 = Color3.fromRGB(255, 0, 255)
 
     return button
 end

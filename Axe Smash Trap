@@ -4,10 +4,10 @@ local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
-local selectedTargets = {}
-local trapRadius = 15
-local trapPoints = 20
-local spamDelay = 0.15
+local safeDistance = 30 -- minimum safe distance from target (adjust if needed)
+local axeHitSize = 20 -- rough diameter of Axe Smash hit area (change if it's bigger)
+local radius = safeDistance + (axeHitSize / 2) -- ensures ring won't hit target
+local points = 24 -- more points = tighter ring
 
 -- GUI
 local ScreenGui = Instance.new("ScreenGui")
@@ -94,7 +94,7 @@ RunService.Heartbeat:Connect(function()
             if alive then
                 for i = 1, trapPoints do
                     local angle = math.rad((360 / trapPoints) * i)
-                    local offset = Vector3.new(math.cos(angle) * trapRadius, 30, math.sin(angle) * trapRadius)
+                    local offset = Vector3.new(math.cos(angle) * trapRadius, 0, math.sin(angle) * trapRadius)
                     local pos = hrp.Position + offset + Vector3.new(0, 2, 0)
                     remote:FireServer(CFrame.new(pos))
                 end

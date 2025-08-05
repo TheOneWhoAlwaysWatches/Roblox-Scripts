@@ -1,113 +1,108 @@
--- Axe Smash Trapping System
-
+-- Axe Smash Trap Selector UI
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
 
-local selectedPlayer = nil
-local running = false
-local radius = 50 -- radius away from target to keep the smash ring
-local points = 20
-local spacing = 0.1
+local selectedTargets = {}
+local trapRadius = 15
+local trapPoints = 20
+local spamDelay = 0.15
 
--- GUI Setup
+-- GUI
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "TargetAxeTrapGUI"
+ScreenGui.Name = "TrapSelectorUI"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = game.CoreGui
 
-local dropdown = Instance.new("TextButton")
-dropdown.Size = UDim2.new(0, 160, 0, 40)
-dropdown.Position = UDim2.new(0, 20, 0, 300)
-dropdown.BackgroundColor3 = Color3.fromRGB(15, 0, 25)
-dropdown.TextColor3 = Color3.fromRGB(255, 255, 255)
-dropdown.Text = "🎯 Select Target"
-dropdown.Font = Enum.Font.Code
-dropdown.TextSize = 16
-dropdown.Parent = ScreenGui
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0, 180, 0, 300)
+Frame.Position = UDim2.new(1, -190, 0.2, 0)
+Frame.BackgroundColor3 = Color3.fromRGB(10, 0, 20)
+Frame.BorderSizePixel = 0
+Frame.Parent = ScreenGui
 
-Instance.new("UICorner", dropdown).CornerRadius = UDim.new(0, 6)
-Instance.new("UIStroke", dropdown).Color = Color3.fromRGB(255, 0, 200)
+Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 10)
 
--- Dropdown menu logic
-local menu = Instance.new("Frame")
-menu.Size = UDim2.new(0, 160, 0, 0)
-menu.Position = UDim2.new(0, 20, 0, 340)
-menu.BackgroundColor3 = Color3.fromRGB(25, 0, 35)
-menu.Visible = false
-menu.ClipsDescendants = true
-menu.Parent = ScreenGui
+local UIListLayout = Instance.new("UIListLayout")
+UIListLayout.SortOrder = Enum.SortOrder.Name
+UIListLayout.Padding = UDim.new(0, 4)
+UIListLayout.Parent = Frame
 
-Instance.new("UICorner", menu).CornerRadius = UDim.new(0, 6)
-Instance.new("UIStroke", menu).Color = Color3.fromRGB(200, 0, 150)
-
+-- Create player button
 local function createPlayerButton(player)
-    local button = Instance.new("TextButton")
-    button.Size = UDim2.new(1, 0, 0, 30)
-    button.BackgroundColor3 = Color3.fromRGB(30, 0, 50)
-    button.TextColor3 = Color3.fromRGB(255, 255, 255)
-    button.Text = player.Name
-    button.Font = Enum.Font.Code
-    button.TextSize = 14
-    button.Parent = menu
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, -10, 0, 30)
+    btn.BackgroundColor3 = Color3.fromRGB(30, 0, 50)
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.Text = player.DisplayName
+    btn.Font = Enum.Font.Code
+    btn.TextSize = 14
+    btn.Parent = Frame
 
-    button.MouseButton1Click:Connect(function()
-        selectedPlayer = player
-        dropdown.Text = "Target: " .. player.Name
-        menu.Visible = false
-        running = true
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+    local stroke = Instance.new("UIStroke", btn)
+    stroke.Color = Color3.fromRGB(255, 0, 200)
+
+    btn.MouseButton1Click:Connect(function()
+        local isSelected = selectedTargets[player] == true
+        selectedTargets[player] = not isSelected
+        btn.TextColor3 = selectedTargets[player] and Color3.fromRGB(0,255,100) or Color3.fromRGB(255,255,255)
+    end)
+
+    player.CharacterAdded:Connect(function()
+        selectedTargets[player] = false
+        btn.TextColor3 = Color3.fromRGB(255,255,255)
+    end)
+
+    player.AncestryChanged:Connect(function(_, parent)
+        if not parent then
+            selectedTargets[player] = nil
+            btn:Destroy()
+        end
     end)
 end
 
-local function refreshMenu()
-    menu:ClearAllChildren()
-    local height = 0
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and player.Character then
-            createPlayerButton(player)
-            height += 30
-        end
+for _, p in ipairs(Players:GetPlayers()) do
+    if p ~= LocalPlayer then
+        createPlayerButton(p)
     end
-    menu.Size = UDim2.new(0, 160, 0, height)
 end
 
-dropdown.MouseButton1Click:Connect(function()
-    refreshMenu()
-    menu.Visible = not menu.Visible
+Players.PlayerAdded:Connect(function(p)
+    if p ~= LocalPlayer then
+        createPlayerButton(p)
+    end
 end)
 
--- Get Axe Smash remote
+-- Tool spam logic
 local function findToolAndRemote()
-    local tool = LocalPlayer.Backpack:FindFirstChild("Axe Smash") or LocalPlayer.Character:FindFirstChild("Axe Smash")
+    local tool = LocalPlayer.Backpack:FindFirstChild("Axe Smash") or LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Axe Smash")
     local remote = tool and tool:FindFirstChild("Remote")
     return tool, remote
 end
 
--- Attack loop
+-- Trap spam loop
 RunService.Heartbeat:Connect(function()
-    if not running or not selectedPlayer then return end
-    if not selectedPlayer.Character or not selectedPlayer.Character:FindFirstChild("HumanoidRootPart") then return end
-
-    local remote = findToolAndRemote()
+    local _, remote = findToolAndRemote()
     if not remote then return end
 
-    local hrp = selectedPlayer.Character.HumanoidRootPart
-    local alive = selectedPlayer.Character:FindFirstChild("Humanoid") and selectedPlayer.Character.Humanoid.Health > 0
-
-    if not alive then
-        running = false
-        selectedPlayer = nil
-        dropdown.Text = "🎯 Select Target"
-        return
+    for player, active in pairs(selectedTargets) do
+        if active and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local hrp = player.Character.HumanoidRootPart
+            local alive = player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.Health > 0
+            if alive then
+                for i = 1, trapPoints do
+                    local angle = math.rad((360 / trapPoints) * i)
+                    local offset = Vector3.new(math.cos(angle) * trapRadius, 30, math.sin(angle) * trapRadius)
+                    local pos = hrp.Position + offset + Vector3.new(0, 2, 0)
+                    remote:FireServer(CFrame.new(pos))
+                end
+            else
+                selectedTargets[player] = false
+            end
+        end
     end
-
-    for i = 1, points do
-        local angle = math.rad((360 / points) * i)
-        local offset = Vector3.new(math.cos(angle) * radius, 0, math.sin(angle) * radius)
-        local pos = hrp.Position + offset + Vector3.new(0, 2, 0)
-        remote:FireServer(CFrame.new(pos))
-    end
-    task.wait(spacing)
 end)
 
-print("✅ Axe Smash Trap loaded!")
+print("✅ Axe Smash Trap initialized")

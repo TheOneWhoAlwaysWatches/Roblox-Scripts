@@ -263,9 +263,9 @@ local function createPageSelectorButton(text, position, parent)
 end
 
 -- Create page selector buttons
-local button1 = createPageSelectorButton("Main", UDim2.new(0.08, 0, 0.183, 0), secondaryFrame)
-local button2 = createPageSelectorButton("Extras", UDim2.new(0.08, 0, 0.383, 0), secondaryFrame)
-local button3 = createPageSelectorButton("Misc", UDim2.new(0.08, 0, 0.583, 0), secondaryFrame)
+local button1 = createPageSelectorButton("Page 1", UDim2.new(0.08, 0, 0.183, 0), secondaryFrame)
+local button2 = createPageSelectorButton("Page 2", UDim2.new(0.08, 0, 0.383, 0), secondaryFrame)
+local button3 = createPageSelectorButton("Page 3", UDim2.new(0.08, 0, 0.583, 0), secondaryFrame)
 
 -- Hub version label
 local hubTitle = Instance.new("TextLabel")
@@ -280,82 +280,97 @@ hubTitle.TextStrokeTransparency = 0.4
 hubTitle.TextStrokeColor3 = Color3.fromRGB(255, 0, 255)
 hubTitle.Parent = secondaryFrame
 
--- Helper to create page selector buttons (with toned-down colors)
-local function createPageSelectorButton(text, position, parent)
+-- Helper to create script buttons with purple hacker theme and script loading
+local function createScriptButton(text, position, scriptLink, parent)
     local button = Instance.new("TextButton")
-    button.Size = UDim2.new(0, 120, 0, 38)
+    button.Size = UDim2.new(0.45, 0, 0, 40) -- Width scale, fixed height
     button.Position = position
     button.Text = text
-    button.BackgroundColor3 = Color3.fromRGB(20, 20, 20) -- darker but not pitch black
-    button.TextColor3 = Color3.fromRGB(150, 50, 150) -- softer purple
-    button.TextSize = 18
-    button.Font = Enum.Font.SourceSans
+    button.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+    button.TextColor3 = Color3.fromRGB(255, 0, 255)
+    button.TextSize = 14
+    button.Font = Enum.Font.Code
     button.Parent = parent
+
     local uiCorner = Instance.new("UICorner", button)
-    uiCorner.CornerRadius = UDim.new(0.3, 0)
-    button.TextStrokeTransparency = 0.4
-    button.TextStrokeColor3 = Color3.fromRGB(255, 0, 255)
+    uiCorner.CornerRadius = UDim.new(0.2, 0)
+
     local uiStroke = Instance.new("UIStroke", button)
     uiStroke.Color = Color3.fromRGB(255, 0, 255)
-    uiStroke.Thickness = 3
+    uiStroke.Thickness = 2
+
+    button.TextStrokeTransparency = 0.3
+    button.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+
+    button.MouseButton1Click:Connect(function()
+        local success, result = pcall(function()
+            loadstring(game:HttpGet(scriptLink))()
+        end)
+        if not success then
+            warn("Error loading script: " .. tostring(result))
+        end
+    end)
+
     return button
 end
 
--- Populate the third frame with buttons according to selected page (auto layout)
+-- Automatically layout buttons in a neat grid
 local function createPageButtons(pageNumber)
-    -- Clear existing buttons
+    -- Clear old buttons
     for _, child in pairs(thirdFrame:GetChildren()) do
         if child:IsA("TextButton") then
             child:Destroy()
         end
     end
 
+    -- Button data
     local buttonsData = {}
-
     if pageNumber == 1 then
         buttonsData = {
-            {Text = "Use Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Use%20Tools%20V6"}, -- 1
-            {Text = "Respawn", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V5.lua"}, -- 2
-            {Text = "Get Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Tools%20V4.lua"}, -- 3
-            {Text = "Get Base", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Base%20V3"}, -- 4
-            {Text = "No Cooldown", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V5.lua"}, -- 5
-            {Text = "NoAnimCooldown", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Anim%20No%20Cooldown"}, -- 6
-            {Text = "Insta-Kill", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Damage%20Spammer%20(Insta-Kill)"}, -- 7
-            {Text = "Kill Aura", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20Aura"}, -- 8
+            {Text = "Use Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Use%20Tools%20V6"},
+            {Text = "Respawn", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V5.lua"},
+            {Text = "Get Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Tools%20V4.lua"},
+            {Text = "Get Base", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Base%20V3"},
+            {Text = "No Cooldown", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V5.lua"},
+            {Text = "NoAnimCooldown", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Anim%20No%20Cooldown"},
+            {Text = "Insta-Kill", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Damage%20Spammer%20(Insta-Kill)"},
+            {Text = "Kill Aura", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20Aura"},
         }
     elseif pageNumber == 2 then
         buttonsData = {
-            {Text = "Reach", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Reach"}, -- 1
-            {Text = "Float Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Float%20Tools"}, -- 2
-            {Text = "NoAnimCooldown", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Anim%20No%20Cooldown"}, -- 3
-            {Text = "Loopbring", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Loopbring%20V4.lua"}, -- 4
-            {Text = "Fly Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Fly%20Tools"}, -- 5
-            {Text = "Antilag", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Lag%20V2"}, -- 6
-            {Text = "Grip Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Grip%20Tools"}, -- 7
+            {Text = "Reach", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Reach"},
+            {Text = "Float Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Float%20Tools"},
+            {Text = "NoAnimCooldown", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Anim%20No%20Cooldown"},
+            {Text = "Loopbring", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Loopbring%20V4.lua"},
+            {Text = "Fly Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Fly%20Tools"},
+            {Text = "Antilag", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Lag%20V2"},
+            {Text = "Grip Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Grip%20Tools"},
             {Text = "Coming Soon", ScriptLink = "https://ExampleScript"},
         }
     elseif pageNumber == 3 then
         buttonsData = {
-            {Text = "Chat Spy", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Chat%20Spy"}, -- 1
-            {Text = "Anti Chat Spy", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti%20Chat%20Spy"}, -- 2
-            {Text = "Infinite Yield", ScriptLink = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"}, -- 3
-            {Text = "Lag Server", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Lag%20Server"}, -- 4
-            {Text = "Perma-Death", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/God%20Mode.lua"}, -- 5
-            {Text = "Walking God Mode", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Walking%20God%20Mode"}, -- 6
+            {Text = "Chat Spy", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Chat%20Spy"},
+            {Text = "Anti Chat Spy", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti%20Chat%20Spy"},
+            {Text = "Infinite Yield", ScriptLink = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"},
+            {Text = "Lag Server", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Lag%20Server"},
+            {Text = "Perma-Death", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/God%20Mode.lua"},
+            {Text = "Walking God Mode", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Walking%20God%20Mode"},
             {Text = "Coming Soon", ScriptLink = "https://ExampleScript"},
             {Text = "Coming Soon", ScriptLink = "https://ExampleScript"},
         }
     end
 
+    -- Layout configuration
     local buttonWidthScale = 0.45
-    local buttonHeight = 30
-    local padding = 8
+    local buttonHeight = 40
+    local paddingY = 10
     local startY = 10
 
     for i, data in ipairs(buttonsData) do
-        local posX = (i % 2 == 1) and 0.03 or 0.51 -- left or right column
-        local posY = startY + math.floor((i - 1) / 2) * (buttonHeight + padding)
-        createScriptButton(data.Text, UDim2.new(posX, 0, 0, posY), data.ScriptLink, thirdFrame).Size = UDim2.new(buttonWidthScale, 0, 0, buttonHeight)
+        local column = (i % 2 == 1) and 0.03 or 0.51
+        local row = math.floor((i - 1) / 2)
+        local yPos = startY + row * (buttonHeight + paddingY)
+        createScriptButton(data.Text, UDim2.new(column, 0, 0, yPos), data.ScriptLink, thirdFrame)
     end
 end
 

@@ -49,7 +49,7 @@ end)
 
 -- Create Main GUI
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "CTLM"
+screenGui.Name = "TOR"
 screenGui.ResetOnSpawn = false
 screenGui.Parent = player:WaitForChild("PlayerGui")
 
@@ -110,7 +110,7 @@ local buttonFrame = createStyledFrame(
 local titleLabel = Instance.new("TextLabel")
 titleLabel.Size = UDim2.new(0, 160, 0, 30)
 titleLabel.Position = UDim2.new(0, 0, 0.05, 0)
-titleLabel.Text = "CTLM"
+titleLabel.Text = "TOR"
 titleLabel.BackgroundTransparency = 1
 titleLabel.TextSize = 40
 titleLabel.Font = Enum.Font.SourceSans
@@ -130,7 +130,7 @@ tween:Play()
 local toggleButton = Instance.new("TextButton")
 toggleButton.Size = UDim2.new(0, 65, 0, 63)
 toggleButton.Position = UDim2.new(0.5, -32, 0, -10)
-toggleButton.Text = "CTLM"
+toggleButton.Text = "TOR"
 toggleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 toggleButton.TextColor3 = Color3.fromRGB(0, 170, 255)
 toggleButton.TextSize = 20

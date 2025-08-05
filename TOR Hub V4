@@ -295,13 +295,6 @@ local function createScriptButton(text, position, scriptLink, parent)
     local uiCorner = Instance.new("UICorner", button)
     uiCorner.CornerRadius = UDim.new(0.2, 0)
 
-    local uiStroke = Instance.new("UIStroke", button)
-    uiStroke.Color = Color3.fromRGB(255, 0, 255)
-    uiStroke.Thickness = 2
-
-    button.TextStrokeTransparency = 0.3
-    button.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-
     button.MouseButton1Click:Connect(function()
         local success, result = pcall(function()
             loadstring(game:HttpGet(scriptLink))()
@@ -327,13 +320,15 @@ local function createPageButtons(pageNumber)
     local buttonsData = {}
     if pageNumber == 1 then
         buttonsData = {
-            {Text = "Use Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Use%20Tools%20V6"},
-            {Text = "Respawn", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V5.lua"},
-            {Text = "Get Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Tools%20V4.lua"},
-            {Text = "Get Base", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Base%20V3"},
-            {Text = "No Cooldown", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V8"},
-            {Text = "NoAnimCooldown", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Anim%20No%20Cooldown"},
-            {Text = "Kill Aura", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20Aura"},
+            {Text = "Use Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Use%20Tools%20V6"}, -- 1
+            {Text = "Respawn", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V5.lua"}, -- 2
+            {Text = "Get Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Tools%20V4.lua"}, -- 3
+            {Text = "Get Base", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Base%20V3"}, -- 4
+            {Text = "No Cooldown", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V8"}, -- 5
+            {Text = "Insta-Kill", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Damage%20Spammer%20(Insta-Kill)"} -- 6
+            {Text = "Kill Aura", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20Aura"}, -- 7
+            {Text = "Anim Remover", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anim%20Remover"},
+
         }
     elseif pageNumber == 2 then
         buttonsData = {

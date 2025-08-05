@@ -1,11 +1,57 @@
+-- 💀 ANIMATION BREAKER 2025 (No Anim + Optional Cooldown Patch)
+
+local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
--- Obtiene el evento PostSimulation
-local PostSimulationEvent = RunService.PostSimulation
+local LocalPlayer = Players.LocalPlayer
+local Char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 
--- Hook de la función wait
-local originalWait
-originalWait = hookfunction(wait, function(duration)
-    -- Reemplaza cualquier llamada a wait() con PostSimulation:Wait()
-    return PostSimulationEvent:Wait()
+-- === 1️⃣ Disable or destroy Animator
+local function nukeAnimator(char)
+    for _, obj in pairs(char:GetDescendants()) do
+        if obj:IsA("Animator") then
+            obj:Destroy()
+        end
+    end
+end
+
+-- === 2️⃣ Hook animation loading to block playback
+hookfunction(Instance.new("Animation").Clone, function(self)
+    return setmetatable({}, {
+        __index = function()
+            return function() end -- disable methods like Play(), Stop(), etc.
+        end
+    })
 end)
+
+-- === 3️⃣ Cooldown Upvalue patcher (optional)
+local function patchCooldowns()
+    for _, v in ipairs(getgc(true)) do
+        if typeof(v) == "function" and islclosure(v) then
+            for i = 1, debug.getinfo(v).nups do
+                local name, val = debug.getupvalue(v, i)
+                if type(name) == "string" and name:lower():find("cooldown") then
+                    debug.setupvalue(v, i, 0)
+                end
+            end
+        end
+    end
+end
+
+-- === 4️⃣ Keep checking for new Animators (in case of respawn)
+RunService.Heartbeat:Connect(function()
+    local char = LocalPlayer.Character
+    if char then
+        nukeAnimator(char)
+    end
+end)
+
+-- Optional: Run cooldown patch every few seconds
+task.spawn(function()
+    while true do
+        patchCooldowns()
+        task.wait(3)
+    end
+end)
+
+print("🚫 No Animation & ⏱️ No Cooldown patch active.")

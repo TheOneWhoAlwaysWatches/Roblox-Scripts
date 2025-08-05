@@ -1,8 +1,10 @@
 local Players = game:GetService("Players")
 local StarterGui = game:GetService("StarterGui")
+local TweenService = game:GetService("TweenService")
 local player = Players.LocalPlayer
 
-local verifiedUsers = {
+-- Whitelist user IDs allowed to use the hub
+local whitelist = {
     [3972688973] = true, -- Main Acc
     [2522193455] = true, -- Inf God (Alt)
     [5146822757] = true, -- Monkey (Alt)
@@ -34,47 +36,47 @@ local verifiedUsers = {
     [8983260988] = true, -- Rat
     [3816480506] = true, -- Messi
 }
-pcall(function()
-    game.StarterGui:SetCore("SendNotification", {
-        Title = "TOR HUB",
-        Text = "(✅ Welcome)",
-        Duration = 15,
-        Icon = "rbxthumb://type=Asset&id=111505420074613&w=150&h=150"
-    })
-end)
 
-if not verifiedUsers[LocalPlayer.UserId] then
-    LocalPlayer:Kick("GET OUT.")
+-- Kick player if not whitelisted
+if not whitelist[player.UserId] then
+    player:Kick("GET OUT.")
     return
 end
 
--- Main GUI frame
+-- Notify whitelisted user
+pcall(function()
+    StarterGui:SetCore("SendNotification", {
+        Title = "TOR HUB",
+        Text = "(✅ Welcome)",
+        Duration = 15,
+        Icon = "✅"
+    })
+end)
+
+-- Create main ScreenGui
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "TOR"
 screenGui.Parent = player:WaitForChild("PlayerGui")
-screenGui.ResetOnSpawn = false  -- Prevent removal on respawn
+screenGui.ResetOnSpawn = false
 
--- Main Frame (hacker style)
+-- Main frame (hacker style)
 local mainFrame = Instance.new("Frame")
 mainFrame.Size = UDim2.new(0, 476, 0, 230)
 mainFrame.Position = UDim2.new(0.31, 0, 0.322, 0)
-mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)  -- Black background for hacker vibe
+mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 mainFrame.BorderSizePixel = 0
 mainFrame.Visible = true
 mainFrame.Parent = screenGui
 
--- Rounded corners
-local uiCornerMain = Instance.new("UICorner")
+-- Rounded corners & neon purple stroke
+local uiCornerMain = Instance.new("UICorner", mainFrame)
 uiCornerMain.CornerRadius = UDim.new(0.2, 0)
-uiCornerMain.Parent = mainFrame
 
--- Purple neon stroke for main frame
-local uiStrokeMainFrame = Instance.new("UIStroke")
-uiStrokeMainFrame.Color = Color3.fromRGB(255, 0, 255)  -- Neon purple
-uiStrokeMainFrame.Thickness = 4
-uiStrokeMainFrame.Parent = mainFrame
+local uiStrokeMain = Instance.new("UIStroke", mainFrame)
+uiStrokeMain.Color = Color3.fromRGB(255, 0, 255)
+uiStrokeMain.Thickness = 4
 
--- Secondary Frame for page selector buttons
+-- Secondary frame (page selector)
 local secondaryFrame = Instance.new("Frame")
 secondaryFrame.Size = UDim2.new(0, 138, 0, 214)
 secondaryFrame.Position = UDim2.new(0.015, 0, 0.035, 0)
@@ -83,16 +85,14 @@ secondaryFrame.BorderSizePixel = 0
 secondaryFrame.Visible = true
 secondaryFrame.Parent = mainFrame
 
-local uiCornerSecondary = Instance.new("UICorner")
+local uiCornerSecondary = Instance.new("UICorner", secondaryFrame)
 uiCornerSecondary.CornerRadius = UDim.new(0.3, 0)
-uiCornerSecondary.Parent = secondaryFrame
 
-local uiStrokeSecondaryFrame = Instance.new("UIStroke")
-uiStrokeSecondaryFrame.Color = Color3.fromRGB(255, 0, 255)
-uiStrokeSecondaryFrame.Thickness = 3
-uiStrokeSecondaryFrame.Parent = secondaryFrame
+local uiStrokeSecondary = Instance.new("UIStroke", secondaryFrame)
+uiStrokeSecondary.Color = Color3.fromRGB(255, 0, 255)
+uiStrokeSecondary.Thickness = 3
 
--- Third Frame for page content buttons
+-- Third frame (page content)
 local thirdFrame = Instance.new("Frame")
 thirdFrame.Size = UDim2.new(0, 313, 0, 214)
 thirdFrame.Position = UDim2.new(0.321, 0, 0.035, 0)
@@ -101,22 +101,18 @@ thirdFrame.BorderSizePixel = 0
 thirdFrame.Visible = true
 thirdFrame.Parent = mainFrame
 
-local uiCornerThird = Instance.new("UICorner")
+local uiCornerThird = Instance.new("UICorner", thirdFrame)
 uiCornerThird.CornerRadius = UDim.new(0.3, 0)
-uiCornerThird.Parent = thirdFrame
 
-local uiStrokeThirdFrame = Instance.new("UIStroke")
-uiStrokeThirdFrame.Color = Color3.fromRGB(255, 0, 255)
-uiStrokeThirdFrame.Thickness = 5
-uiStrokeThirdFrame.Parent = thirdFrame
+local uiStrokeThird = Instance.new("UIStroke", thirdFrame)
+uiStrokeThird.Color = Color3.fromRGB(255, 0, 255)
+uiStrokeThird.Thickness = 5
 
--- Extra accent stroke in purple neon
-local uiStrokeThirdFrame2 = Instance.new("UIStroke")
-uiStrokeThirdFrame2.Color = Color3.fromRGB(255, 0, 255)
-uiStrokeThirdFrame2.Thickness = 2
-uiStrokeThirdFrame2.Parent = thirdFrame
+local uiStrokeThirdAccent = Instance.new("UIStroke", thirdFrame)
+uiStrokeThirdAccent.Color = Color3.fromRGB(255, 0, 255)
+uiStrokeThirdAccent.Thickness = 2
 
--- Title Label
+-- Title label with tweened color animation
 local titleLabel = Instance.new("TextLabel")
 titleLabel.Size = UDim2.new(0, 160, 0, 30)
 titleLabel.Position = UDim2.new(0, 0, 0.05, 0)
@@ -130,58 +126,52 @@ titleLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
 titleLabel.TextColor3 = Color3.fromRGB(255, 0, 255)
 titleLabel.Parent = mainFrame
 
--- Color tween animation
-local tweenService = game:GetService("TweenService")
 local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1, true)
-local purpleGoal = {TextColor3 = Color3.fromRGB(255, 0, 255)}
-local goalAlternate = {TextColor3 = Color3.fromRGB(0, 255, 255)} -- Optional second color
-local tween = tweenService:Create(titleLabel, tweenInfo, purpleGoal)
-tween:Play()
-tween.Completed:Connect(function()
-    local tween2 = tweenService:Create(titleLabel, tweenInfo, goalAlternate)
-    tween2:Play()
-    tween2.Completed:Connect(function()
-        local tween3 = tweenService:Create(titleLabel, tweenInfo, purpleGoal)
-        tween3:Play()
-    end)
-end)
+local tweenPurple = TweenService:Create(titleLabel, tweenInfo, {TextColor3 = Color3.fromRGB(255, 0, 255)})
+local tweenCyan = TweenService:Create(titleLabel, tweenInfo, {TextColor3 = Color3.fromRGB(0, 255, 255)})
 
--- Toggle button to open/close hub
+-- Loop tween color between purple and cyan
+local function tweenLoop()
+    tweenPurple:Play()
+    tweenPurple.Completed:Connect(function()
+        tweenCyan:Play()
+        tweenCyan.Completed:Connect(tweenLoop)
+    end)
+end
+tweenLoop()
+
+-- Toggle button for showing/hiding main frame
 local toggleButton = Instance.new("TextButton")
 toggleButton.Size = UDim2.new(0, 65, 0, 63)
 toggleButton.Position = UDim2.new(0.5, -32, 0, -10)
-toggleButton.Text = "TOR"
+toggleButton.Text = "OFF"
 toggleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 toggleButton.TextColor3 = Color3.fromRGB(255, 0, 255)
 toggleButton.TextSize = 20
 toggleButton.Font = Enum.Font.SourceSans
 toggleButton.Parent = screenGui
 
-local uiCornerToggle = Instance.new("UICorner")
+local uiCornerToggle = Instance.new("UICorner", toggleButton)
 uiCornerToggle.CornerRadius = UDim.new(1, 0)
-uiCornerToggle.Parent = toggleButton
 
--- Border around toggle
-local borderFrame = Instance.new("Frame")
+-- Border frame & stroke around toggle button
+local borderFrame = Instance.new("Frame", toggleButton)
 borderFrame.Size = UDim2.new(1, 0, 1, 0)
-borderFrame.Position = UDim2.new(0, 0, 0, 0)
 borderFrame.BackgroundTransparency = 1
-borderFrame.Parent = toggleButton
+borderFrame.Position = UDim2.new(0, 0, 0, 0)
 
-local uiStroke = Instance.new("UIStroke")
-uiStroke.Color = Color3.fromRGB(255, 0, 255)
-uiStroke.Thickness = 3
-uiStroke.Parent = borderFrame
+local uiStrokeToggle = Instance.new("UIStroke", borderFrame)
+uiStrokeToggle.Color = Color3.fromRGB(255, 0, 255)
+uiStrokeToggle.Thickness = 3
 
-local uiCornerBorder = Instance.new("UICorner")
+local uiCornerBorder = Instance.new("UICorner", borderFrame)
 uiCornerBorder.CornerRadius = UDim.new(1, 0)
-uiCornerBorder.Parent = borderFrame
 
--- Border animation
-local tween = tweenService:Create(uiStroke, tweenInfo, {Color = Color3.fromRGB(255, 0, 255)})
-tween:Play()
+-- Toggle stroke animation (optional - can be removed if static color is preferred)
+local strokeTween = TweenService:Create(uiStrokeToggle, tweenInfo, {Color = Color3.fromRGB(255, 0, 255)})
+strokeTween:Play()
 
--- Toggle hub visibility
+-- Toggle visibility of mainFrame
 local isVisible = false
 toggleButton.MouseButton1Click:Connect(function()
     isVisible = not isVisible
@@ -189,54 +179,70 @@ toggleButton.MouseButton1Click:Connect(function()
     toggleButton.Text = isVisible and "ON" or "OFF"
 end)
 
--- Drag functionality for toggle button
-local toggleDragging, toggleDragStart, toggleStartPos
-local function startToggleDrag(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        toggleDragging = true
-        toggleDragStart = input.Position
-        toggleStartPos = toggleButton.Position
-    end
-end
-local function updateToggleDrag(input)
-    if toggleDragging then
-        local delta = input.Position - toggleDragStart
-        toggleButton.Position = UDim2.new(toggleStartPos.X.Scale, toggleStartPos.X.Offset + delta.X,
-                                          toggleStartPos.Y.Scale, toggleStartPos.Y.Offset + delta.Y)
-    end
-end
-local function stopToggleDrag()
-    toggleDragging = false
-end
-toggleButton.InputBegan:Connect(startToggleDrag)
-toggleButton.InputChanged:Connect(updateToggleDrag)
-toggleButton.InputEnded:Connect(stopToggleDrag)
+-- Drag support for toggle button
+do
+    local dragging, dragStart, startPos
 
--- Drag functionality for mainFrame
-local dragging, dragStart, startPos
-local function startHubDrag(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        dragging = true
-        dragStart = input.Position
-        startPos = mainFrame.Position
+    local function inputBegan(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = toggleButton.Position
+        end
     end
-end
-local function updateHubDrag(input)
-    if dragging then
-        local delta = input.Position - dragStart
-        mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
-                                       startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-    end
-end
-local function stopHubDrag()
-    dragging = false
-end
-mainFrame.InputBegan:Connect(startHubDrag)
-mainFrame.InputChanged:Connect(updateHubDrag)
-mainFrame.InputEnded:Connect(stopHubDrag)
 
--- Button creation helper (page selector)
-local function createButton(text, position, parentFrame)
+    local function inputChanged(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - dragStart
+            toggleButton.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
+                                              startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end
+
+    local function inputEnded(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+        end
+    end
+
+    toggleButton.InputBegan:Connect(inputBegan)
+    toggleButton.InputChanged:Connect(inputChanged)
+    toggleButton.InputEnded:Connect(inputEnded)
+end
+
+-- Drag support for main frame
+do
+    local dragging, dragStart, startPos
+
+    local function inputBegan(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = mainFrame.Position
+        end
+    end
+
+    local function inputChanged(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - dragStart
+            mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
+                                           startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end
+
+    local function inputEnded(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+        end
+    end
+
+    mainFrame.InputBegan:Connect(inputBegan)
+    mainFrame.InputChanged:Connect(inputChanged)
+    mainFrame.InputEnded:Connect(inputEnded)
+end
+
+-- Helper to create page selector buttons
+local function createPageSelectorButton(text, position, parent)
     local button = Instance.new("TextButton")
     button.Size = UDim2.new(0, 120, 0, 38)
     button.Position = position
@@ -245,24 +251,23 @@ local function createButton(text, position, parentFrame)
     button.TextColor3 = Color3.fromRGB(255, 0, 255)
     button.TextSize = 18
     button.Font = Enum.Font.SourceSans
-    button.Parent = parentFrame
-    local uiCorner = Instance.new("UICorner")
+    button.Parent = parent
+    local uiCorner = Instance.new("UICorner", button)
     uiCorner.CornerRadius = UDim.new(0.3, 0)
-    uiCorner.Parent = button
     button.TextStrokeTransparency = 0.4
     button.TextStrokeColor3 = Color3.fromRGB(255, 0, 255)
-    local uiStroke = Instance.new("UIStroke")
+    local uiStroke = Instance.new("UIStroke", button)
     uiStroke.Color = Color3.fromRGB(255, 0, 255)
     uiStroke.Thickness = 3
-    uiStroke.Parent = button
     return button
 end
 
-local button1 = createButton("Page 1", UDim2.new(0.08, 0, 0.183, 0), secondaryFrame)
-local button2 = createButton("Page 2", UDim2.new(0.08, 0, 0.383, 0), secondaryFrame)
-local button3 = createButton("Page 3", UDim2.new(0.08, 0, 0.583, 0), secondaryFrame)
+-- Create page selector buttons
+local button1 = createPageSelectorButton("Page 1", UDim2.new(0.08, 0, 0.183, 0), secondaryFrame)
+local button2 = createPageSelectorButton("Page 2", UDim2.new(0.08, 0, 0.383, 0), secondaryFrame)
+local button3 = createPageSelectorButton("Page 3", UDim2.new(0.08, 0, 0.583, 0), secondaryFrame)
 
--- Hub v2 label
+-- Hub version label
 local hubTitle = Instance.new("TextLabel")
 hubTitle.Size = UDim2.new(0, 200, 0, 30)
 hubTitle.Position = UDim2.new(0.5, -100, 0.8, 0)
@@ -275,8 +280,8 @@ hubTitle.TextStrokeTransparency = 0.4
 hubTitle.TextStrokeColor3 = Color3.fromRGB(255, 0, 255)
 hubTitle.Parent = secondaryFrame
 
--- Script button creator with style
-local function createButton(text, position, scriptLink, parentFrame)
+-- Helper to create script buttons with automatic script loading
+local function createScriptButton(text, position, scriptLink, parent)
     local button = Instance.new("TextButton")
     button.Size = UDim2.new(0.45, 0, 0.14, 0)
     button.Position = position
@@ -285,16 +290,15 @@ local function createButton(text, position, scriptLink, parentFrame)
     button.TextColor3 = Color3.fromRGB(255, 0, 255)
     button.TextSize = 14
     button.Font = Enum.Font.Code
-    button.Parent = parentFrame
-    local uiCorner = Instance.new("UICorner")
+    button.Parent = parent
+    local uiCorner = Instance.new("UICorner", button)
     uiCorner.CornerRadius = UDim.new(0.2, 0)
-    uiCorner.Parent = button
-    local uiStroke = Instance.new("UIStroke")
+    local uiStroke = Instance.new("UIStroke", button)
     uiStroke.Color = Color3.fromRGB(255, 0, 255)
     uiStroke.Thickness = 1
-    uiStroke.Parent = button
     button.TextStrokeTransparency = 0.3
     button.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+
     button.MouseButton1Click:Connect(function()
         local success, result = pcall(function()
             loadstring(game:HttpGet(scriptLink))()
@@ -303,52 +307,58 @@ local function createButton(text, position, scriptLink, parentFrame)
             warn("Error loading script: " .. tostring(result))
         end
     end)
+
     return button
 end
 
+-- Populate the third frame with buttons according to selected page
 local function createPageButtons(pageNumber)
+    -- Clear existing buttons
     for _, child in pairs(thirdFrame:GetChildren()) do
         if child:IsA("TextButton") then
             child:Destroy()
         end
     end
-    local buttonsData = {}
-	if pageNumber == 1 then
-		buttonsData = {
-			{Text = "Use Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Use%20Tools%20V6", Position = UDim2.new(0.03, 0, 0.074, 0)},
-			{Text = "Respawn", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V5.lua", Position = UDim2.new(0.51, 0, 0.074, 0)},
-			{Text = "Get Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Tools%20V4.lua", Position = UDim2.new(0.03, 0, 0.287, 0)},
-			{Text = "Get Basé", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Base%20V3", Position = UDim2.new(0.51, 0, 0.287, 0)},
-			{Text = "No Cooldown", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V5.lua", Position = UDim2.new(0.03, 0, 0.5, 0)},
-			{Text = "Insta-Kill", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Damage%20Spammer%20(Insta-Kill)", Position = UDim2.new(0.03, 0, 0.7, 0)},
-			{Text = "Kill Aura", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20Aura", Position = UDim2.new(0.51, 0, 0.7, 0)}
-		}
-	elseif pageNumber == 2 then
-		buttonsData = {
-			{Text = "Reach", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Reach", Position = UDim2.new(0.03, 0, 0.074, 0)},
-			{Text = "Float Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Float%20Tools", Position = UDim2.new(0.03, 0, 0.287, 0)},
-			{Text = "NoAnimCooldown", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Anim%20No%20Cooldown", Position = UDim2.new(0.51, 0, 0.287, 0)},
-			{Text = "Loopbring", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Loopbring%20V4.lua", Position = UDim2.new(0.03, 0, 0.5, 0)},
-			{Text = "Fly Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Fly%20Tools", Position = UDim2.new(0.51, 0, 0.5, 0)},
-			{Text = "Antilag", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Lag%20V2", Position = UDim2.new(0.03, 0, 0.7, 0)},
-			{Text = "Grip Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Grip%20Tools", Position = UDim2.new(0.51, 0, 0.7, 0)}
-		}
-	elseif pageNumber == 3 then
-		buttonsData = {
-			{Text = "Chat Spy", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Chat%20Spy", Position = UDim2.new(0.51, 0, 0.074, 0)},
-			{Text = "Anti Chat Spy", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti%20Chat%20Spy", Position = UDim2.new(0.03, 0, 0.287, 0)},
-			{Text = "Infinite Yield", ScriptLink = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source", Position = UDim2.new(0.03, 0, 0.5, 0)},
-			{Text = "Lag Server", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Lag%20Server", Position = UDim2.new(0.51, 0, 0.5, 0)},
-			{Text = "Coming Soon", ScriptLink = "https://example.com/testscript23", Position = UDim2.new(0.03, 0, 0.7, 0)},
-			{Text = "Coming Soon", ScriptLink = "https://example.com/testscript24", Position = UDim2.new(0.51, 0, 0.7, 0)}
-		}
-	end
 
-    for _, bd in ipairs(buttonsData) do
-        createButton(bd.Text, bd.Position, bd.ScriptLink, thirdFrame)
+    local buttonsData = {}
+
+    if pageNumber == 1 then
+        buttonsData = {
+            {Text = "Use Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Use%20Tools%20V6", Position = UDim2.new(0.03, 0, 0.074, 0)},
+            {Text = "Respawn", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V5.lua", Position = UDim2.new(0.51, 0, 0.074, 0)},
+            {Text = "Get Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Tools%20V4.lua", Position = UDim2.new(0.03, 0, 0.287, 0)},
+            {Text = "Get Base", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Base%20V3", Position = UDim2.new(0.51, 0, 0.287, 0)},
+            {Text = "No Cooldown", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V5.lua", Position = UDim2.new(0.03, 0, 0.5, 0)},
+            {Text = "Insta-Kill", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Damage%20Spammer%20(Insta-Kill)", Position = UDim2.new(0.03, 0, 0.7, 0)},
+            {Text = "Kill Aura", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20Aura", Position = UDim2.new(0.51, 0, 0.7, 0)}
+        }
+    elseif pageNumber == 2 then
+        buttonsData = {
+            {Text = "Reach", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Reach", Position = UDim2.new(0.03, 0, 0.074, 0)},
+            {Text = "Float Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Float%20Tools", Position = UDim2.new(0.03, 0, 0.287, 0)},
+            {Text = "NoAnimCooldown", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Anim%20No%20Cooldown", Position = UDim2.new(0.51, 0, 0.287, 0)},
+            {Text = "Loopbring", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Loopbring%20V4.lua", Position = UDim2.new(0.03, 0, 0.5, 0)},
+            {Text = "Fly Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Fly%20Tools", Position = UDim2.new(0.51, 0, 0.5, 0)},
+            {Text = "Antilag", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Lag%20V2", Position = UDim2.new(0.03, 0, 0.7, 0)},
+            {Text = "Grip Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Grip%20Tools", Position = UDim2.new(0.51, 0, 0.7, 0)}
+        }
+    elseif pageNumber == 3 then
+        buttonsData = {
+            {Text = "Chat Spy", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Chat%20Spy", Position = UDim2.new(0.51, 0, 0.074, 0)},
+            {Text = "Anti Chat Spy", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti%20Chat%20Spy", Position = UDim2.new(0.03, 0, 0.287, 0)},
+            {Text = "Infinite Yield", ScriptLink = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source", Position = UDim2.new(0.03, 0, 0.5, 0)},
+            {Text = "Lag Server", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Lag%20Server", Position = UDim2.new(0.51, 0, 0.5, 0)},
+            {Text = "Coming Soon", ScriptLink = "https://example.com/testscript23", Position = UDim2.new(0.03, 0, 0.7, 0)},
+            {Text = "Coming Soon", ScriptLink = "https://example.com/testscript24", Position = UDim2.new(0.51, 0, 0.7, 0)}
+        }
+    end
+
+    for _, data in ipairs(buttonsData) do
+        createScriptButton(data.Text, data.Position, data.ScriptLink, thirdFrame)
     end
 end
 
+-- Connect page selector buttons
 button1.MouseButton1Click:Connect(function() createPageButtons(1) end)
 button2.MouseButton1Click:Connect(function() createPageButtons(2) end)
 button3.MouseButton1Click:Connect(function() createPageButtons(3) end)
@@ -373,4 +383,5 @@ function deactivateScript(button)
     print(button.Name .. " deactivated.")
 end
 
+-- Initialize page 1 buttons on load
 createPageButtons(1)

@@ -197,8 +197,28 @@ end
 makeDraggable(toggleButton)
 makeDraggable(mainFrame)
 
--- Default to page 1 buttons (functionality omitted for brevity)
--- Add your custom button creation and script loading here
+-- Create secondary and third frames (button area & script panel)
+local secondaryFrame = createStyledFrame(
+    mainFrame,
+    UDim2.new(0, 140, 0, 200),
+    UDim2.new(0.02, 0, 0.08, 0),
+    Color3.fromRGB(15, 15, 15),
+    nil,
+    UDim.new(0.3, 0),
+    Color3.fromRGB(0, 170, 255),
+    3
+)
+
+local thirdFrame = createStyledFrame(
+    mainFrame,
+    UDim2.new(0, 310, 0, 200),
+    UDim2.new(0.32, 0, 0.08, 0),
+    Color3.fromRGB(20, 20, 20),
+    nil,
+    UDim.new(0.3, 0),
+    Color3.fromRGB(0, 170, 255),
+    3
+)
 
 -- Example button generator for pages
 local function createPageButton(text, position, parent)
@@ -231,11 +251,11 @@ local button1 = createButton("Page 1", UDim2.new(0.08, 0, 0.183, 0), secondaryFr
 local button2 = createButton("Page 2", UDim2.new(0.08, 0, 0.383, 0), secondaryFrame)
 local button3 = createButton("Page 3", UDim2.new(0.08, 0, 0.583, 0), secondaryFrame)
 
--- Create a title "Hub v2" below the Page 3 button with skull emojis on both sides
+-- Create a title below the Page 3 button with skull emojis on both sides
 local hubTitle = Instance.new("TextLabel")
 hubTitle.Size = UDim2.new(0, 200, 0, 30)
 hubTitle.Position = UDim2.new(0.5, -100, 0.8, 0)
-hubTitle.Text = "💀 Hub v2 💀"
+hubTitle.Text = "TOR Hub V4"
 hubTitle.BackgroundTransparency = 1
 hubTitle.TextColor3 = Color3.fromRGB(0, 170, 255)
 hubTitle.TextSize = 24

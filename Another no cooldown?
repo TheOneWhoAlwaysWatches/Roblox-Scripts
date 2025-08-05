@@ -1,0 +1,12 @@
+-- Get the 'RunService' from Roblox
+local runService = game:GetService("RunService")
+
+-- Use 'Stepped' for efficient timing
+local stepped = runService.Stepped
+
+-- Hook the 'wait' function to remove delays
+local hookWait
+hookWait = hookfunction(wait, function()
+    stepped:Wait() -- Sync with the game's update cycle
+    return nil -- Ensure 'wait' always returns instantly
+end)

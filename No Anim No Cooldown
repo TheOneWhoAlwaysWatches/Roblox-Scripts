@@ -1,0 +1,11 @@
+local RunService = game:GetService("RunService")
+
+-- Obtiene el evento PostSimulation
+local PostSimulationEvent = RunService.PostSimulation
+
+-- Hook de la función wait
+local originalWait
+originalWait = hookfunction(wait, function(duration)
+    -- Reemplaza cualquier llamada a wait() con PostSimulation:Wait()
+    return PostSimulationEvent:Wait()
+end)

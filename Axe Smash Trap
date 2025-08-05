@@ -1,0 +1,113 @@
+-- Axe Smash Trapping System
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+
+local selectedPlayer = nil
+local running = false
+local radius = 15 -- radius away from target to keep the smash ring
+local points = 20
+local spacing = 0.1
+
+-- GUI Setup
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "TargetAxeTrapGUI"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = game.CoreGui
+
+local dropdown = Instance.new("TextButton")
+dropdown.Size = UDim2.new(0, 160, 0, 40)
+dropdown.Position = UDim2.new(0, 20, 0, 300)
+dropdown.BackgroundColor3 = Color3.fromRGB(15, 0, 25)
+dropdown.TextColor3 = Color3.fromRGB(255, 255, 255)
+dropdown.Text = "🎯 Select Target"
+dropdown.Font = Enum.Font.Code
+dropdown.TextSize = 16
+dropdown.Parent = ScreenGui
+
+Instance.new("UICorner", dropdown).CornerRadius = UDim.new(0, 6)
+Instance.new("UIStroke", dropdown).Color = Color3.fromRGB(255, 0, 200)
+
+-- Dropdown menu logic
+local menu = Instance.new("Frame")
+menu.Size = UDim2.new(0, 160, 0, 0)
+menu.Position = UDim2.new(0, 20, 0, 340)
+menu.BackgroundColor3 = Color3.fromRGB(25, 0, 35)
+menu.Visible = false
+menu.ClipsDescendants = true
+menu.Parent = ScreenGui
+
+Instance.new("UICorner", menu).CornerRadius = UDim.new(0, 6)
+Instance.new("UIStroke", menu).Color = Color3.fromRGB(200, 0, 150)
+
+local function createPlayerButton(player)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(1, 0, 0, 30)
+    button.BackgroundColor3 = Color3.fromRGB(30, 0, 50)
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.Text = player.Name
+    button.Font = Enum.Font.Code
+    button.TextSize = 14
+    button.Parent = menu
+
+    button.MouseButton1Click:Connect(function()
+        selectedPlayer = player
+        dropdown.Text = "Target: " .. player.Name
+        menu.Visible = false
+        running = true
+    end)
+end
+
+local function refreshMenu()
+    menu:ClearAllChildren()
+    local height = 0
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character then
+            createPlayerButton(player)
+            height += 30
+        end
+    end
+    menu.Size = UDim2.new(0, 160, 0, height)
+end
+
+dropdown.MouseButton1Click:Connect(function()
+    refreshMenu()
+    menu.Visible = not menu.Visible
+end)
+
+-- Get Axe Smash remote
+local function findToolAndRemote()
+    local tool = LocalPlayer.Backpack:FindFirstChild("Axe Smash") or LocalPlayer.Character:FindFirstChild("Axe Smash")
+    local remote = tool and tool:FindFirstChild("Remote")
+    return tool, remote
+end
+
+-- Attack loop
+RunService.Heartbeat:Connect(function()
+    if not running or not selectedPlayer then return end
+    if not selectedPlayer.Character or not selectedPlayer.Character:FindFirstChild("HumanoidRootPart") then return end
+
+    local remote = findToolAndRemote()
+    if not remote then return end
+
+    local hrp = selectedPlayer.Character.HumanoidRootPart
+    local alive = selectedPlayer.Character:FindFirstChild("Humanoid") and selectedPlayer.Character.Humanoid.Health > 0
+
+    if not alive then
+        running = false
+        selectedPlayer = nil
+        dropdown.Text = "🎯 Select Target"
+        return
+    end
+
+    for i = 1, points do
+        local angle = math.rad((360 / points) * i)
+        local offset = Vector3.new(math.cos(angle) * radius, 0, math.sin(angle) * radius)
+        local pos = hrp.Position + offset + Vector3.new(0, 2, 0)
+        remote:FireServer(CFrame.new(pos))
+    end
+    task.wait(spacing)
+end)
+
+print("✅ Axe Smash Trap loaded!")

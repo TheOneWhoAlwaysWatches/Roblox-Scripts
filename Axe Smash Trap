@@ -5,8 +5,8 @@ local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
 local selectedTargets = {}
-local trapRadius = 45
-local trapPoints = 25
+local trapRadius = 30
+local trapPoints = 15
 local spamDelay = 0.15
 
 -- GUI

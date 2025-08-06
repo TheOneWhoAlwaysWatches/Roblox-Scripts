@@ -1,4 +1,4 @@
--- Axe Smash Trap v2 — Sphere Trap with Toggle UI
+-- Axe Smash Trap v2.1 — Hollow Sphere with Toggle Button & Keybind
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -19,6 +19,7 @@ ScreenGui.Name = "TrapSelectorUI"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = game.CoreGui
 
+-- MAIN PLAYER SELECTION FRAME
 local Frame = Instance.new("Frame")
 Frame.Size = UDim2.new(0, 180, 0, 400)
 Frame.Position = UDim2.new(1, -190, 0.2, 0)
@@ -34,118 +35,138 @@ UIListLayout.SortOrder = Enum.SortOrder.Name
 UIListLayout.Padding = UDim.new(0, 4)
 UIListLayout.Parent = Frame
 
--- Toggle UI
+-- MOBILE TOGGLE BUTTON (bottom left)
+local ToggleButton = Instance.new("TextButton")
+ToggleButton.Size = UDim2.new(0, 40, 0, 40)
+ToggleButton.Position = UDim2.new(0, 10, 1, -50)
+ToggleButton.BackgroundColor3 = Color3.fromRGB(80, 20, 120)
+ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleButton.Text = "☰"
+ToggleButton.Font = Enum.Font.Code
+ToggleButton.TextSize = 22
+ToggleButton.Parent = ScreenGui
+
+Instance.new("UICorner", ToggleButton).CornerRadius = UDim.new(0, 8)
+local stroke = Instance.new("UIStroke", ToggleButton)
+stroke.Color = Color3.fromRGB(200, 0, 255)
+
+-- TOGGLE FUNCTION
+local function toggleUI()
+	Frame.Visible = not Frame.Visible
+end
+
+ToggleButton.MouseButton1Click:Connect(toggleUI)
+
 UserInputService.InputBegan:Connect(function(input, gpe)
-    if gpe then return end
-    if input.KeyCode == Enum.KeyCode.T then
-        Frame.Visible = not Frame.Visible
-    end
+	if gpe then return end
+	if input.KeyCode == Enum.KeyCode.T then
+		toggleUI()
+	end
 end)
 
 -- Create player button
 local function createPlayerButton(player)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -10, 0, 30)
-    btn.BackgroundColor3 = Color3.fromRGB(30, 0, 50)
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btn.Text = player.DisplayName
-    btn.Font = Enum.Font.Code
-    btn.TextSize = 14
-    btn.Parent = Frame
+	local btn = Instance.new("TextButton")
+	btn.Size = UDim2.new(1, -10, 0, 30)
+	btn.BackgroundColor3 = Color3.fromRGB(30, 0, 50)
+	btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	btn.Text = player.DisplayName
+	btn.Font = Enum.Font.Code
+	btn.TextSize = 14
+	btn.Parent = Frame
 
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
-    local stroke = Instance.new("UIStroke", btn)
-    stroke.Color = Color3.fromRGB(255, 0, 200)
+	Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+	local stroke = Instance.new("UIStroke", btn)
+	stroke.Color = Color3.fromRGB(255, 0, 200)
 
-    btn.MouseButton1Click:Connect(function()
-        local isSelected = selectedTargets[player] == true
-        selectedTargets[player] = not isSelected
-        btn.TextColor3 = selectedTargets[player] and Color3.fromRGB(0,255,100) or Color3.fromRGB(255,255,255)
-    end)
+	btn.MouseButton1Click:Connect(function()
+		local isSelected = selectedTargets[player] == true
+		selectedTargets[player] = not isSelected
+		btn.TextColor3 = selectedTargets[player] and Color3.fromRGB(0, 255, 100) or Color3.fromRGB(255, 255, 255)
+	end)
 
-    player.CharacterAdded:Connect(function()
-        selectedTargets[player] = false
-        deployedTraps[player] = nil
-        btn.TextColor3 = Color3.fromRGB(255,255,255)
-    end)
+	player.CharacterAdded:Connect(function()
+		selectedTargets[player] = false
+		deployedTraps[player] = nil
+		btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	end)
 
-    player.AncestryChanged:Connect(function(_, parent)
-        if not parent then
-            selectedTargets[player] = nil
-            deployedTraps[player] = nil
-            btn:Destroy()
-        end
-    end)
+	player.AncestryChanged:Connect(function(_, parent)
+		if not parent then
+			selectedTargets[player] = nil
+			deployedTraps[player] = nil
+			btn:Destroy()
+		end
+	end)
 end
 
 for _, p in ipairs(Players:GetPlayers()) do
-    if p ~= LocalPlayer then
-        createPlayerButton(p)
-    end
+	if p ~= LocalPlayer then
+		createPlayerButton(p)
+	end
 end
 
 Players.PlayerAdded:Connect(function(p)
-    if p ~= LocalPlayer then
-        createPlayerButton(p)
-    end
+	if p ~= LocalPlayer then
+		createPlayerButton(p)
+	end
 end)
 
 -- Generate hollow sphere points
 local function generateHollowSpherePoints()
-    local all = {}
-    for layer = 1, layers do
-        local elevation = math.pi * (layer / (layers + 1))
-        local y = math.cos(elevation) * trapRadius
-        local ringRadius = math.sin(elevation) * trapRadius
+	local all = {}
+	for layer = 1, layers do
+		local elevation = math.pi * (layer / (layers + 1))
+		local y = math.cos(elevation) * trapRadius
+		local ringRadius = math.sin(elevation) * trapRadius
 
-        for point = 1, pointsPerLayer do
-            local angle = 2 * math.pi * (point / pointsPerLayer)
-            local x = math.cos(angle) * ringRadius
-            local z = math.sin(angle) * ringRadius
-            local dist = math.sqrt(x^2 + y^2 + z^2)
+		for point = 1, pointsPerLayer do
+			local angle = 2 * math.pi * (point / pointsPerLayer)
+			local x = math.cos(angle) * ringRadius
+			local z = math.sin(angle) * ringRadius
+			local dist = math.sqrt(x ^ 2 + y ^ 2 + z ^ 2)
 
-            if dist > safeRadius then
-                table.insert(all, Vector3.new(x, y, z))
-            end
-        end
-    end
-    return all
+			if dist > safeRadius then
+				table.insert(all, Vector3.new(x, y, z))
+			end
+		end
+	end
+	return all
 end
 
 -- Find tool/remote
 local function findToolAndRemote()
-    local tool = LocalPlayer.Backpack:FindFirstChild("Axe Smash") or LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Axe Smash")
-    local remote = tool and tool:FindFirstChild("Remote")
-    return tool, remote
+	local tool = LocalPlayer.Backpack:FindFirstChild("Axe Smash") or LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Axe Smash")
+	local remote = tool and tool:FindFirstChild("Remote")
+	return tool, remote
 end
 
 -- Trap logic
 RunService.Heartbeat:Connect(function()
-    local _, remote = findToolAndRemote()
-    if not remote then return end
+	local _, remote = findToolAndRemote()
+	if not remote then return end
 
-    for player, active in pairs(selectedTargets) do
-        if active and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            local hum = player.Character:FindFirstChild("Humanoid")
-            local hrp = player.Character.HumanoidRootPart
+	for player, active in pairs(selectedTargets) do
+		if active and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+			local hum = player.Character:FindFirstChild("Humanoid")
+			local hrp = player.Character.HumanoidRootPart
 
-            if hum and hum.Health > 0 then
-                if not deployedTraps[player] then
-                    deployedTraps[player] = true -- Mark as trapped
-                    local basePos = hrp.Position
+			if hum and hum.Health > 0 then
+				if not deployedTraps[player] then
+					deployedTraps[player] = true
+					local basePos = hrp.Position
 
-                    for _, offset in ipairs(generateHollowSpherePoints()) do
-                        local pos = basePos + offset
-                        remote:FireServer(CFrame.new(pos))
-                    end
-                end
-            else
-                -- Reset on death
-                selectedTargets[player] = false
-                deployedTraps[player] = nil
-            end
-        end
-    end
+					for _, offset in ipairs(generateHollowSpherePoints()) do
+						local pos = basePos + offset
+						remote:FireServer(CFrame.new(pos))
+					end
+				end
+			else
+				selectedTargets[player] = false
+				deployedTraps[player] = nil
+			end
+		end
+	end
 end)
 
-print("✅ Axe Smash Trap v2 — Hollow Sphere Deployed. Press [T] to toggle UI.")
+print("✅ Axe Smash Trap v2.1 — Press [T] or tap ☰ to toggle player UI.")

@@ -335,8 +335,8 @@ local function createPageButtons(pageNumber)
             {Text = "Fly Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Fly%20Tools"}, -- 4
             {Text = "Antilag", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Lag%20V2"}, -- 5
             {Text = "Grip Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Grip%20Tools"}, -- 6
-            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 7
-            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 8
+            {Text = "Axe Smash Sheild", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Axe%20Smash%20Spam"}, -- 7
+            {Text = "Axe Smash Trap", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Axe%20Smash%20Trap"}, -- 8
         }
     elseif pageNumber == 3 then
         buttonsData = {

@@ -1,17 +1,17 @@
--- Axe Smash Trap v2.1 — Hollow Sphere with Toggle Button & Keybind
+-- Axe Smash Trap v2.2 — Static Hollow Sphere with Persistent Spam & Mobile Toggle
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
-local Camera = workspace.CurrentCamera
 
 local selectedTargets = {}
-local deployedTraps = {}
+local trapLocations = {}
 local trapRadius = 30
 local layers = 6
 local pointsPerLayer = 15
 local safeRadius = 8
+local spamRate = 0.05 -- seconds between trap activations
 
 -- GUI
 local ScreenGui = Instance.new("ScreenGui")
@@ -19,7 +19,7 @@ ScreenGui.Name = "TrapSelectorUI"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = game.CoreGui
 
--- MAIN PLAYER SELECTION FRAME
+-- Main player selector frame
 local Frame = Instance.new("Frame")
 Frame.Size = UDim2.new(0, 180, 0, 400)
 Frame.Position = UDim2.new(1, -190, 0.2, 0)
@@ -35,7 +35,7 @@ UIListLayout.SortOrder = Enum.SortOrder.Name
 UIListLayout.Padding = UDim.new(0, 4)
 UIListLayout.Parent = Frame
 
--- MOBILE TOGGLE BUTTON (bottom left)
+-- Mobile toggle button
 local ToggleButton = Instance.new("TextButton")
 ToggleButton.Size = UDim2.new(0, 40, 0, 40)
 ToggleButton.Position = UDim2.new(0, 10, 1, -50)
@@ -50,7 +50,7 @@ Instance.new("UICorner", ToggleButton).CornerRadius = UDim.new(0, 8)
 local stroke = Instance.new("UIStroke", ToggleButton)
 stroke.Color = Color3.fromRGB(200, 0, 255)
 
--- TOGGLE FUNCTION
+-- UI toggle function
 local function toggleUI()
 	Frame.Visible = not Frame.Visible
 end
@@ -87,14 +87,14 @@ local function createPlayerButton(player)
 
 	player.CharacterAdded:Connect(function()
 		selectedTargets[player] = false
-		deployedTraps[player] = nil
+		trapLocations[player] = nil
 		btn.TextColor3 = Color3.fromRGB(255, 255, 255)
 	end)
 
 	player.AncestryChanged:Connect(function(_, parent)
 		if not parent then
 			selectedTargets[player] = nil
-			deployedTraps[player] = nil
+			trapLocations[player] = nil
 			btn:Destroy()
 		end
 	end)
@@ -112,7 +112,7 @@ Players.PlayerAdded:Connect(function(p)
 	end
 end)
 
--- Generate hollow sphere points
+-- Hollow sphere generation
 local function generateHollowSpherePoints()
 	local all = {}
 	for layer = 1, layers do
@@ -134,39 +134,49 @@ local function generateHollowSpherePoints()
 	return all
 end
 
--- Find tool/remote
+-- Find tool and remote
 local function findToolAndRemote()
 	local tool = LocalPlayer.Backpack:FindFirstChild("Axe Smash") or LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Axe Smash")
 	local remote = tool and tool:FindFirstChild("Remote")
 	return tool, remote
 end
 
--- Trap logic
-RunService.Heartbeat:Connect(function()
-	local _, remote = findToolAndRemote()
-	if not remote then return end
+-- Spam trap loop
+task.spawn(function()
+	while true do
+		local _, remote = findToolAndRemote()
+		if remote then
+			for player, active in pairs(selectedTargets) do
+				local char = player.Character
+				local hum = char and char:FindFirstChild("Humanoid")
 
-	for player, active in pairs(selectedTargets) do
-		if active and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-			local hum = player.Character:FindFirstChild("Humanoid")
-			local hrp = player.Character.HumanoidRootPart
-
-			if hum and hum.Health > 0 then
-				if not deployedTraps[player] then
-					deployedTraps[player] = true
-					local basePos = hrp.Position
-
-					for _, offset in ipairs(generateHollowSpherePoints()) do
-						local pos = basePos + offset
-						remote:FireServer(CFrame.new(pos))
+				if active and char and hum and hum.Health > 0 then
+					if not trapLocations[player] then
+						local hrp = char:FindFirstChild("HumanoidRootPart")
+						if hrp then
+							local base = hrp.Position
+							local points = {}
+							for _, offset in ipairs(generateHollowSpherePoints()) do
+								table.insert(points, base + offset)
+							end
+							trapLocations[player] = points
+						end
 					end
+
+					local trapPoints = trapLocations[player]
+					if trapPoints then
+						for _, pos in ipairs(trapPoints) do
+							remote:FireServer(CFrame.new(pos))
+						end
+					end
+				else
+					selectedTargets[player] = false
+					trapLocations[player] = nil
 				end
-			else
-				selectedTargets[player] = false
-				deployedTraps[player] = nil
 			end
 		end
+		task.wait(spamRate)
 	end
 end)
 
-print("✅ Axe Smash Trap v2.1 — Press [T] or tap ☰ to toggle player UI.")
+print("✅ Axe Smash Trap v2.2: Static Hollow Sphere active — press [T] or tap ☰")

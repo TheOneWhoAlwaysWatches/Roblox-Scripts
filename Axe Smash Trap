@@ -8,10 +8,10 @@ local LocalPlayer = Players.LocalPlayer
 local selectedTargets = {}
 local trapLocations = {}
 local trapRadius = 30
-local layers = 6
-local pointsPerLayer = 15
+local layers = 7
+local pointsPerLayer = 7
 local safeRadius = 8
-local spamRate = 0.05 -- seconds between trap activations
+local spamRate = 0.50 -- seconds between trap activations
 
 -- GUI
 local ScreenGui = Instance.new("ScreenGui")

@@ -260,9 +260,9 @@ local function createPageSelectorButton(text, position, parent)
 end
 
 -- Create page selector buttons
-local button1 = createPageSelectorButton("Page 1", UDim2.new(0.08, 0, 0.183, 0), secondaryFrame)
-local button2 = createPageSelectorButton("Page 2", UDim2.new(0.08, 0, 0.383, 0), secondaryFrame)
-local button3 = createPageSelectorButton("Page 3", UDim2.new(0.08, 0, 0.583, 0), secondaryFrame)
+local button1 = createPageSelectorButton("Main", UDim2.new(0.08, 0, 0.183, 0), secondaryFrame)
+local button2 = createPageSelectorButton("Usefull Stuff", UDim2.new(0.08, 0, 0.383, 0), secondaryFrame)
+local button3 = createPageSelectorButton("Misc Stuff", UDim2.new(0.08, 0, 0.583, 0), secondaryFrame)
 
 -- Hub version label
 local hubTitle = Instance.new("TextLabel")

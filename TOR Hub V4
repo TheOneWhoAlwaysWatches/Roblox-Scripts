@@ -35,7 +35,6 @@ local whitelist = {
     [1723790049] = true, -- Angel
     [8983260988] = true, -- Rat
     [3816480506] = true, -- Messi
-    [2271342427] = true, -- Kaiden
 }
 
 -- Kick player if not whitelisted

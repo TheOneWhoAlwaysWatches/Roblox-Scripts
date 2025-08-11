@@ -1,0 +1,72 @@
+-- 🔥 Universal Fire/Particle Troll
+-- This will add fire + particles to your character and tools
+-- If your character/tool parts replicate normally, everyone will see it
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local function addEffectToPart(part)
+    if not part then return end
+
+    -- Fire
+    local fire = Instance.new("Fire")
+    fire.Heat = 25
+    fire.Size = 10
+    fire.Color = Color3.fromRGB(255, 140, 0)
+    fire.SecondaryColor = Color3.fromRGB(255, 0, 0)
+    fire.Parent = part
+
+    -- Particle Emitter
+    local particle = Instance.new("ParticleEmitter")
+    particle.Texture = "rbxassetid://243660364" -- flame texture
+    particle.Rate = 50
+    particle.Lifetime = NumberRange.new(1, 1.5)
+    particle.Speed = NumberRange.new(2, 4)
+    particle.SpreadAngle = Vector2.new(360, 360)
+    particle.Parent = part
+end
+
+-- Add effects to character body parts
+local function addEffectsToCharacter(char)
+    for _, part in ipairs(char:GetChildren()) do
+        if part:IsA("BasePart") then
+            addEffectToPart(part)
+        end
+    end
+end
+
+-- Add effects to tools in backpack or equipped
+local function addEffectsToTools()
+    for _, tool in ipairs(LocalPlayer.Backpack:GetChildren()) do
+        if tool:IsA("Tool") then
+            local handle = tool:FindFirstChild("Handle")
+            if handle then
+                addEffectToPart(handle)
+            end
+        end
+    end
+    if LocalPlayer.Character then
+        for _, tool in ipairs(LocalPlayer.Character:GetChildren()) do
+            if tool:IsA("Tool") then
+                local handle = tool:FindFirstChild("Handle")
+                if handle then
+                    addEffectToPart(handle)
+                end
+            end
+        end
+    end
+end
+
+-- Apply when character spawns
+LocalPlayer.CharacterAdded:Connect(function(char)
+    char:WaitForChild("HumanoidRootPart")
+    addEffectsToCharacter(char)
+    addEffectsToTools()
+end)
+
+-- Run now
+if LocalPlayer.Character then
+    addEffectsToCharacter(LocalPlayer.Character)
+    addEffectsToTools()
+end
+
+print("🔥 Fire & particles added to you + your tools")

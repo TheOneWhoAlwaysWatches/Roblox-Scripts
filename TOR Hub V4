@@ -63,7 +63,7 @@ screenGui.ResetOnSpawn = false
 
 -- Main frame (hacker style)
 local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 476, 0, 230)
+mainFrame.Size = UDim2.new(0, 550, 0, 300)
 mainFrame.Position = UDim2.new(0.31, 0, 0.322, 0)
 mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 mainFrame.BorderSizePixel = 0
@@ -80,7 +80,7 @@ uiStrokeMain.Thickness = 4
 
 -- Secondary frame (page selector)
 local secondaryFrame = Instance.new("Frame")
-secondaryFrame.Size = UDim2.new(0, 138, 0, 214)
+secondaryFrame.Size = UDim2.new(0, 160, 0, 280)
 secondaryFrame.Position = UDim2.new(0.015, 0, 0.035, 0)
 secondaryFrame.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
 secondaryFrame.BorderSizePixel = 0
@@ -96,7 +96,7 @@ uiStrokeSecondary.Thickness = 3
 
 -- Third frame (page content)
 local thirdFrame = Instance.new("Frame")
-thirdFrame.Size = UDim2.new(0, 313, 0, 214)
+thirdFrame.Size = UDim2.new(0, 370, 0, 280)
 thirdFrame.Position = UDim2.new(0.321, 0, 0.035, 0)
 thirdFrame.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
 thirdFrame.BorderSizePixel = 0
@@ -118,7 +118,7 @@ uiStrokeThirdAccent.Thickness = 2
 local titleLabel = Instance.new("TextLabel")
 titleLabel.Size = UDim2.new(0, 160, 0, 30)
 titleLabel.Position = UDim2.new(0, 0, 0.05, 0)
-titleLabel.Text = "SPT Hub V4"
+titleLabel.Text = "SPT"
 titleLabel.BackgroundTransparency = 1
 titleLabel.TextSize = 40
 titleLabel.Font = Enum.Font.SourceSans
@@ -271,7 +271,7 @@ local button4 = createPageSelectorButton("Misc Scripts 2", UDim2.new(0.08, 0, 0.
 local hubTitle = Instance.new("TextLabel")
 hubTitle.Size = UDim2.new(0, 200, 0, 30)
 hubTitle.Position = UDim2.new(0.5, -100, 0.8, 0)
-hubTitle.Text = "TOR Hub V4"
+hubTitle.Text = "SPT Hub V4"
 hubTitle.BackgroundTransparency = 1
 hubTitle.TextColor3 = Color3.fromRGB(255, 0, 255)
 hubTitle.TextSize = 24
@@ -383,6 +383,7 @@ end
 button1.MouseButton1Click:Connect(function() createPageButtons(1) end)
 button2.MouseButton1Click:Connect(function() createPageButtons(2) end)
 button3.MouseButton1Click:Connect(function() createPageButtons(3) end)
+button4.MouseButton1Click:Connect(function() createPageButtons(4) end)
 
 local buttons = {}
 

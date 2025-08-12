@@ -244,19 +244,6 @@ local button2 = createPageSelectorButton("Usefull Scripts", UDim2.new(0.08, 0, 0
 local button3 = createPageSelectorButton("Misc Scripts", UDim2.new(0.08, 0, 0.583, 0), secondaryFrame)
 local button4 = createPageSelectorButton("Misc Scripts 2", UDim2.new(0.08, 0, 0.783, 0), secondaryFrame)
 
--- Hub version label
-local hubTitle = Instance.new("TextLabel")
-hubTitle.Size = UDim2.new(0, 200, 0, 30)
-hubTitle.Position = UDim2.new(0.5, -100, 0.8, 0)
-hubTitle.Text = "SPT Hub V4"
-hubTitle.BackgroundTransparency = 1
-hubTitle.TextColor3 = Color3.fromRGB(255, 0, 255)
-hubTitle.TextSize = 24
-hubTitle.Font = Enum.Font.SourceSans
-hubTitle.TextStrokeTransparency = 0.4
-hubTitle.TextStrokeColor3 = Color3.fromRGB(255, 0, 255)
-hubTitle.Parent = secondaryFrame
-
 -- Helper to create script buttons with purple hacker theme and script loading
 local function createScriptButton(text, position, scriptLink, parent)
     local button = Instance.new("TextButton")

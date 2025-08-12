@@ -48,7 +48,7 @@ end
 -- Notify whitelisted user
 pcall(function()
     StarterGui:SetCore("SendNotification", {
-        Title = "TOR HUB",
+        Title = "SPT HUB V4",
         Text = "(✅ Welcome)",
         Duration = 15,
         Icon = "✅"
@@ -57,7 +57,7 @@ end)
 
 -- Create main ScreenGui
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "TOR"
+screenGui.Name = "SPT"
 screenGui.Parent = player:WaitForChild("PlayerGui")
 screenGui.ResetOnSpawn = false
 
@@ -118,7 +118,7 @@ uiStrokeThirdAccent.Thickness = 2
 local titleLabel = Instance.new("TextLabel")
 titleLabel.Size = UDim2.new(0, 160, 0, 30)
 titleLabel.Position = UDim2.new(0, 0, 0.05, 0)
-titleLabel.Text = "TOR"
+titleLabel.Text = "SPT Hub V4"
 titleLabel.BackgroundTransparency = 1
 titleLabel.TextSize = 40
 titleLabel.Font = Enum.Font.SourceSans
@@ -146,7 +146,7 @@ tweenLoop()
 local toggleButton = Instance.new("TextButton")
 toggleButton.Size = UDim2.new(0, 65, 0, 63)
 toggleButton.Position = UDim2.new(0.5, -32, 0, -10)
-toggleButton.Text = "OFF"
+toggleButton.Text = "Close"
 toggleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 toggleButton.TextColor3 = Color3.fromRGB(255, 0, 255)
 toggleButton.TextSize = 20
@@ -178,7 +178,7 @@ local isVisible = false
 toggleButton.MouseButton1Click:Connect(function()
     isVisible = not isVisible
     mainFrame.Visible = isVisible
-    toggleButton.Text = isVisible and "ON" or "OFF"
+    toggleButton.Text = isVisible and "Open" or "Close"
 end)
 
 -- Drag support for toggle button
@@ -263,8 +263,9 @@ end
 
 -- Create page selector buttons
 local button1 = createPageSelectorButton("Main", UDim2.new(0.08, 0, 0.183, 0), secondaryFrame)
-local button2 = createPageSelectorButton("Usefull Stuff", UDim2.new(0.08, 0, 0.383, 0), secondaryFrame)
-local button3 = createPageSelectorButton("Misc Stuff", UDim2.new(0.08, 0, 0.583, 0), secondaryFrame)
+local button2 = createPageSelectorButton("Usefull Scripts", UDim2.new(0.08, 0, 0.383, 0), secondaryFrame)
+local button3 = createPageSelectorButton("Misc Scripts", UDim2.new(0.08, 0, 0.583, 0), secondaryFrame)
+local button4 = createPageSelectorButton("Misc Scripts 2", UDim2.new(0.08, 0, 0.783, 0), secondaryFrame)
 
 -- Hub version label
 local hubTitle = Instance.new("TextLabel")
@@ -348,6 +349,17 @@ local function createPageButtons(pageNumber)
             {Text = "Lag Server", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Lag%20Server"}, -- 4
             {Text = "Perma-Death", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/God%20Mode.lua"}, -- 5
             {Text = "Walking God Mode", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Walking%20God%20Mode"}, -- 6
+            {Text = "Super Cool Emotes", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/UGC%20Emotes"}, -- 7
+            {Text = "Emote While Moving", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Emote%20Cancelation%20Remover"}, -- 8
+        }
+    elseif pageNumber == 4 then
+        buttonsData = {
+            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 1
+            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 2
+            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 3
+            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 4
+            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 5
+            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 6
             {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 7
             {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 8
         }

@@ -1,49 +1,68 @@
--- 🔄 Universal Emote No-Stop Toggle
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 
 local LocalPlayer = Players.LocalPlayer
-local humanoid = LocalPlayer.Character and LocalPlayer.Character:WaitForChild("Humanoid")
+local humanoid = nil
 local toggle = false
-local trackedAnimations = {}
 
--- Function to toggle
+local function setupHumanoid(char)
+    humanoid = char:WaitForChild("Humanoid")
+
+    -- When an animation is played, if it's an emote, keep track of it
+    humanoid.AnimationPlayed:Connect(function(track)
+        -- Only track emotes or animations with high priority
+        if track.Animation.AnimationPriority == Enum.AnimationPriority.Emote then
+            track.Stopped:Connect(function()
+                if toggle then
+                    track:Play()
+                end
+            end)
+            if toggle and not track.IsPlaying then
+                track:Play()
+            end
+        end
+    end)
+end
+
 local function toggleNoStop()
     toggle = not toggle
     print("[Emote No-Stop] " .. (toggle and "ON" or "OFF"))
+
+    if toggle and humanoid then
+        -- Force play all current emote animations again
+        for _, track in pairs(humanoid:GetPlayingAnimationTracks()) do
+            if track.Animation.AnimationPriority == Enum.AnimationPriority.Emote then
+                if not track.IsPlaying then
+                    track:Play()
+                end
+            end
+        end
+    end
 end
 
--- Example toggle key: "N"
+-- Initial setup
+if LocalPlayer.Character then
+    setupHumanoid(LocalPlayer.Character)
+end
+
+LocalPlayer.CharacterAdded:Connect(function(char)
+    setupHumanoid(char)
+end)
+
+-- Listen for toggle key (N)
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if not gameProcessed and input.KeyCode == Enum.KeyCode.N then
         toggleNoStop()
     end
 end)
 
--- Track animations when they start
-if humanoid then
-    humanoid.AnimationPlayed:Connect(function(track)
-        trackedAnimations[track] = true
-    end)
-end
-
--- Keep them alive
+-- Optional: Override running state to reduce animation interruption
 RunService.Heartbeat:Connect(function()
-    if toggle then
-        for track in pairs(trackedAnimations) do
-            if track.IsPlaying == false then
-                track:Play() -- Force replay
-            end
+    if toggle and humanoid then
+        -- Prevent humanoid from switching to running state
+        if humanoid:GetState() == Enum.HumanoidStateType.Running then
+            humanoid:ChangeState(Enum.HumanoidStateType.Physics)
         end
     end
-end)
-
--- Update when character respawns
-LocalPlayer.CharacterAdded:Connect(function(char)
-    humanoid = char:WaitForChild("Humanoid")
-    trackedAnimations = {}
-    humanoid.AnimationPlayed:Connect(function(track)
-        trackedAnimations[track] = true
-    end)
 end)

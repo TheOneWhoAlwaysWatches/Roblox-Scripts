@@ -1,0 +1,49 @@
+-- 🔄 Universal Emote No-Stop Toggle
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+
+local LocalPlayer = Players.LocalPlayer
+local humanoid = LocalPlayer.Character and LocalPlayer.Character:WaitForChild("Humanoid")
+local toggle = false
+local trackedAnimations = {}
+
+-- Function to toggle
+local function toggleNoStop()
+    toggle = not toggle
+    print("[Emote No-Stop] " .. (toggle and "ON" or "OFF"))
+end
+
+-- Example toggle key: "N"
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if not gameProcessed and input.KeyCode == Enum.KeyCode.N then
+        toggleNoStop()
+    end
+end)
+
+-- Track animations when they start
+if humanoid then
+    humanoid.AnimationPlayed:Connect(function(track)
+        trackedAnimations[track] = true
+    end)
+end
+
+-- Keep them alive
+RunService.Heartbeat:Connect(function()
+    if toggle then
+        for track in pairs(trackedAnimations) do
+            if track.IsPlaying == false then
+                track:Play() -- Force replay
+            end
+        end
+    end
+end)
+
+-- Update when character respawns
+LocalPlayer.CharacterAdded:Connect(function(char)
+    humanoid = char:WaitForChild("Humanoid")
+    trackedAnimations = {}
+    humanoid.AnimationPlayed:Connect(function(track)
+        trackedAnimations[track] = true
+    end)
+end)

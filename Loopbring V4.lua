@@ -1,4 +1,4 @@
--- === LOOPBRING V4 (Circle Mode) ===
+-- === LOOPBRING V4 (Circle Mode) + RootPart Auto-Rebuild ===
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
@@ -13,7 +13,7 @@ bringUI.Parent = game.CoreGui
 bringUI.ResetOnSpawn = false
 bringUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
--- Toggle button (top right)
+-- Toggle button
 local toggle = Instance.new("TextButton")
 toggle.Size = UDim2.new(0, 35, 0, 35)
 toggle.Position = UDim2.new(1, -45, 0, 10)
@@ -59,15 +59,18 @@ toggle.MouseButton1Click:Connect(function()
 	if frame.Visible then updatePlayerList() end
 end)
 
--- Live update players
+-- === Target Management ===
 local function loopBring(name)
-	if table.find(bringTargets, name) then return end
-	table.insert(bringTargets, name)
+	if not table.find(bringTargets, name) then
+		table.insert(bringTargets, name)
+	end
 end
 
 local function stopBring(name)
 	local i = table.find(bringTargets, name)
-	if i then table.remove(bringTargets, i) end
+	if i then
+		table.remove(bringTargets, i)
+	end
 end
 
 function updatePlayerList()
@@ -106,6 +109,40 @@ Players.PlayerRemoving:Connect(function(p)
 	updatePlayerList()
 end)
 
+-- === RootPart Rebuild Function ===
+local function rebuildRoot(char)
+	if not char then return end
+
+	-- Ensure Humanoid exists
+	if not char:FindFirstChildOfClass("Humanoid") then
+		local hum = Instance.new("Humanoid")
+		hum.Health = 100
+		hum.MaxHealth = 100
+		hum.Parent = char
+	end
+
+	-- Ensure HumanoidRootPart exists
+	if not char:FindFirstChild("HumanoidRootPart") then
+		local rootPart = Instance.new("Part")
+		rootPart.Name = "HumanoidRootPart"
+		rootPart.Size = Vector3.new(2, 2, 1)
+		rootPart.Anchored = false
+		rootPart.CanCollide = false
+		rootPart.Transparency = 1
+		rootPart.CFrame = CFrame.new(char:GetModelCFrame().Position)
+		rootPart.Parent = char
+
+		-- Weld it to torso or upper torso if available
+		local torso = char:FindFirstChild("Torso") or char:FindFirstChild("UpperTorso")
+		if torso then
+			local weld = Instance.new("WeldConstraint")
+			weld.Part0 = rootPart
+			weld.Part1 = torso
+			weld.Parent = rootPart
+		end
+	end
+end
+
 -- === Circle Loop ===
 task.spawn(function()
 	while task.wait(circleSpeed) do
@@ -114,11 +151,16 @@ task.spawn(function()
 			for i, name in ipairs(bringTargets) do
 				local plr = Players:FindFirstChild(name)
 				local tChar = plr and plr.Character
-				local tRoot = tChar and tChar:FindFirstChild("HumanoidRootPart")
-				if tRoot then
-					local angle = math.rad((i / #bringTargets) * 360)
-					local offset = Vector3.new(math.cos(angle) * circleRadius, 0, math.sin(angle) * circleRadius)
-					tRoot.CFrame = CFrame.new(root.Position + offset)
+				if tChar then
+					-- Auto-rebuild parts if missing
+					rebuildRoot(tChar)
+
+					local tRoot = tChar:FindFirstChild("HumanoidRootPart")
+					if tRoot then
+						local angle = math.rad((i / #bringTargets) * 360)
+						local offset = Vector3.new(math.cos(angle) * circleRadius, 0, math.sin(angle) * circleRadius)
+						tRoot.CFrame = CFrame.new(root.Position + offset)
+					end
 				end
 			end
 		end

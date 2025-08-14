@@ -1,0 +1,60 @@
+--[[
+    UNIVERSAL RESPAWN BREAKER
+    Targets all players except you
+    Keeps forcing respawn even if they try permadeath mid-fight
+    Combines multiple methods: Guide remote, LoadCharacter, Kill+Respawn injection
+--]]
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local LocalPlayer = Players.LocalPlayer
+
+-- CONFIG
+local loopDelay = 0.1 -- delay between force attempts
+
+-- Try every known respawn method
+local function forceRespawnPlayer(player)
+    if not player or player == LocalPlayer then return end
+
+    -- 1: Try Guide remote
+    local guideRemote = ReplicatedStorage:FindFirstChild("Guide")
+    if guideRemote and guideRemote:IsA("RemoteEvent") then
+        pcall(function()
+            guideRemote:FireServer(player) -- If server accepts target argument
+            guideRemote:FireServer()       -- Fallback with no argument
+        end)
+    end
+
+    -- 2: Try LoadCharacter (server-exposed)
+    pcall(function()
+        if player.LoadCharacter then
+            player:LoadCharacter()
+        end
+    end)
+
+    -- 3: Kill Humanoid + Inject respawn
+    pcall(function()
+        if player.Character and player.Character:FindFirstChild("Humanoid") then
+            player.Character.Humanoid:TakeDamage(9999)
+            task.wait(0.05)
+            if guideRemote then
+                guideRemote:FireServer()
+            elseif player.LoadCharacter then
+                player:LoadCharacter()
+            end
+        end
+    end)
+end
+
+-- Main loop
+task.spawn(function()
+    while task.wait(loopDelay) do
+        for _, plr in ipairs(Players:GetPlayers()) do
+            if plr ~= LocalPlayer then
+                forceRespawnPlayer(plr)
+            end
+        end
+    end
+end)
+
+print("✅ Universal Respawn Breaker running — targeting all enemies.")

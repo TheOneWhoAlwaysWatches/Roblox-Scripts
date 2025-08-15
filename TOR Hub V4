@@ -79,13 +79,14 @@ uiStrokeMain.Color = Color3.fromRGB(255, 0, 255)
 uiStrokeMain.Thickness = 4
 
 -- Secondary frame (page selector, now scrollable)
-local secondaryFrame = Instance.new("ScrollingFrame")
+local secondaryFrame = Instance.new("Frame")
 secondaryFrame.Size = UDim2.new(0, 160, 0, 280)
 secondaryFrame.Position = UDim2.new(0.015, 0, 0.035, 0)
 secondaryFrame.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
 secondaryFrame.BorderSizePixel = 0
 secondaryFrame.CanvasSize = UDim2.new(0, 0, 0, 0) -- will auto adjust
 secondaryFrame.ScrollBarThickness = 6
+secondaryFrame.Visible = true
 secondaryFrame.Parent = mainFrame
 
 local uiCornerSecondary = Instance.new("UICorner", secondaryFrame)
@@ -99,6 +100,26 @@ uiStrokeSecondary.Thickness = 3
 local uiListLayout = Instance.new("UIListLayout", secondaryFrame)
 uiListLayout.Padding = UDim.new(0, 8)
 uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+-- Scrollable frame for page buttons
+local pageScroll = Instance.new("ScrollingFrame")
+pageScroll.Size = UDim2.new(1, 0, 1, -50) -- leaves top space for title (adjust -50 as needed)
+pageScroll.Position = UDim2.new(0, 0, 0, 50) -- start below title label
+pageScroll.BackgroundTransparency = 1
+pageScroll.BorderSizePixel = 0
+pageScroll.CanvasSize = UDim2.new(0, 0, 0, 0) -- will auto adjust later
+pageScroll.ScrollBarThickness = 6
+pageScroll.Parent = secondaryFrame
+
+local uiListLayout = Instance.new("UIListLayout")
+uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+uiListLayout.Padding = UDim.new(0, 10)
+uiListLayout.Parent = pageScroll
+
+-- Update CanvasSize automatically
+uiListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    pageScroll.CanvasSize = UDim2.new(0, 0, 0, uiListLayout.AbsoluteContentSize.Y + 10)
+end)
 
 -- Third frame (page content)
 local thirdFrame = Instance.new("Frame")

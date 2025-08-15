@@ -1,21 +1,21 @@
--- 💥 ULTIMATE FINAL BOSS NO COOLDOWN ++ VERSION
-
+-- ⚡ ULTIMATE+ NO COOLDOWN NUKE EDITION ⚡
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
-
 local LocalPlayer = Players.LocalPlayer
-local Stepped = RunService.Stepped
 
--- === 1️⃣ Minimal wait hook (best performance & compatibility)
+local Stepped = RunService.Stepped
+local Heartbeat = RunService.Heartbeat
+
+-- Patch wait() for faster yields
 hookfunction(wait, function() return Stepped:Wait() end)
 
--- === 2️⃣ Optimized cooldown patcher (runs in background)
+-- === 1️⃣ Cooldown nuker (constant patch every frame)
 local function patchUpvalues()
     for _, v in pairs(getgc(true)) do
         if typeof(v) == "function" and islclosure(v) then
             for i = 1, debug.getinfo(v).nups do
-                local name, val = debug.getupvalue(v, i)
+                local name = debug.getupvalue(v, i)
                 if type(name) == "string" and name:lower():find("cooldown") then
                     debug.setupvalue(v, i, 0)
                 end
@@ -27,27 +27,30 @@ end
 task.spawn(function()
     while true do
         patchUpvalues()
-        task.wait(4) -- less frequent = less lag
+        Stepped:Wait()
     end
 end)
 
--- === 3️⃣ Advanced kill logic
+-- === 2️⃣ Remote spammer (parallel burst)
 local function spamToolRemotes(target)
     local char = LocalPlayer.Character
     if not char then return end
-
     local tool = char:FindFirstChildOfClass("Tool")
     if not tool then return end
 
     for _, remote in ipairs(tool:GetDescendants()) do
         if remote:IsA("RemoteEvent") then
-            pcall(function()
-                remote:FireServer(target)
-            end)
+            -- Burst spam: 5 hits in one frame
+            for _ = 1, 5 do
+                task.spawn(function()
+                    remote:FireServer(target)
+                end)
+            end
         end
     end
 end
 
+-- === 3️⃣ Kill methods
 local function softKill(humanoid)
     if humanoid and humanoid.Health > 0 then
         humanoid.Health = 0
@@ -56,28 +59,35 @@ end
 
 local function hardBreak(humanoid)
     if humanoid and humanoid.Parent then
-        humanoid:Destroy()
-        if humanoid.Parent then
-            humanoid.Parent:Destroy()
+        local char = humanoid.Parent
+        for _, part in ipairs({"Head", "Torso", "UpperTorso", "LowerTorso"}) do
+            local p = char:FindFirstChild(part)
+            if p then p:Destroy() end
         end
+        humanoid:Destroy()
+        char:Destroy()
     end
 end
 
--- === 4️⃣ Hard break toggle
+-- === 4️⃣ Toggles
 local hardBreakMode = false
+local ignoreRange = false
 
 UserInputService.InputBegan:Connect(function(input, gpe)
     if gpe then return end
     if input.KeyCode == Enum.KeyCode.H then
         hardBreakMode = not hardBreakMode
         print("💀 Hard Break Mode:", hardBreakMode)
+    elseif input.KeyCode == Enum.KeyCode.R then
+        ignoreRange = not ignoreRange
+        print("🌍 Ignore Range:", ignoreRange)
     end
 end)
 
-print("✅ [H] to toggle Hard Break mode")
+print("✅ [H] Hard Break toggle | [R] Ignore Range toggle")
 
 -- === 5️⃣ Main unstoppable loop
-RunService.Heartbeat:Connect(function()
+Heartbeat:Connect(function()
     local myChar = LocalPlayer.Character
     local myHRP = myChar and myChar:FindFirstChild("HumanoidRootPart")
     if not myHRP then return end
@@ -89,7 +99,7 @@ RunService.Heartbeat:Connect(function()
 
             if hum and enemyHRP and hum.Health > 0 then
                 local dist = (myHRP.Position - enemyHRP.Position).Magnitude
-                if dist <= 30 then
+                if ignoreRange or dist <= 30 then
                     spamToolRemotes(enemyHRP)
                     softKill(hum)
                     if hardBreakMode then
@@ -101,4 +111,4 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
-print("🔥 ULTIMATE FINAL BOSS HYBRID ENABLED — Cooldown hook, Remote spam, Soft kill, Hard Break.")
+print("🔥 ULTIMATE+ NO COOLDOWN NUKE ENABLED — Frame spam, cooldown null, burst remotes.")

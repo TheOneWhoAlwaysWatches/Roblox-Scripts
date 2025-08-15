@@ -171,13 +171,16 @@ local tweenPurple = TweenService:Create(titleLabel, tweenInfo, {TextColor3 = Col
 local tweenCyan = TweenService:Create(titleLabel, tweenInfo, {TextColor3 = Color3.fromRGB(0, 255, 255)})
 
 local function tweenLoop()
-    tweenPurple:Play()
-    tweenPurple.Completed:Connect(function()
+    while true do
+        tweenPurple:Play()
+        tweenPurple.Completed:Wait()
         tweenCyan:Play()
-        tweenCyan.Completed:Connect(tweenLoop)
-    end)
+        tweenCyan.Completed:Wait()
+    end
 end
-tweenLoop()
+
+-- Run in a coroutine so it doesn’t block
+coroutine.wrap(tweenLoop)()
 
 -- Toggle button
 local toggleButton = Instance.new("TextButton")

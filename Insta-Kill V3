@@ -1,20 +1,17 @@
 -- CONFIG
-local auraRange = 55             -- Max distance to enemy
-local auraSize = Vector3.new(30, 30, 30)  -- Aura box around tool
-local attackDelay = 0.002        -- How fast to fire the remote (seconds)
-local hitsPerScan = 3            -- Number of remote fires per enemy per loop
+local auraRange = 50 -- Max distance to enemy
+local auraSize = Vector3.new(50, 50, 50) -- Aura box around tool
+local attackRate = 0.0001 -- Speed of the loop (seconds)
 
 -- SERVICES
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
-local Workspace = game:GetService("Workspace")
 
 -- STATE
 local running = true
 local auraParams = OverlapParams.new()
 auraParams.FilterType = Enum.RaycastFilterType.Include
-local toolsData = {}  -- store indexed tools
 
 -- HELPERS
 local function getChar(plr)
@@ -26,105 +23,85 @@ local function getHRP(plr)
     return char and char:FindFirstChild("HumanoidRootPart")
 end
 
+local function getValidTargets()
+    local myHRP = getHRP(LocalPlayer)
+    if not myHRP then return {}, {} end
+
+    local playersInRange = {}
+    local chars = {}
+
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            local hrp = getHRP(player)
+            if hrp and (hrp.Position - myHRP.Position).Magnitude <= auraRange then
+                table.insert(playersInRange, player)
+                local char = getChar(player)
+                if char then table.insert(chars, char) end
+            end
+        end
+    end
+
+    return playersInRange, chars
+end
+
 local function getTouchPart(tool)
-    local transmitter = tool:FindFirstChildWhichIsA("TouchTransmitter", true)
-    return transmitter and transmitter.Parent
+    local touchTransmitter = tool and tool:FindFirstChildWhichIsA("TouchTransmitter", true)
+    return touchTransmitter and touchTransmitter.Parent
 end
 
 local function autoEquip(tool)
-    if tool.Parent ~= getChar(LocalPlayer) then
+    if not tool:IsDescendantOf(workspace) then
         tool.Parent = getChar(LocalPlayer)
     end
     tool:Activate()
 end
 
--- INDEX TOOLS
-local function indexTool(tool)
-    if not tool:IsA("Tool") then return end
-    local fightEvent = tool:FindFirstChild("FightEvent")
-    local touchPart = getTouchPart(tool)
-    toolsData[tool] = {fightEvent, touchPart}
-end
-
-local function indexAllTools()
-    table.clear(toolsData)
-    local char = getChar(LocalPlayer)
-    if not char then return end
-    for _, tool in ipairs(char:GetChildren()) do
-        indexTool(tool)
-    end
-    for _, tool in ipairs(LocalPlayer.Backpack:GetChildren()) do
-        indexTool(tool)
-    end
-end
-
--- AUTOMATIC TOOL INDEXING ON PICKUP
-LocalPlayer.Backpack.ChildAdded:Connect(function(tool)
-    indexTool(tool)
-end)
-
-LocalPlayer.CharacterAdded:Connect(function(char)
-    char:WaitForChild("HumanoidRootPart")
-    task.wait(0.5)
-    indexAllTools()
-end)
-
 -- MAIN LOOP
 task.spawn(function()
     while running do
-        local char = getChar(LocalPlayer)
-        if not char then task.wait(0.1) continue end
+        local myChar = getChar(LocalPlayer)
+        if not myChar then task.wait(1) continue end
 
-        local myHRP = getHRP(LocalPlayer)
-        if not myHRP then task.wait(0.1) continue end
-
-        -- detect enemies
-        local enemyChars = {}
-        for _, player in ipairs(Players:GetPlayers()) do
-            if player ~= LocalPlayer then
-                local hrp = getHRP(player)
-                if hrp and (hrp.Position - myHRP.Position).Magnitude <= auraRange then
-                    local enemyChar = getChar(player)
-                    if enemyChar then
-                        table.insert(enemyChars, enemyChar)
-                    end
-                end
-            end
-        end
-
-        -- update aura filter
+        local targets, enemyChars = getValidTargets()
         auraParams.FilterDescendantsInstances = enemyChars
 
-        -- iterate tools
-        for tool, data in pairs(toolsData) do
-            local fightEvent, touchPart = data[1], data[2]
-            if fightEvent then
-                autoEquip(tool)
-                for i = 1, hitsPerScan do
+        for _, tool in ipairs(myChar:GetChildren()) do
+            if tool:IsA("Tool") then
+                local fightEvent = tool:FindFirstChild("FightEvent")
+                local touchPart = getTouchPart(tool)
+
+                if fightEvent then
+                    autoEquip(tool)
+                    fightEvent:FireServer()-- One powerful hit per scan
                     fightEvent:FireServer()
                 end
-            end
 
-            if touchPart then
-                local parts = Workspace:GetPartBoundsInBox(
-                    touchPart.CFrame,
-                    touchPart.Size + auraSize,
-                    auraParams
-                )
-                for _, part in ipairs(parts) do
-                    local model = part:FindFirstAncestorWhichIsA("Model")
-                    if model and table.find(enemyChars, model) then
-                        firetouchinterest(touchPart, part, 1)
-                        firetouchinterest(touchPart, part, 0)
+                if touchPart then
+                    local partsInBox = workspace:GetPartBoundsInBox(
+                        touchPart.CFrame,
+                        touchPart.Size + auraSize,
+                        auraParams
+                    )
+
+                    for _, part in ipairs(partsInBox) do
+                        local model = part:FindFirstAncestorWhichIsA("Model")
+                        if model and table.find(enemyChars, model) then
+                            firetouchinterest(touchPart, part, 1)
+                            firetouchinterest(touchPart, part, 0)
+                        end
                     end
                 end
             end
         end
 
-        task.wait(attackDelay)
+        task.wait(attackRate)
     end
 end)
 
--- INITIAL TOOL INDEX
-indexAllTools()
-print("🔥 Ultra OP Remote Kill Aura Activated!")
+-- RESET ON DEATH
+LocalPlayer.CharacterAdded:Connect(function()
+    task.wait(1)
+    running = true
+end)
+
+print("1 Shot Ultra Hit Spammer Activated!")

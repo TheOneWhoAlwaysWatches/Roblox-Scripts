@@ -100,7 +100,7 @@ end)
 
 -- RESET ON DEATH
 LocalPlayer.CharacterAdded:Connect(function()
-    task.wait(1)
+    task.wait(0.1)
     running = true
 end)
 

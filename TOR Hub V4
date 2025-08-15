@@ -11,8 +11,8 @@ local whitelist = {
     [5054998059] = true, -- mjendeub (Alt)
     [3429553477] = true, -- Dyllan144335 (Alt)
     [2647384879] = true, -- Crainer (Alt)
-    [8892518697] = true, -- Getoutmywaylillbro (Alt)
-    [8893225109] = true, -- Mr. Fish (Alt)
+    [8892518697] = true, -- Getoutmywaylillbro (My Alt)
+    [8893225109] = true, -- Mr. Fish (My Alt)
     [8407911841] = true, -- Void (Star)
     [8646139977] = true, -- Stars Alt
     [1548866917] = true, -- Timmy
@@ -35,6 +35,7 @@ local whitelist = {
     [1723790049] = true, -- Angel
     [8983260988] = true, -- Rat
     [3816480506] = true, -- Messi
+    [2271342427] = true, -- Kaiden
     [7659480884] = true, -- Kam
 }
 
@@ -60,7 +61,7 @@ screenGui.Name = "SPT"
 screenGui.Parent = player:WaitForChild("PlayerGui")
 screenGui.ResetOnSpawn = false
 
--- Main frame
+-- Main frame (hacker style)
 local mainFrame = Instance.new("Frame")
 mainFrame.Size = UDim2.new(0, 550, 0, 300)
 mainFrame.Position = UDim2.new(0.31, 0, 0.322, 0)
@@ -69,6 +70,7 @@ mainFrame.BorderSizePixel = 0
 mainFrame.Visible = true
 mainFrame.Parent = screenGui
 
+-- Rounded corners & neon purple stroke
 local uiCornerMain = Instance.new("UICorner", mainFrame)
 uiCornerMain.CornerRadius = UDim.new(0.2, 0)
 
@@ -98,7 +100,7 @@ thirdFrame.Size = UDim2.new(0, 370, 0, 280)
 thirdFrame.Position = UDim2.new(0.321, 0, 0.035, 0)
 thirdFrame.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
 thirdFrame.BorderSizePixel = 0
-thirdFrame.Visible = false
+thirdFrame.Visible = true
 thirdFrame.Parent = mainFrame
 
 local uiCornerThird = Instance.new("UICorner", thirdFrame)
@@ -108,7 +110,11 @@ local uiStrokeThird = Instance.new("UIStroke", thirdFrame)
 uiStrokeThird.Color = Color3.fromRGB(255, 0, 255)
 uiStrokeThird.Thickness = 5
 
--- Updates frame
+local uiStrokeThirdAccent = Instance.new("UIStroke", thirdFrame)
+uiStrokeThirdAccent.Color = Color3.fromRGB(255, 0, 255)
+uiStrokeThirdAccent.Thickness = 2
+
+-- Updates page frame (hidden by default)
 local updatesFrame = Instance.new("Frame")
 updatesFrame.Size = UDim2.new(0, 370, 0, 280)
 updatesFrame.Position = UDim2.new(0.321, 0, 0.035, 0)
@@ -131,13 +137,12 @@ updatesLabel.BackgroundTransparency = 1
 updatesLabel.Text = [[
 📝 Updates:
 - Kill/Death Tracker updated to V2
-- Improved No Cooldown to V9
-- Improved Use Tools to V7
-- Improved Get Tools to V5
-- Improved Insta-Kill to V3
-- Improved Respawn to V6
-- Page buttons now scrollable
-- Added an Updates page
+- No Cooldown improved to V9
+- Use Tools improved to V7
+- Get Tools improved to V5
+- Insta-Kill improved to V3
+- Respawn improved to V6
+- Added Updates page
 ]]
 updatesLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 updatesLabel.TextWrapped = true
@@ -164,6 +169,7 @@ local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection
 local tweenPurple = TweenService:Create(titleLabel, tweenInfo, {TextColor3 = Color3.fromRGB(255, 0, 255)})
 local tweenCyan = TweenService:Create(titleLabel, tweenInfo, {TextColor3 = Color3.fromRGB(0, 255, 255)})
 
+-- Loop tween color between purple and cyan
 local function tweenLoop()
     tweenPurple:Play()
     tweenPurple.Completed:Connect(function()
@@ -173,7 +179,7 @@ local function tweenLoop()
 end
 tweenLoop()
 
--- Toggle button
+-- Toggle button for showing/hiding main frame
 local toggleButton = Instance.new("TextButton")
 toggleButton.Size = UDim2.new(0, 65, 0, 63)
 toggleButton.Position = UDim2.new(0.5, -32, 0, -10)
@@ -187,6 +193,7 @@ toggleButton.Parent = screenGui
 local uiCornerToggle = Instance.new("UICorner", toggleButton)
 uiCornerToggle.CornerRadius = UDim.new(1, 0)
 
+-- Border frame & stroke around toggle button
 local borderFrame = Instance.new("Frame", toggleButton)
 borderFrame.Size = UDim2.new(1, 0, 1, 0)
 borderFrame.BackgroundTransparency = 1
@@ -199,9 +206,11 @@ uiStrokeToggle.Thickness = 3
 local uiCornerBorder = Instance.new("UICorner", borderFrame)
 uiCornerBorder.CornerRadius = UDim.new(1, 0)
 
+-- Toggle stroke animation (optional)
 local strokeTween = TweenService:Create(uiStrokeToggle, tweenInfo, {Color = Color3.fromRGB(255, 0, 255)})
 strokeTween:Play()
 
+-- Toggle visibility of mainFrame
 local isVisible = false
 toggleButton.MouseButton1Click:Connect(function()
     isVisible = not isVisible
@@ -209,7 +218,7 @@ toggleButton.MouseButton1Click:Connect(function()
     toggleButton.Text = isVisible and "Close" or "Open"
 end)
 
--- Draggability
+-- Universal Draggability
 local function makeDraggable(gui)
     local dragging, dragStart, startPos
     local function update(input)
@@ -221,6 +230,7 @@ local function makeDraggable(gui)
             startPos.Y.Offset + delta.Y
         )
     end
+
     gui.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
@@ -233,6 +243,7 @@ local function makeDraggable(gui)
             end)
         end
     end)
+
     gui.InputChanged:Connect(function(input)
         if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
             update(input)
@@ -240,10 +251,35 @@ local function makeDraggable(gui)
     end)
 end
 
+-- Apply to toggle and main frame
 makeDraggable(toggleButton)
 makeDraggable(mainFrame)
 
--- Script button creator
+-- Helper to create page selector buttons
+local function createPageSelectorButton(text, parent)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(0, 140, 0, 38)
+    button.Text = text
+    button.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    button.TextColor3 = Color3.fromRGB(255, 0, 255)
+    button.TextSize = 18
+    button.Font = Enum.Font.SourceSans
+    button.Parent = parent
+
+    local uiCorner = Instance.new("UICorner", button)
+    uiCorner.CornerRadius = UDim.new(0.3, 0)
+
+    return button
+end
+
+-- Create page selector buttons
+local button1 = createPageSelectorButton("Main", secondaryFrame)
+local button2 = createPageSelectorButton("Usefull Scripts", secondaryFrame)
+local button3 = createPageSelectorButton("Misc Scripts", secondaryFrame)
+local button4 = createPageSelectorButton("Misc Scripts 2", secondaryFrame)
+local buttonUpdates = createPageSelectorButton("Updates", secondaryFrame)
+
+-- Helper to create script buttons
 local function createScriptButton(text, position, scriptLink, parent)
     local button = Instance.new("TextButton")
     button.Size = UDim2.new(0.45, 0, 0, 40)
@@ -270,8 +306,9 @@ local function createScriptButton(text, position, scriptLink, parent)
     return button
 end
 
--- Auto-layout script buttons
+-- Automatically layout buttons in a neat grid
 local function createPageButtons(pageNumber)
+    -- Clear old buttons
     for _, child in pairs(thirdFrame:GetChildren()) do
         if child:IsA("TextButton") then
             child:Destroy()
@@ -281,103 +318,87 @@ local function createPageButtons(pageNumber)
     local buttonsData = {}
     if pageNumber == 1 then
         buttonsData = {
-            {Text = "Get Tools V5", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Tools%20V5.lua"}, -- 1
-            {Text = "Use Tools V7", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Use%20Tools%20V7"}, -- 2
-            {Text = "No Cooldown V9", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V9"}, -- 3
-            {Text = "Insta-Kill V3", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Damage%20Spammer%20(Insta-Kill)"}, -- 4
-            {Text = "Respawn V6", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V6.lua"}, -- 5
-            {Text = "Get Base", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Base%20V3"}, -- 6
-            {Text = "Kill Aura", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20Aura"}, -- 7
-            {Text = "Loopbring", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Loopbring%20V4.lua"}, -- 8
-            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 9
-            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 10
+            {Text = "Get Tools V5", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Tools%20V5.lua"},
+            {Text = "Use Tools V7", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Use%20Tools%20V7"},
+            {Text = "No Cooldown V9", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V9"},
+            {Text = "Insta-Kill V3", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Damage%20Spammer%20(Insta-Kill)"},
+            {Text = "Respawn V6", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V6.lua"},
+            {Text = "Get Base", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Base%20V3"},
+            {Text = "Kill Aura", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20Aura"},
+            {Text = "Loopbring", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Loopbring%20V4.lua"},
         }
     elseif pageNumber == 2 then
         buttonsData = {
-            {Text = "Reach", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Reach"}, -- 1
-            {Text = "Float Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Float%20Tools"}, -- 2
-            {Text = "Anim Remover", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anim%20Remover"}, -- 3
-            {Text = "Fly Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Fly%20Tools"}, -- 4
-            {Text = "Antilag", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Lag%20V2"}, -- 5
-            {Text = "Grip Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Grip%20Tools"}, -- 6
-            {Text = "Axe Smash Sheild", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Axe%20Smash%20Spam"}, -- 7
-            {Text = "Axe Smash Trap", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Axe%20Smash%20Trap"}, -- 8
-            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 9
-            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 10
+            {Text = "Reach", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Reach"},
+            {Text = "Float Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Float%20Tools"},
+            {Text = "Anim Remover", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anim%20Remover"},
+            {Text = "Fly Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Fly%20Tools"},
+            {Text = "Antilag", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Lag%20V2"},
+            {Text = "Grip Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Grip%20Tools"},
+            {Text = "Axe Smash Sheild", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Axe%20Smash%20Spam"},
+            {Text = "Axe Smash Trap", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Axe%20Smash%20Trap"},
         }
     elseif pageNumber == 3 then
         buttonsData = {
-            {Text = "Chat Spy", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Chat%20Spy"}, -- 1
-            {Text = "Anti Chat Spy", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti%20Chat%20Spy"}, -- 2
-            {Text = "Infinite Yield", ScriptLink = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"}, -- 3
-            {Text = "Lag Server", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Lag%20Server"}, -- 4
-            {Text = "Perma-Death", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/God%20Mode.lua"}, -- 5
-            {Text = "Walking God Mode", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Walking%20God%20Mode"}, -- 6
-            {Text = "Super Cool Emotes", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/UGC%20Emotes"}, -- 7
-            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 8
-            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 9
-            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 10
+            {Text = "Chat Spy", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Chat%20Spy"},
+            {Text = "Anti Chat Spy", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti%20Chat%20Spy"},
+            {Text = "Infinite Yield", ScriptLink = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"},
+            {Text = "Lag Server", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Lag%20Server"},
+            {Text = "Lag Server 2", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Lag%20Server%202"},
+            {Text = "Discord Call Script", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Discord%20Call%20Script"},
+            {Text = "ADS ESP", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/ESP%20ADS"},
+            {Text = "TP Macro", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/TP%20Macro"},
         }
     elseif pageNumber == 4 then
         buttonsData = {
-            {Text = "Power Meter V2", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Power%20Meter%20V2"}, -- 1
-            {Text = "Kill/Death Tracker V2", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20%26%20Death%20Tracker"}, -- 2
-            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 3
-            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 4
-            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 5
-            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 6
-            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 7
-            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 8
+            {Text = "Rejoin Server", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Rejoin%20Server"},
+            {Text = "Server Hop", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Server%20Hop"},
         }
     end
 
-    local xOffset, yOffset = 10, 10
-    local maxColumns = 2
-    local buttonWidth = 170
-    local buttonHeight = 40
-    for i, data in ipairs(buttonsData) do
-        local col = (i-1) % maxColumns
-        local row = math.floor((i-1)/maxColumns)
-        local position = UDim2.new(0, xOffset + (buttonWidth + 10)*col, 0, yOffset + (buttonHeight + 10)*row)
-        createScriptButton(data.Text, position, data.ScriptLink, thirdFrame)
+    -- Create buttons in a neat grid
+    for i, info in ipairs(buttonsData) do
+        local x = (i-1) % 2
+        local y = math.floor((i-1) / 2)
+        createScriptButton(info.Text, UDim2.new(0, 10 + x*180, 0, 10 + y*50), info.ScriptLink, thirdFrame)
     end
 end
 
--- Scrollable page buttons
-local pageNames = {"Main", "Useful Scripts", "Misc Scripts", "Misc Scripts 2", "Updates"}
-local pageButtons = {}
-for i, name in ipairs(pageNames) do
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -10, 0, 38)
-    btn.Text = name
-    btn.BackgroundColor3 = Color3.fromRGB(0,0,0)
-    btn.TextColor3 = Color3.fromRGB(255,0,255)
-    btn.Font = Enum.Font.SourceSans
-    btn.TextSize = 18
-    btn.Parent = secondaryFrame
-    local uiCorner = Instance.new("UICorner", btn)
-    uiCorner.CornerRadius = UDim.new(0.3,0)
-    pageButtons[name] = btn
-end
-
--- Page switching logic
-local function showPage(name)
+-- Show/hide pages logic
+local function showPage(pageName)
     thirdFrame.Visible = false
     updatesFrame.Visible = false
-    if name == "Updates" then
+
+    if pageName == "Updates" then
         updatesFrame.Visible = true
     else
         thirdFrame.Visible = true
-        local pageNumber = {["Main"]=1, ["Useful Scripts"]=2, ["Misc Scripts"]=3, ["Misc Scripts 2"]=4}[name]
-        createPageButtons(pageNumber)
+        if pageName == "Main" then
+            createPageButtons(1)
+        elseif pageName == "Usefull Scripts" then
+            createPageButtons(2)
+        elseif pageName == "Misc Scripts" then
+            createPageButtons(3)
+        elseif pageName == "Misc Scripts 2" then
+            createPageButtons(4)
+        end
     end
 end
 
-for name, btn in pairs(pageButtons) do
-    btn.MouseButton1Click:Connect(function()
-        showPage(name)
-    end)
+-- Connect page buttons
+button1.MouseButton1Click:Connect(function() showPage("Main") end)
+button2.MouseButton1Click:Connect(function() showPage("Usefull Scripts") end)
+button3.MouseButton1Click:Connect(function() showPage("Misc Scripts") end)
+button4.MouseButton1Click:Connect(function() showPage("Misc Scripts 2") end)
+buttonUpdates.MouseButton1Click:Connect(function() showPage("Updates") end)
+
+-- Update the CanvasSize of secondaryFrame automatically
+local function updateCanvas()
+    secondaryFrame.CanvasSize = UDim2.new(0, 0, 0, uiListLayout.AbsoluteContentSize.Y + 10)
 end
 
--- Default to Updates tab
+uiListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateCanvas)
+updateCanvas() -- initial
+
+-- Initialize first page
 showPage("Updates")

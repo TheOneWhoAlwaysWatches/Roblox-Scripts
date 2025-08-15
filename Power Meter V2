@@ -1,0 +1,89 @@
+-- 🔋 UNIVERSAL DEMONIC POWER METER
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+
+getgenv().TDW_HIT_TIMESTAMPS = getgenv().TDW_HIT_TIMESTAMPS or {}
+
+-- Create UI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "DemonicPowerMeter"
+screenGui.Parent = game.CoreGui
+screenGui.ResetOnSpawn = false
+
+local powerLabel = Instance.new("TextLabel")
+powerLabel.Name = "PowerMeter"
+powerLabel.Parent = screenGui
+powerLabel.Position = UDim2.new(0.5, -70, 0.85, 30)
+powerLabel.Size = UDim2.new(0, 140, 0, 20)
+powerLabel.BackgroundTransparency = 1
+powerLabel.Font = Enum.Font.Code
+powerLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+powerLabel.TextSize = 18
+powerLabel.Text = "Power: 0/s"
+
+-- Hook any tool for hits
+local function hookTool(tool)
+	if not tool:IsA("Tool") then return end
+
+	-- Tool.Activated events
+	tool.Activated:Connect(function()
+		table.insert(getgenv().TDW_HIT_TIMESTAMPS, tick())
+	end)
+
+	-- TouchTransmitter hits
+	for _, part in ipairs(tool:GetDescendants()) do
+		if part:IsA("TouchTransmitter") and part.Parent then
+			part.Touched:Connect(function(hit)
+				local model = hit:FindFirstAncestorWhichIsA("Model")
+				if model and model ~= LocalPlayer.Character then
+					table.insert(getgenv().TDW_HIT_TIMESTAMPS, tick())
+				end
+			end)
+		end
+	end
+end
+
+-- Hook all current tools
+local function hookAllTools()
+	local char = LocalPlayer.Character
+	if not char then return end
+	for _, tool in ipairs(char:GetChildren()) do
+		hookTool(tool)
+	end
+end
+
+-- Hook new tools when added
+LocalPlayer.CharacterAdded:Connect(function(char)
+	char:WaitForChild("HumanoidRootPart")
+	hookAllTools()
+	char.ChildAdded:Connect(function(child)
+		hookTool(child)
+	end)
+end)
+
+if LocalPlayer.Character then
+	hookAllTools()
+end
+
+-- Live update loop
+RunService.Heartbeat:Connect(function()
+	local timestamps = getgenv().TDW_HIT_TIMESTAMPS
+	if not timestamps then return end
+
+	local now = tick()
+	for i = #timestamps, 1, -1 do
+		if now - timestamps[i] > 1 then
+			table.remove(timestamps, i)
+		end
+	end
+
+	local hitsPerSec = #timestamps
+	if hitsPerSec > 600 then
+		powerLabel.Text = "Overload: " .. hitsPerSec .. "/s"
+		powerLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+	else
+		powerLabel.Text = "Power: " .. hitsPerSec .. "/s"
+		powerLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+	end
+end)

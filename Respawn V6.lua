@@ -2,10 +2,8 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local LocalPlayer = Players.LocalPlayer
 
--- Master toggle
 _G.RespawnScript = _G.RespawnScript or { Active = false, Connections = {} }
 
--- Disconnect previous connections
 local function disconnectAll()
     for _, conn in ipairs(_G.RespawnScript.Connections) do
         if conn and conn.Connected then
@@ -15,7 +13,6 @@ local function disconnectAll()
     _G.RespawnScript.Connections = {}
 end
 
--- Force respawn function
 local function forceRespawn()
     local guide = ReplicatedStorage:FindFirstChild("Guide")
     if guide then
@@ -25,16 +22,23 @@ local function forceRespawn()
     end
 end
 
--- Listen for character death/removal
-local function onCharacterAdded(char)
+local function onCharacterAdded(character)
     if not _G.RespawnScript.Active then return end
 
-    local humanoid = char:WaitForChild("Humanoid", 5)
+    local humanoid = character:WaitForChild("Humanoid", 3)
     if not humanoid then return end
 
     local hasRespawned = false
 
-    -- Fires immediately when humanoid dies
+    -- Fires the microsecond character starts being removed
+    table.insert(_G.RespawnScript.Connections, character.AncestryChanged:Connect(function(_, parent)
+        if _G.RespawnScript.Active and not parent and not hasRespawned then
+            hasRespawned = true
+            task.spawn(forceRespawn)
+        end
+    end))
+
+    -- Backup: Humanoid death (failsafe)
     table.insert(_G.RespawnScript.Connections, humanoid.Died:Connect(function()
         if _G.RespawnScript.Active and not hasRespawned then
             hasRespawned = true
@@ -42,35 +46,26 @@ local function onCharacterAdded(char)
         end
     end))
 
-    -- Fires the microsecond character is removed
-    table.insert(_G.RespawnScript.Connections, char.AncestryChanged:Connect(function(_, parent)
-        if _G.RespawnScript.Active and not parent and not hasRespawned then
-            hasRespawned = true
-            task.spawn(forceRespawn)
-        end
-    end))
-
-    -- Fires if CharacterRemoving is triggered
-    table.insert(_G.RespawnScript.Connections, char:GetPropertyChangedSignal("Parent"):Connect(function()
-        if _G.RespawnScript.Active and not char.Parent and not hasRespawned then
+    -- Backup: Health drops to 0
+    table.insert(_G.RespawnScript.Connections, humanoid.HealthChanged:Connect(function(h)
+        if _G.RespawnScript.Active and h <= 0 and not hasRespawned then
             hasRespawned = true
             task.spawn(forceRespawn)
         end
     end))
 end
 
--- Toggle script on/off
 local function toggleScript()
     if _G.RespawnScript.Active then
         _G.RespawnScript.Active = false
         disconnectAll()
     else
         _G.RespawnScript.Active = true
-        table.insert(_G.RespawnScript.Connections,
-            LocalPlayer.CharacterAdded:Connect(onCharacterAdded)
-        )
+        table.insert(_G.RespawnScript.Connections, LocalPlayer.CharacterAdded:Connect(onCharacterAdded))
         if LocalPlayer.Character then
             onCharacterAdded(LocalPlayer.Character)
+        else
+            forceRespawn()
         end
     end
 end

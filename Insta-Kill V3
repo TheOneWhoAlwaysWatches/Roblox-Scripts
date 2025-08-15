@@ -1,0 +1,105 @@
+-- CONFIG
+local auraRange = 55 -- Max enemy distance
+local auraSize = Vector3.new(30, 30, 30) -- Aura expansion
+local attackConnections = {} -- Store remotes for speed
+
+-- SERVICES
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+local workspace = game:GetService("Workspace")
+
+-- STATE
+local auraParams = OverlapParams.new()
+auraParams.FilterType = Enum.RaycastFilterType.Include
+local enemyChars = {}
+
+-- HELPERS
+local function getChar(plr)
+    return plr and plr.Character
+end
+
+local function getHRP(plr)
+    local char = getChar(plr)
+    return char and char:FindFirstChild("HumanoidRootPart")
+end
+
+local function refreshTargets()
+    local myHRP = getHRP(LocalPlayer)
+    if not myHRP then return end
+
+    table.clear(enemyChars)
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            local hrp = getHRP(player)
+            if hrp and (hrp.Position - myHRP.Position).Magnitude <= auraRange then
+                local char = getChar(player)
+                if char then
+                    table.insert(enemyChars, char)
+                end
+            end
+        end
+    end
+    auraParams.FilterDescendantsInstances = enemyChars
+end
+
+local function indexTool(tool)
+    local fightEvent = tool:FindFirstChild("FightEvent")
+    local touchTransmitter = tool:FindFirstChildWhichIsA("TouchTransmitter", true)
+    local touchPart = touchTransmitter and touchTransmitter.Parent
+    attackConnections[tool] = {fightEvent, touchPart}
+end
+
+local function indexAllTools()
+    table.clear(attackConnections)
+    local char = getChar(LocalPlayer)
+    if not char then return end
+    for _, tool in ipairs(char:GetChildren()) do
+        if tool:IsA("Tool") then
+            indexTool(tool)
+        end
+    end
+end
+
+-- MAIN LOOP
+RunService.Heartbeat:Connect(function()
+    local char = getChar(LocalPlayer)
+    if not char then return end
+
+    refreshTargets()
+    if #enemyChars == 0 then return end
+
+    for tool, data in pairs(attackConnections) do
+        if tool.Parent ~= char then
+            tool.Parent = char -- insta-equip
+        end
+        tool:Activate()
+
+        local fightEvent, touchPart = data[1], data[2]
+        if fightEvent then
+            fightEvent:FireServer()
+            fightEvent:FireServer() -- double fire for extra hit spam
+        end
+        if touchPart then
+            local partsInBox = workspace:GetPartBoundsInBox(
+                touchPart.CFrame,
+                touchPart.Size + auraSize,
+                auraParams
+            )
+            for _, part in ipairs(partsInBox) do
+                firetouchinterest(touchPart, part, 1)
+                firetouchinterest(touchPart, part, 0)
+            end
+        end
+    end
+end)
+
+-- TOOL INDEXING
+LocalPlayer.CharacterAdded:Connect(function(char)
+    char:WaitForChild("HumanoidRootPart")
+    indexAllTools()
+end)
+char = LocalPlayer.Character
+if char then
+    indexAllTools()
+end

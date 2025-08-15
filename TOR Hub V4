@@ -78,13 +78,14 @@ local uiStrokeMain = Instance.new("UIStroke", mainFrame)
 uiStrokeMain.Color = Color3.fromRGB(255, 0, 255)
 uiStrokeMain.Thickness = 4
 
--- Secondary frame (page selector)
-local secondaryFrame = Instance.new("Frame")
+-- Secondary frame (page selector, now scrollable)
+local secondaryFrame = Instance.new("ScrollingFrame")
 secondaryFrame.Size = UDim2.new(0, 160, 0, 280)
 secondaryFrame.Position = UDim2.new(0.015, 0, 0.035, 0)
 secondaryFrame.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
 secondaryFrame.BorderSizePixel = 0
-secondaryFrame.Visible = true
+secondaryFrame.CanvasSize = UDim2.new(0, 0, 0, 0) -- will auto adjust
+secondaryFrame.ScrollBarThickness = 6
 secondaryFrame.Parent = mainFrame
 
 local uiCornerSecondary = Instance.new("UICorner", secondaryFrame)
@@ -93,6 +94,11 @@ uiCornerSecondary.CornerRadius = UDim.new(0.3, 0)
 local uiStrokeSecondary = Instance.new("UIStroke", secondaryFrame)
 uiStrokeSecondary.Color = Color3.fromRGB(255, 0, 255)
 uiStrokeSecondary.Thickness = 3
+
+-- UIListLayout for automatic button placement
+local uiListLayout = Instance.new("UIListLayout", secondaryFrame)
+uiListLayout.Padding = UDim.new(0, 8)
+uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
 -- Third frame (page content)
 local thirdFrame = Instance.new("Frame")
@@ -113,6 +119,43 @@ uiStrokeThird.Thickness = 5
 local uiStrokeThirdAccent = Instance.new("UIStroke", thirdFrame)
 uiStrokeThirdAccent.Color = Color3.fromRGB(255, 0, 255)
 uiStrokeThirdAccent.Thickness = 2
+
+-- Updates page frame (hidden by default)
+local updatesFrame = Instance.new("Frame")
+updatesFrame.Size = UDim2.new(0, 370, 0, 280)
+updatesFrame.Position = UDim2.new(0.321, 0, 0.035, 0)
+updatesFrame.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
+updatesFrame.BorderSizePixel = 0
+updatesFrame.Visible = false
+updatesFrame.Parent = mainFrame
+
+local uiCornerUpdates = Instance.new("UICorner", updatesFrame)
+uiCornerUpdates.CornerRadius = UDim.new(0.3, 0)
+
+local uiStrokeUpdates = Instance.new("UIStroke", updatesFrame)
+uiStrokeUpdates.Color = Color3.fromRGB(255, 0, 255)
+uiStrokeUpdates.Thickness = 3
+
+local updatesLabel = Instance.new("TextLabel")
+updatesLabel.Size = UDim2.new(1, -20, 1, -20)
+updatesLabel.Position = UDim2.new(0, 10, 0, 10)
+updatesLabel.BackgroundTransparency = 1
+updatesLabel.Text = [[
+📝 Updates:
+- Kill/Death Tracker updated to V2
+- No Cooldown improved to V9
+- Use Tools improved to V7
+- Get Tools improved to V5
+- Insta-Kill improved to V3
+- Respawn improved to V6
+- Added Updates page
+]]
+updatesLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+updatesLabel.TextWrapped = true
+updatesLabel.TextYAlignment = Enum.TextYAlignment.Top
+updatesLabel.Font = Enum.Font.Code
+updatesLabel.TextSize = 16
+updatesLabel.Parent = updatesFrame
 
 -- Title label with tweened color animation
 local titleLabel = Instance.new("TextLabel")
@@ -169,7 +212,7 @@ uiStrokeToggle.Thickness = 3
 local uiCornerBorder = Instance.new("UICorner", borderFrame)
 uiCornerBorder.CornerRadius = UDim.new(1, 0)
 
--- Toggle stroke animation (optional - can be removed if static color is preferred)
+-- Toggle stroke animation (optional)
 local strokeTween = TweenService:Create(uiStrokeToggle, tweenInfo, {Color = Color3.fromRGB(255, 0, 255)})
 strokeTween:Play()
 
@@ -184,7 +227,6 @@ end)
 -- Universal Draggability
 local function makeDraggable(gui)
     local dragging, dragStart, startPos
-
     local function update(input)
         local delta = input.Position - dragStart
         gui.Position = UDim2.new(
@@ -200,7 +242,6 @@ local function makeDraggable(gui)
             dragging = true
             dragStart = input.Position
             startPos = gui.Position
-
             input.Changed:Connect(function()
                 if input.UserInputState == Enum.UserInputState.End then
                     dragging = false
@@ -221,10 +262,9 @@ makeDraggable(toggleButton)
 makeDraggable(mainFrame)
 
 -- Helper to create page selector buttons
-local function createPageSelectorButton(text, position, parent)
+local function createPageSelectorButton(text, parent)
     local button = Instance.new("TextButton")
-    button.Size = UDim2.new(0, 120, 0, 38)
-    button.Position = position
+    button.Size = UDim2.new(0, 140, 0, 38)
     button.Text = text
     button.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
     button.TextColor3 = Color3.fromRGB(255, 0, 255)
@@ -239,15 +279,16 @@ local function createPageSelectorButton(text, position, parent)
 end
 
 -- Create page selector buttons
-local button1 = createPageSelectorButton("Main", UDim2.new(0.08, 0, 0.183, 0), secondaryFrame)
-local button2 = createPageSelectorButton("Usefull Scripts", UDim2.new(0.08, 0, 0.383, 0), secondaryFrame)
-local button3 = createPageSelectorButton("Misc Scripts", UDim2.new(0.08, 0, 0.583, 0), secondaryFrame)
-local button4 = createPageSelectorButton("Misc Scripts 2", UDim2.new(0.08, 0, 0.783, 0), secondaryFrame)
+local button1 = createPageSelectorButton("Main", secondaryFrame)
+local button2 = createPageSelectorButton("Usefull Scripts", secondaryFrame)
+local button3 = createPageSelectorButton("Misc Scripts", secondaryFrame)
+local button4 = createPageSelectorButton("Misc Scripts 2", secondaryFrame)
+local buttonUpdates = createPageSelectorButton("Updates", secondaryFrame)
 
--- Helper to create script buttons with purple hacker theme and script loading
+-- Helper to create script buttons
 local function createScriptButton(text, position, scriptLink, parent)
     local button = Instance.new("TextButton")
-    button.Size = UDim2.new(0.45, 0, 0, 40) -- Width scale, fixed height
+    button.Size = UDim2.new(0.45, 0, 0, 40)
     button.Position = position
     button.Text = text
     button.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
@@ -280,7 +321,6 @@ local function createPageButtons(pageNumber)
         end
     end
 
-    -- Button data
     local buttonsData = {}
     if pageNumber == 1 then
         buttonsData = {
@@ -329,45 +369,49 @@ local function createPageButtons(pageNumber)
         }
     end
 
-    -- Layout configuration
-    local buttonWidthScale = 0.45
-    local buttonHeight = 40
-    local paddingY = 10
-    local startY = 10
-
-    for i, data in ipairs(buttonsData) do
-        local column = (i % 2 == 1) and 0.03 or 0.51
-        local row = math.floor((i - 1) / 2)
-        local yPos = startY + row * (buttonHeight + paddingY)
-        createScriptButton(data.Text, UDim2.new(column, 0, 0, yPos), data.ScriptLink, thirdFrame)
+    -- Create buttons in a neat grid
+    for i, info in ipairs(buttonsData) do
+        local x = (i-1) % 2
+        local y = math.floor((i-1) / 2)
+        createScriptButton(info.Text, UDim2.new(0, 10 + x*180, 0, 10 + y*50), info.ScriptLink, thirdFrame)
     end
 end
 
--- Connect page selector buttons
-button1.MouseButton1Click:Connect(function() createPageButtons(1) end)
-button2.MouseButton1Click:Connect(function() createPageButtons(2) end)
-button3.MouseButton1Click:Connect(function() createPageButtons(3) end)
-button4.MouseButton1Click:Connect(function() createPageButtons(4) end)
+-- Show/hide pages logic
+local function showPage(pageName)
+    thirdFrame.Visible = false
+    updatesFrame.Visible = false
 
-local buttons = {}
-
-function toggleButtonState(button)
-    if button.Text == "[off]" then
-        button.Text = "[on]" 
-        activateScript(button)
+    if pageName == "Updates" then
+        updatesFrame.Visible = true
     else
-        button.Text = "[off]"
-        deactivateScript(button)
+        thirdFrame.Visible = true
+        if pageName == "Main" then
+            createPageButtons(1)
+        elseif pageName == "Usefull Scripts" then
+            createPageButtons(2)
+        elseif pageName == "Misc Scripts" then
+            createPageButtons(3)
+        elseif pageName == "Misc Scripts 2" then
+            createPageButtons(4)
+        end
     end
 end
 
-function activateScript(button)
-    print(button.Name .. " activated.")
+-- Connect page buttons
+button1.MouseButton1Click:Connect(function() showPage("Main") end)
+button2.MouseButton1Click:Connect(function() showPage("Usefull Scripts") end)
+button3.MouseButton1Click:Connect(function() showPage("Misc Scripts") end)
+button4.MouseButton1Click:Connect(function() showPage("Misc Scripts 2") end)
+buttonUpdates.MouseButton1Click:Connect(function() showPage("Updates") end)
+
+-- Update the CanvasSize of secondaryFrame automatically
+local function updateCanvas()
+    secondaryFrame.CanvasSize = UDim2.new(0, 0, 0, uiListLayout.AbsoluteContentSize.Y + 10)
 end
 
-function deactivateScript(button)
-    print(button.Name .. " deactivated.")
-end
+uiListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateCanvas)
+updateCanvas() -- initial
 
--- Initialize page 1 buttons on load
-createPageButtons(1)
+-- Initialize first page
+showPage("Updates")

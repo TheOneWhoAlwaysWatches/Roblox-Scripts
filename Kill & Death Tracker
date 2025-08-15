@@ -1,3 +1,4 @@
+-- ⚡ UNIVERSAL KILL/DEATH TRACKER
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
@@ -18,63 +19,67 @@ CounterLabel.Text = "Kills: 0 | Deaths: 0"
 CounterLabel.Parent = ScreenGui
 
 local kills, deaths = 0, 0
-local lastHealth = {}
-local lastHit = {}
+local lastHitMap = {} -- maps player -> last hitter
 
 local function updateCounter()
-	CounterLabel.Text = "Kills: " .. kills .. " | Deaths: " .. deaths
+    CounterLabel.Text = "Kills: " .. kills .. " | Deaths: " .. deaths
 end
 
 -- === Track your own deaths ===
-LocalPlayer.CharacterAdded:Connect(function(character)
-	local hum = character:WaitForChild("Humanoid")
-	hum.Died:Connect(function()
-		deaths += 1
-		updateCounter()
-	end)
+LocalPlayer.CharacterAdded:Connect(function(char)
+    local hum = char:WaitForChild("Humanoid")
+    hum.Died:Connect(function()
+        deaths += 1
+        updateCounter()
+    end)
 end)
 
--- === Track everyone ===
-local function watchPlayer(p)
-	if p == LocalPlayer then return end
+-- === Track hits for all players ===
+local function hookHumanoid(hum, plr)
+    if plr == LocalPlayer then return end
+    if not hum then return end
 
-	p.CharacterAdded:Connect(function(char)
-		local hum = char:WaitForChild("Humanoid")
-		lastHealth[p] = hum.Health
+    -- Track damage via Humanoid:GetPropertyChangedSignal("Health")
+    hum:GetPropertyChangedSignal("Health"):Connect(function()
+        local char = plr.Character
+        if not char then return end
 
-		RunService.Heartbeat:Connect(function()
-			if not hum or hum.Health <= 0 then return end
+        -- Record last hitter as LocalPlayer if in range or tool active
+        local myChar = LocalPlayer.Character
+        if myChar and myChar:FindFirstChild("HumanoidRootPart") and char:FindFirstChild("HumanoidRootPart") then
+            local dist = (myChar.HumanoidRootPart.Position - char.HumanoidRootPart.Position).Magnitude
+            if dist <= 100 then -- larger distance to catch remote/aura kills
+                lastHitMap[plr] = tick()
+            end
+        end
+    end)
 
-			local currentHealth = hum.Health
-			local prevHealth = lastHealth[p] or currentHealth
-
-			-- If health dropped AND they were near you, mark as hit
-			if currentHealth < prevHealth then
-				local myChar = LocalPlayer.Character
-				if myChar and myChar:FindFirstChild("HumanoidRootPart") and char:FindFirstChild("HumanoidRootPart") then
-					local dist = (myChar.HumanoidRootPart.Position - char.HumanoidRootPart.Position).Magnitude
-					if dist <= 40 then -- within 40 studs, adjust as needed
-						lastHit[p] = tick()
-					end
-				end
-			end
-
-			lastHealth[p] = currentHealth
-
-			-- Check if they just died
-			if currentHealth <= 0 and prevHealth > 0 then
-				if lastHit[p] and tick() - lastHit[p] <= 3 then
-					kills += 1
-					updateCounter()
-				end
-				lastHit[p] = nil
-			end
-		end)
-	end)
+    -- Detect death and attribute kill
+    hum.Died:Connect(function()
+        if lastHitMap[plr] and tick() - lastHitMap[plr] <= 5 then
+            kills += 1
+            updateCounter()
+        end
+        lastHitMap[plr] = nil
+    end)
 end
 
--- Init
-for _, p in pairs(Players:GetPlayers()) do watchPlayer(p) end
-Players.PlayerAdded:Connect(watchPlayer)
+-- Hook all current and future players
+for _, p in pairs(Players:GetPlayers()) do
+    if p.Character and p.Character:FindFirstChild("Humanoid") then
+        hookHumanoid(p.Character:FindFirstChild("Humanoid"), p)
+    end
+    p.CharacterAdded:Connect(function(char)
+        local hum = char:WaitForChild("Humanoid")
+        hookHumanoid(hum, p)
+    end)
+end
 
-print("✅ Universal Kill & Death Tracker is active")
+Players.PlayerAdded:Connect(function(p)
+    p.CharacterAdded:Connect(function(char)
+        local hum = char:WaitForChild("Humanoid")
+        hookHumanoid(hum, p)
+    end)
+end)
+
+print("✅ Universal Kill & Death Tracker is now fully active")

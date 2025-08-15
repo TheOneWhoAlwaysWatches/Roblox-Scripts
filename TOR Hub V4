@@ -81,7 +81,7 @@ uiStrokeMain.Thickness = 4
 -- Secondary frame (page selector, now scrollable)
 local secondaryFrame = Instance.new("ScrollingFrame")
 secondaryFrame.Size = UDim2.new(0, 160, 0, 280)
-secondaryFrame.Position = UDim2.new(0.015, 0, 0.035, 0)
+secondaryFrame.Position = UDim2.new(0.015, 0, 0, 40)
 secondaryFrame.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
 secondaryFrame.BorderSizePixel = 0
 secondaryFrame.CanvasSize = UDim2.new(0, 0, 0, 0) -- will auto adjust
@@ -94,6 +94,11 @@ uiCornerSecondary.CornerRadius = UDim.new(0.3, 0)
 local uiStrokeSecondary = Instance.new("UIStroke", secondaryFrame)
 uiStrokeSecondary.Color = Color3.fromRGB(255, 0, 255)
 uiStrokeSecondary.Thickness = 3
+
+-- UIListLayout for automatic button placement
+local uiListLayout = Instance.new("UIListLayout", secondaryFrame)
+uiListLayout.Padding = UDim.new(0, 8)
+uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
 -- Third frame (page content)
 local thirdFrame = Instance.new("Frame")
@@ -319,41 +324,48 @@ local function createPageButtons(pageNumber)
     local buttonsData = {}
     if pageNumber == 1 then
         buttonsData = {
-            {Text = "Get Tools V5", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Tools%20V5.lua"},
-            {Text = "Use Tools V7", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Use%20Tools%20V7"},
-            {Text = "No Cooldown V9", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V9"},
-            {Text = "Insta-Kill V3", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Damage%20Spammer%20(Insta-Kill)"},
-            {Text = "Respawn V6", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V6.lua"},
-            {Text = "Get Base", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Base%20V3"},
-            {Text = "Kill Aura", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20Aura"},
-            {Text = "Loopbring", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Loopbring%20V4.lua"},
+            {Text = "Get Tools V5", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Tools%20V5.lua"}, -- 1
+            {Text = "Use Tools V7", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Use%20Tools%20V7"}, -- 2
+            {Text = "No Cooldown V9", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V9"}, -- 3
+            {Text = "Insta-Kill V3", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Damage%20Spammer%20(Insta-Kill)"}, -- 4
+            {Text = "Respawn V6", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V6.lua"}, -- 5
+            {Text = "Get Base", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Base%20V3"}, -- 6
+            {Text = "Kill Aura", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20Aura"}, -- 7
+            {Text = "Loopbring", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Loopbring%20V4.lua"}, -- 8
+
         }
     elseif pageNumber == 2 then
         buttonsData = {
-            {Text = "Reach", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Reach"},
-            {Text = "Float Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Float%20Tools"},
-            {Text = "Anim Remover", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anim%20Remover"},
-            {Text = "Fly Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Fly%20Tools"},
-            {Text = "Antilag", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Lag%20V2"},
-            {Text = "Grip Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Grip%20Tools"},
-            {Text = "Axe Smash Sheild", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Axe%20Smash%20Spam"},
-            {Text = "Axe Smash Trap", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Axe%20Smash%20Trap"},
+            {Text = "Reach", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Reach"}, -- 1
+            {Text = "Float Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Float%20Tools"}, -- 2
+            {Text = "Anim Remover", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anim%20Remover"}, -- 3
+            {Text = "Fly Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Fly%20Tools"}, -- 4
+            {Text = "Antilag", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Lag%20V2"}, -- 5
+            {Text = "Grip Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Grip%20Tools"}, -- 6
+            {Text = "Axe Smash Sheild", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Axe%20Smash%20Spam"}, -- 7
+            {Text = "Axe Smash Trap", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Axe%20Smash%20Trap"}, -- 8
         }
     elseif pageNumber == 3 then
         buttonsData = {
-            {Text = "Chat Spy", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Chat%20Spy"},
-            {Text = "Anti Chat Spy", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti%20Chat%20Spy"},
-            {Text = "Infinite Yield", ScriptLink = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"},
-            {Text = "Lag Server", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Lag%20Server"},
-            {Text = "Lag Server 2", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Lag%20Server%202"},
-            {Text = "Discord Call Script", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Discord%20Call%20Script"},
-            {Text = "ADS ESP", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/ESP%20ADS"},
-            {Text = "TP Macro", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/TP%20Macro"},
+            {Text = "Chat Spy", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Chat%20Spy"}, -- 1
+            {Text = "Anti Chat Spy", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti%20Chat%20Spy"}, -- 2
+            {Text = "Infinite Yield", ScriptLink = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"}, -- 3
+            {Text = "Lag Server", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Lag%20Server"}, -- 4
+            {Text = "Perma-Death", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/God%20Mode.lua"}, -- 5
+            {Text = "Walking God Mode", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Walking%20God%20Mode"}, -- 6
+            {Text = "Super Cool Emotes", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/UGC%20Emotes"}, -- 7
+            {Text = "Emote While Moving", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Emote%20Cancelation%20Remover"}, -- 8
         }
     elseif pageNumber == 4 then
         buttonsData = {
-            {Text = "Rejoin Server", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Rejoin%20Server"},
-            {Text = "Server Hop", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Server%20Hop"},
+            {Text = "Power Meter V2", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Power%20Meter%20V2"}, -- 1
+            {Text = "Kill/Death Tracker V2", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20%26%20Death%20Tracker"}, -- 2
+            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 3
+            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 4
+            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 5
+            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 6
+            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 7
+            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 8
         }
     end
 
@@ -402,4 +414,4 @@ uiListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateCanva
 updateCanvas() -- initial
 
 -- Initialize first page
-showPage("Main")
+showPage("Updates")

@@ -134,7 +134,17 @@ local updatesLabel = Instance.new("TextLabel")
 updatesLabel.Size = UDim2.new(1, -20, 1, -20)
 updatesLabel.Position = UDim2.new(0, 10, 0, 10)
 updatesLabel.BackgroundTransparency = 1
-updatesLabel.Text = "📝 Updates:\n- Kill/Death Tracker updated to V2\n- Improved No Cooldown to V9\n- Improved Use Tools to V7\n- Improved Get Tools to V5\n- Improved Insta-Kill to V3\n- Improved Respawn to V6\n- Page buttons no scrollable\n added an Updates page"
+updatesLabel.Text = [[
+📝 Updates:
+- Kill/Death Tracker updated to V2
+- Improved No Cooldown to V9
+- Improved Use Tools to V7
+- Improved Get Tools to V5
+- Improved Insta-Kill to V3
+- Improved Respawn to V6
+- Page buttons now scrollable
+- Added an Updates page
+]]
 updatesLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 updatesLabel.TextWrapped = true
 updatesLabel.TextYAlignment = Enum.TextYAlignment.Top

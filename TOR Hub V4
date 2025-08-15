@@ -11,8 +11,8 @@ local whitelist = {
     [5054998059] = true, -- mjendeub (Alt)
     [3429553477] = true, -- Dyllan144335 (Alt)
     [2647384879] = true, -- Crainer (Alt)
-    [8892518697] = true, -- Getoutmywaylillbro (Alt)
-    [8893225109] = true, -- Mr. Fish (Alt)
+    [8892518697] = true, -- Getoutmywaylillbro (My Alt)
+    [8893225109] = true, -- Mr. Fish (My Alt)
     [8407911841] = true, -- Void (Star)
     [8646139977] = true, -- Stars Alt
     [1548866917] = true, -- Timmy
@@ -35,6 +35,7 @@ local whitelist = {
     [1723790049] = true, -- Angel
     [8983260988] = true, -- Rat
     [3816480506] = true, -- Messi
+    [2271342427] = true, -- Kaiden
     [7659480884] = true, -- Kam
 }
 
@@ -60,7 +61,7 @@ screenGui.Name = "SPT"
 screenGui.Parent = player:WaitForChild("PlayerGui")
 screenGui.ResetOnSpawn = false
 
--- Main frame
+-- Main frame (hacker style)
 local mainFrame = Instance.new("Frame")
 mainFrame.Size = UDim2.new(0, 550, 0, 300)
 mainFrame.Position = UDim2.new(0.31, 0, 0.322, 0)
@@ -69,6 +70,7 @@ mainFrame.BorderSizePixel = 0
 mainFrame.Visible = true
 mainFrame.Parent = screenGui
 
+-- Rounded corners & neon purple stroke
 local uiCornerMain = Instance.new("UICorner", mainFrame)
 uiCornerMain.CornerRadius = UDim.new(0.2, 0)
 
@@ -76,15 +78,13 @@ local uiStrokeMain = Instance.new("UIStroke", mainFrame)
 uiStrokeMain.Color = Color3.fromRGB(255, 0, 255)
 uiStrokeMain.Thickness = 4
 
--- Scrollable page selector frame
-local secondaryFrame = Instance.new("ScrollingFrame")
+-- Secondary frame (page selector)
+local secondaryFrame = Instance.new("Frame")
 secondaryFrame.Size = UDim2.new(0, 160, 0, 280)
 secondaryFrame.Position = UDim2.new(0.015, 0, 0.035, 0)
 secondaryFrame.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
 secondaryFrame.BorderSizePixel = 0
 secondaryFrame.Visible = true
-secondaryFrame.CanvasSize = UDim2.new(0, 0, 2, 0)
-secondaryFrame.ScrollBarThickness = 6
 secondaryFrame.Parent = mainFrame
 
 local uiCornerSecondary = Instance.new("UICorner", secondaryFrame)
@@ -94,17 +94,13 @@ local uiStrokeSecondary = Instance.new("UIStroke", secondaryFrame)
 uiStrokeSecondary.Color = Color3.fromRGB(255, 0, 255)
 uiStrokeSecondary.Thickness = 3
 
-local pageLayout = Instance.new("UIListLayout", secondaryFrame)
-pageLayout.Padding = UDim.new(0, 8)
-pageLayout.SortOrder = Enum.SortOrder.LayoutOrder
-
 -- Third frame (page content)
 local thirdFrame = Instance.new("Frame")
 thirdFrame.Size = UDim2.new(0, 370, 0, 280)
 thirdFrame.Position = UDim2.new(0.321, 0, 0.035, 0)
 thirdFrame.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
 thirdFrame.BorderSizePixel = 0
-thirdFrame.Visible = false
+thirdFrame.Visible = true
 thirdFrame.Parent = mainFrame
 
 local uiCornerThird = Instance.new("UICorner", thirdFrame)
@@ -114,43 +110,9 @@ local uiStrokeThird = Instance.new("UIStroke", thirdFrame)
 uiStrokeThird.Color = Color3.fromRGB(255, 0, 255)
 uiStrokeThird.Thickness = 5
 
--- Updates frame
-local updatesFrame = Instance.new("Frame")
-updatesFrame.Size = UDim2.new(0, 370, 0, 280)
-updatesFrame.Position = UDim2.new(0.321, 0, 0.035, 0)
-updatesFrame.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
-updatesFrame.BorderSizePixel = 0
-updatesFrame.Visible = false
-updatesFrame.Parent = mainFrame
-
-local uiCornerUpdates = Instance.new("UICorner", updatesFrame)
-uiCornerUpdates.CornerRadius = UDim.new(0.3, 0)
-
-local uiStrokeUpdates = Instance.new("UIStroke", updatesFrame)
-uiStrokeUpdates.Color = Color3.fromRGB(255, 0, 255)
-uiStrokeUpdates.Thickness = 3
-
-local updatesLabel = Instance.new("TextLabel")
-updatesLabel.Size = UDim2.new(1, -20, 1, -20)
-updatesLabel.Position = UDim2.new(0, 10, 0, 10)
-updatesLabel.BackgroundTransparency = 1
-updatesLabel.Text = [[
-📝 Updates:
-- Kill/Death Tracker updated to V2
-- Improved No Cooldown to V9
-- Improved Use Tools to V7
-- Improved Get Tools to V5
-- Improved Insta-Kill to V3
-- Improved Respawn to V6
-- Page buttons now scrollable
-- Added an Updates page
-]]
-updatesLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-updatesLabel.TextWrapped = true
-updatesLabel.TextYAlignment = Enum.TextYAlignment.Top
-updatesLabel.Font = Enum.Font.Code
-updatesLabel.TextSize = 16
-updatesLabel.Parent = updatesFrame
+local uiStrokeThirdAccent = Instance.new("UIStroke", thirdFrame)
+uiStrokeThirdAccent.Color = Color3.fromRGB(255, 0, 255)
+uiStrokeThirdAccent.Thickness = 2
 
 -- Title label with tweened color animation
 local titleLabel = Instance.new("TextLabel")
@@ -170,19 +132,17 @@ local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection
 local tweenPurple = TweenService:Create(titleLabel, tweenInfo, {TextColor3 = Color3.fromRGB(255, 0, 255)})
 local tweenCyan = TweenService:Create(titleLabel, tweenInfo, {TextColor3 = Color3.fromRGB(0, 255, 255)})
 
+-- Loop tween color between purple and cyan
 local function tweenLoop()
-    while true do
-        tweenPurple:Play()
-        tweenPurple.Completed:Wait()
+    tweenPurple:Play()
+    tweenPurple.Completed:Connect(function()
         tweenCyan:Play()
-        tweenCyan.Completed:Wait()
-    end
+        tweenCyan.Completed:Connect(tweenLoop)
+    end)
 end
+tweenLoop()
 
--- Run in a coroutine so it doesn’t block
-coroutine.wrap(tweenLoop)()
-
--- Toggle button
+-- Toggle button for showing/hiding main frame
 local toggleButton = Instance.new("TextButton")
 toggleButton.Size = UDim2.new(0, 65, 0, 63)
 toggleButton.Position = UDim2.new(0.5, -32, 0, -10)
@@ -196,6 +156,7 @@ toggleButton.Parent = screenGui
 local uiCornerToggle = Instance.new("UICorner", toggleButton)
 uiCornerToggle.CornerRadius = UDim.new(1, 0)
 
+-- Border frame & stroke around toggle button
 local borderFrame = Instance.new("Frame", toggleButton)
 borderFrame.Size = UDim2.new(1, 0, 1, 0)
 borderFrame.BackgroundTransparency = 1
@@ -208,9 +169,11 @@ uiStrokeToggle.Thickness = 3
 local uiCornerBorder = Instance.new("UICorner", borderFrame)
 uiCornerBorder.CornerRadius = UDim.new(1, 0)
 
+-- Toggle stroke animation (optional - can be removed if static color is preferred)
 local strokeTween = TweenService:Create(uiStrokeToggle, tweenInfo, {Color = Color3.fromRGB(255, 0, 255)})
 strokeTween:Play()
 
+-- Toggle visibility of mainFrame
 local isVisible = false
 toggleButton.MouseButton1Click:Connect(function()
     isVisible = not isVisible
@@ -218,9 +181,10 @@ toggleButton.MouseButton1Click:Connect(function()
     toggleButton.Text = isVisible and "Close" or "Open"
 end)
 
--- Draggability
+-- Universal Draggability
 local function makeDraggable(gui)
     local dragging, dragStart, startPos
+
     local function update(input)
         local delta = input.Position - dragStart
         gui.Position = UDim2.new(
@@ -230,11 +194,13 @@ local function makeDraggable(gui)
             startPos.Y.Offset + delta.Y
         )
     end
+
     gui.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
             dragStart = input.Position
             startPos = gui.Position
+
             input.Changed:Connect(function()
                 if input.UserInputState == Enum.UserInputState.End then
                     dragging = false
@@ -242,6 +208,7 @@ local function makeDraggable(gui)
             end)
         end
     end)
+
     gui.InputChanged:Connect(function(input)
         if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
             update(input)
@@ -249,13 +216,38 @@ local function makeDraggable(gui)
     end)
 end
 
+-- Apply to toggle and main frame
 makeDraggable(toggleButton)
 makeDraggable(mainFrame)
 
--- Script button creator
+-- Helper to create page selector buttons
+local function createPageSelectorButton(text, position, parent)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(0, 120, 0, 38)
+    button.Position = position
+    button.Text = text
+    button.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    button.TextColor3 = Color3.fromRGB(255, 0, 255)
+    button.TextSize = 18
+    button.Font = Enum.Font.SourceSans
+    button.Parent = parent
+
+    local uiCorner = Instance.new("UICorner", button)
+    uiCorner.CornerRadius = UDim.new(0.3, 0)
+
+    return button
+end
+
+-- Create page selector buttons
+local button1 = createPageSelectorButton("Main", UDim2.new(0.08, 0, 0.183, 0), secondaryFrame)
+local button2 = createPageSelectorButton("Usefull Scripts", UDim2.new(0.08, 0, 0.383, 0), secondaryFrame)
+local button3 = createPageSelectorButton("Misc Scripts", UDim2.new(0.08, 0, 0.583, 0), secondaryFrame)
+local button4 = createPageSelectorButton("Misc Scripts 2", UDim2.new(0.08, 0, 0.783, 0), secondaryFrame)
+
+-- Helper to create script buttons with purple hacker theme and script loading
 local function createScriptButton(text, position, scriptLink, parent)
     local button = Instance.new("TextButton")
-    button.Size = UDim2.new(0.45, 0, 0, 40)
+    button.Size = UDim2.new(0.45, 0, 0, 40) -- Width scale, fixed height
     button.Position = position
     button.Text = text
     button.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
@@ -279,14 +271,16 @@ local function createScriptButton(text, position, scriptLink, parent)
     return button
 end
 
--- Auto-layout script buttons
+-- Automatically layout buttons in a neat grid
 local function createPageButtons(pageNumber)
+    -- Clear old buttons
     for _, child in pairs(thirdFrame:GetChildren()) do
         if child:IsA("TextButton") then
             child:Destroy()
         end
     end
 
+    -- Button data
     local buttonsData = {}
     if pageNumber == 1 then
         buttonsData = {
@@ -298,8 +292,7 @@ local function createPageButtons(pageNumber)
             {Text = "Get Base", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Base%20V3"}, -- 6
             {Text = "Kill Aura", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20Aura"}, -- 7
             {Text = "Loopbring", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Loopbring%20V4.lua"}, -- 8
-            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 9
-            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 10
+
         }
     elseif pageNumber == 2 then
         buttonsData = {
@@ -311,8 +304,6 @@ local function createPageButtons(pageNumber)
             {Text = "Grip Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Grip%20Tools"}, -- 6
             {Text = "Axe Smash Sheild", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Axe%20Smash%20Spam"}, -- 7
             {Text = "Axe Smash Trap", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Axe%20Smash%20Trap"}, -- 8
-            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 9
-            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 10
         }
     elseif pageNumber == 3 then
         buttonsData = {
@@ -323,9 +314,7 @@ local function createPageButtons(pageNumber)
             {Text = "Perma-Death", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/God%20Mode.lua"}, -- 5
             {Text = "Walking God Mode", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Walking%20God%20Mode"}, -- 6
             {Text = "Super Cool Emotes", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/UGC%20Emotes"}, -- 7
-            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 8
-            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 9
-            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 10
+            {Text = "Emote While Moving", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Emote%20Cancelation%20Remover"}, -- 8
         }
     elseif pageNumber == 4 then
         buttonsData = {
@@ -340,53 +329,45 @@ local function createPageButtons(pageNumber)
         }
     end
 
-    local xOffset, yOffset = 10, 10
-    local maxColumns = 2
-    local buttonWidth = 170
+    -- Layout configuration
+    local buttonWidthScale = 0.45
     local buttonHeight = 40
+    local paddingY = 10
+    local startY = 10
+
     for i, data in ipairs(buttonsData) do
-        local col = (i-1) % maxColumns
-        local row = math.floor((i-1)/maxColumns)
-        local position = UDim2.new(0, xOffset + (buttonWidth + 10)*col, 0, yOffset + (buttonHeight + 10)*row)
-        createScriptButton(data.Text, position, data.ScriptLink, thirdFrame)
+        local column = (i % 2 == 1) and 0.03 or 0.51
+        local row = math.floor((i - 1) / 2)
+        local yPos = startY + row * (buttonHeight + paddingY)
+        createScriptButton(data.Text, UDim2.new(column, 0, 0, yPos), data.ScriptLink, thirdFrame)
     end
 end
 
--- Scrollable page buttons
-local pageNames = {"Main", "Useful Scripts", "Misc Scripts", "Misc Scripts 2", "Updates"}
-local pageButtons = {}
-for i, name in ipairs(pageNames) do
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -10, 0, 38)
-    btn.Text = name
-    btn.BackgroundColor3 = Color3.fromRGB(0,0,0)
-    btn.TextColor3 = Color3.fromRGB(255,0,255)
-    btn.Font = Enum.Font.SourceSans
-    btn.TextSize = 18
-    btn.Parent = secondaryFrame
-    local uiCorner = Instance.new("UICorner", btn)
-    uiCorner.CornerRadius = UDim.new(0.3,0)
-    pageButtons[name] = btn
-end
+-- Connect page selector buttons
+button1.MouseButton1Click:Connect(function() createPageButtons(1) end)
+button2.MouseButton1Click:Connect(function() createPageButtons(2) end)
+button3.MouseButton1Click:Connect(function() createPageButtons(3) end)
+button4.MouseButton1Click:Connect(function() createPageButtons(4) end)
 
--- Page switching logic
-local function showPage(name)
-    thirdFrame.Visible = false
-    updatesFrame.Visible = false
-    if name == "Updates" then
-        updatesFrame.Visible = true
+local buttons = {}
+
+function toggleButtonState(button)
+    if button.Text == "[off]" then
+        button.Text = "[on]" 
+        activateScript(button)
     else
-        thirdFrame.Visible = true
-        local pageNumber = {["Main"]=1, ["Useful Scripts"]=2, ["Misc Scripts"]=3, ["Misc Scripts 2"]=4}[name]
-        createPageButtons(pageNumber)
+        button.Text = "[off]"
+        deactivateScript(button)
     end
 end
 
-for name, btn in pairs(pageButtons) do
-    btn.MouseButton1Click:Connect(function()
-        showPage(name)
-    end)
+function activateScript(button)
+    print(button.Name .. " activated.")
 end
 
--- Default to Updates tab
-showPage("Updates")
+function deactivateScript(button)
+    print(button.Name .. " deactivated.")
+end
+
+-- Initialize page 1 buttons on load
+createPageButtons(1)

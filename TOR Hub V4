@@ -327,7 +327,7 @@ local function createPageButtons(pageNumber)
             {Text = "Get Tools V5", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Tools%20V5.lua"}, -- 1
             {Text = "Use Tools V7", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Use%20Tools%20V7"}, -- 2
             {Text = "No Cooldown V9", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V9"}, -- 3
-            {Text = "Insta-Kill V3", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Damage%20Spammer%20(Insta-Kill)"}, -- 4
+            {Text = "Insta-Kill V3", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Insta-Kill%20V3"}, -- 4
             {Text = "Respawn V6", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V6.lua"}, -- 5
             {Text = "Get Base", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Base%20V3"}, -- 6
             {Text = "Kill Aura", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20Aura"}, -- 7

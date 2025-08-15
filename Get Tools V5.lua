@@ -1,26 +1,20 @@
+-- ⚡ DEMONIC INSTANT TOOL GRABBER — Triple Frame Burst Edition
 local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
 local Tycoons = workspace:WaitForChild("Tycoons")
 
--- Excluded bases (hard skip)
+-- Skip/priority base sets
 local excludedBases = { "Insanity", "Giant", "Dark", "Spike", "Web", "Strong" }
-local excludedBasesSet = {}
-for _, base in ipairs(excludedBases) do
-    excludedBasesSet[base] = true
-end
-
--- Allowed bases (priority bases)
 local allowedBases = { "Stone", "Magic", "Storm" }
-local allowedBasesSet = {}
-for _, base in ipairs(allowedBases) do
-    allowedBasesSet[base] = true
-end
+local excludedBasesSet, allowedBasesSet = {}, {}
+for _, b in ipairs(excludedBases) do excludedBasesSet[b] = true end
+for _, b in ipairs(allowedBases) do allowedBasesSet[b] = true end
 
--- Collect tools from allowed or non-excluded bases
+-- Instant touch spam
 local function CollectTools()
-    local character = LocalPlayer.Character
-    local root = character and character:FindFirstChild("HumanoidRootPart")
+    local char = LocalPlayer.Character
+    local root = char and char:FindFirstChild("HumanoidRootPart")
     if not root then return end
 
     for _, v in ipairs(Tycoons:GetDescendants()) do
@@ -28,24 +22,32 @@ local function CollectTools()
             local baseModel = v.Parent.Parent.Parent
             local baseName = baseModel and baseModel.Name
             if baseName and (allowedBasesSet[baseName] or not excludedBasesSet[baseName]) then
-                firetouchinterest(root, v.Parent, 0)
-                firetouchinterest(root, v.Parent, 1)
+                task.spawn(function()
+                    -- Burst touch: hit pad multiple times instantly
+                    for _ = 1, 4 do
+                        firetouchinterest(root, v.Parent, 0)
+                        firetouchinterest(root, v.Parent, 1)
+                    end
+                end)
             end
         end
     end
 end
 
--- Run instantly and every frame
+-- Initial grab
 CollectTools()
-RunService.Heartbeat:Connect(CollectTools)
 
--- Run after respawn
+-- Run every possible frame point
+RunService.Heartbeat:Connect(CollectTools)
+RunService.Stepped:Connect(CollectTools)
+RunService.PostSimulation:Connect(CollectTools)
+
+-- Instant after respawn — no wait
 LocalPlayer.CharacterAdded:Connect(function()
-    LocalPlayer.Character:WaitForChild("HumanoidRootPart")
-    CollectTools()
+    task.defer(CollectTools)
 end)
 
--- Run when new pads appear
+-- React instantly to new pads
 Tycoons.DescendantAdded:Connect(function(descendant)
     if descendant:IsA("TouchTransmitter") and descendant.Parent and descendant.Parent.Parent and descendant.Parent.Parent.Name:find("GearGiver1") then
         CollectTools()

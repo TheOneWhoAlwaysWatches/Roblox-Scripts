@@ -85,6 +85,8 @@ secondaryFrame.Position = UDim2.new(0.015, 0, 0.035, 0)
 secondaryFrame.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
 secondaryFrame.BorderSizePixel = 0
 secondaryFrame.Visible = true
+secondaryFrame.CanvasSize = UDim2.new(0, 0, 0, 0) -- will auto adjust
+secondaryFrame.ScrollBarThickness = 6
 secondaryFrame.Parent = mainFrame
 
 local uiCornerSecondary = Instance.new("UICorner", secondaryFrame)
@@ -93,6 +95,11 @@ uiCornerSecondary.CornerRadius = UDim.new(0.3, 0)
 local uiStrokeSecondary = Instance.new("UIStroke", secondaryFrame)
 uiStrokeSecondary.Color = Color3.fromRGB(255, 0, 255)
 uiStrokeSecondary.Thickness = 3
+
+-- UIListLayout for automatic button placement
+local uiListLayout = Instance.new("UIListLayout", secondaryFrame)
+uiListLayout.Padding = UDim.new(0, 8)
+uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
 -- Third frame (page content)
 local thirdFrame = Instance.new("Frame")

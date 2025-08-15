@@ -1,12 +1,11 @@
--- ⚔️ TDW Hyper Tool Spammer (Max Tick Speed)
-
-local player = game.Players.LocalPlayer
+-- ⚔️ DEMONIC ULTRA TOOL SPAMMER — Frame-Stack Edition
+local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
--- Shared hit timestamps for power meter
+local player = Players.LocalPlayer
 getgenv().TDW_HIT_TIMESTAMPS = {}
 
--- UI Setup
+-- UI Setup (same as before, shortened)
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "DemonicToolGui"
 screenGui.Parent = game.CoreGui
@@ -20,36 +19,13 @@ toolButton.Size = UDim2.new(0, 80, 0, 40)
 toolButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 toolButton.Font = Enum.Font.FredokaOne
 toolButton.Text = "OFF"
-toolButton.TextColor3 = Color3.fromRGB(180, 100, 255) -- purple text
+toolButton.TextColor3 = Color3.fromRGB(180, 100, 255)
 toolButton.TextSize = 22
-toolButton.AutoButtonColor = false
 toolButton.BorderSizePixel = 0
 
 local stroke = Instance.new("UIStroke", toolButton)
 stroke.Thickness = 3
-stroke.Color = Color3.fromRGB(120, 40, 200) -- purple border
-stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-
-local padding = Instance.new("UIPadding", toolButton)
-padding.PaddingTop = UDim.new(0, 5)
-padding.PaddingBottom = UDim.new(0, 5)
-padding.PaddingLeft = UDim.new(0, 6)
-padding.PaddingRight = UDim.new(0, 6)
-
--- Glow Effect using UIGradient pulsing
-local glow = Instance.new("UIGradient", toolButton)
-glow.Rotation = 45
-local pulseTweenInfo = TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
-local TweenService = game:GetService("TweenService")
-
-glow.Color = ColorSequence.new({
-	ColorSequenceKeypoint.new(0, Color3.fromRGB(120, 40, 200)),
-	ColorSequenceKeypoint.new(0.5, Color3.fromRGB(180, 100, 255)),
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(120, 40, 200)),
-})
-
-local pulseTween = TweenService:Create(glow, pulseTweenInfo, {Offset = Vector2.new(0.3, 0)})
-pulseTween:Play()
+stroke.Color = Color3.fromRGB(120, 40, 200)
 
 -- Logic
 local attacking = false
@@ -61,10 +37,13 @@ local function activateTool(tool)
 
 	task.spawn(function()
 		while attacking and tool.Parent == player.Character do
-			pcall(function() 
-				tool:Activate() 
-				table.insert(getgenv().TDW_HIT_TIMESTAMPS, tick())
-			end)
+			-- Burst spam: 3x activates per loop
+			for _ = 1, 3 do
+				pcall(function()
+					tool:Activate()
+					table.insert(getgenv().TDW_HIT_TIMESTAMPS, tick())
+				end)
+			end
 			RunService.PostSimulation:Wait()
 		end
 		activeTools[tool] = nil
@@ -91,8 +70,8 @@ local function equipAllTools()
 	end
 end
 
-local function toggleAttack()
-	attacking = not attacking
+local function toggleAttack(forceOn)
+	if forceOn ~= nil then attacking = forceOn else attacking = not attacking end
 	toolButton.Text = attacking and "ON" or "OFF"
 	toolButton.TextColor3 = attacking and Color3.fromRGB(255, 60, 60) or Color3.fromRGB(0, 255, 0)
 
@@ -110,23 +89,32 @@ end
 
 toolButton.MouseButton1Click:Connect(toggleAttack)
 
--- Event Handlers
+-- Instantly equip new tools
 player.Backpack.ChildAdded:Connect(function(child)
 	if child:IsA("Tool") and attacking then
 		child.Parent = player.Character
 	end
 end)
 
+-- Instant activation on spawn
 player.CharacterAdded:Connect(function()
-	task.wait(0.1)
-	if attacking then
-		equipAllTools()
-	end
+	task.defer(function()
+		if attacking then
+			equipAllTools()
+		end
+	end)
 end)
 
--- 🔁 Ultra Fast Tick Equip/Use Handler
-RunService.PostSimulation:Connect(function()
-	if attacking then
-		equipAllTools()
-	end
+-- 🔁 Triple-frame activation spam
+RunService.Heartbeat:Connect(function()
+	if attacking then equipAllTools() end
 end)
+RunService.Stepped:Connect(function()
+	if attacking then equipAllTools() end
+end)
+RunService.PostSimulation:Connect(function()
+	if attacking then equipAllTools() end
+end)
+
+-- Optional: Auto-on at start
+toggleAttack(true)

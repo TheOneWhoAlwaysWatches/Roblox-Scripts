@@ -204,29 +204,6 @@ local uiStrokeUpdates = Instance.new("UIStroke", updatesFrame)
 uiStrokeUpdates.Color = Color3.fromRGB(255, 0, 255)
 uiStrokeUpdates.Thickness = 3
 
-local updatesLabel = Instance.new("TextLabel")
-updatesLabel.Size = UDim2.new(1, -20, 1, -20)
-updatesLabel.Position = UDim2.new(0, 10, 0, 10)
-updatesLabel.BackgroundTransparency = 1
-updatesLabel.Text = [[
-📝 Updates:
-- Optimized No Cooldowm, shouldnt overflow network services anymore.
-- Optimized Inta-Kill, Shouldnt overflow network servieces anymore.
-- Made respawn tick-perfect on death.
-- Made Get tools and use tools Tick-Perfect on respawn.
-- Fixed Loopbring breaking sometimes.
-
-Fools.. You thought i was gone.. You are wrong. 
-
-      You have no idea what's coming...
-]]
-updatesLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-updatesLabel.TextWrapped = true
-updatesLabel.TextYAlignment = Enum.TextYAlignment.Top
-updatesLabel.Font = Enum.Font.Code
-updatesLabel.TextSize = 16
-updatesLabel.Parent = updatesFrame
-
 -- Regular updates text
 local updatesLabel1 = Instance.new("TextLabel")
 updatesLabel1.Size = UDim2.new(1, -20, 0, 150)

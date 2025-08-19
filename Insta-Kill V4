@@ -1,7 +1,10 @@
+-- ⚡ Optimized Aura Spammer (Max Power, Safe From Flooding)
+-- Auto-equips tools, spams remote/touch attacks on all nearby enemies
+
 -- CONFIG
 local auraRange = 25 -- Max distance to enemy
 local auraSize = Vector3.new(25, 25, 25) -- Aura box around tool
-local attackRate = 0.1 -- Speed of the loop (seconds)
+local attackRate = 0.05 -- Loop speed (20/sec = deadly but safe)
 
 -- SERVICES
 local Players = game:GetService("Players")
@@ -27,9 +30,7 @@ local function getValidTargets()
     local myHRP = getHRP(LocalPlayer)
     if not myHRP then return {}, {} end
 
-    local playersInRange = {}
-    local chars = {}
-
+    local playersInRange, chars = {}, {}
     for _, player in ipairs(Players:GetPlayers()) do
         if player ~= LocalPlayer then
             local hrp = getHRP(player)
@@ -40,7 +41,6 @@ local function getValidTargets()
             end
         end
     end
-
     return playersInRange, chars
 end
 
@@ -72,7 +72,10 @@ task.spawn(function()
 
                 if fightEvent then
                     autoEquip(tool)
-                    fightEvent:FireServer()-- One powerful hit per scan
+                    -- Fire once per target (if remote supports it)
+                    for _, enemy in ipairs(targets) do
+                        pcall(function() fightEvent:FireServer(enemy) end)
+                    end
                 end
 
                 if touchPart then
@@ -82,9 +85,12 @@ task.spawn(function()
                         auraParams
                     )
 
+                    -- Deduplicate hits (one per model per loop)
+                    local hitDone = {}
                     for _, part in ipairs(partsInBox) do
                         local model = part:FindFirstAncestorWhichIsA("Model")
-                        if model and table.find(enemyChars, model) then
+                        if model and table.find(enemyChars, model) and not hitDone[model] then
+                            hitDone[model] = true
                             firetouchinterest(touchPart, part, 1)
                             firetouchinterest(touchPart, part, 0)
                         end
@@ -93,6 +99,8 @@ task.spawn(function()
             end
         end
 
+        -- Frame-synced loop with safe throttle
+        RunService.Heartbeat:Wait()
         task.wait(attackRate)
     end
 end)
@@ -103,4 +111,4 @@ LocalPlayer.CharacterAdded:Connect(function()
     running = true
 end)
 
-print("1 Shot Ultra Hit Spammer Activated!")
+print("[✅] Ultra Aura Spammer Activated (Safe & Max DPS)")

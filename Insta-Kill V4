@@ -1,21 +1,16 @@
--- ⚡ OPTIMIZED INSTA-KILL (Balanced OP Edition)
+-- ⚡ Optimized Ultra Hit Aura ⚡
+local auraRange = 50 -- Max distance to enemy
+local auraSize = Vector3.new(40, 40, 40) -- Aura box around tool
+local attackRate = 1/60 -- ~60 attacks per sec (deadly fast but not laggy)
 
--- CONFIG
-local auraRange = 25 -- Max distance to enemy
-local auraSize = Vector3.new(25, 25, 25) -- Aura box expansion
-local burstCount = 2 -- Events per tick (network safe, still brutal)
-
--- SERVICES
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 
--- STATE
 local running = true
 local auraParams = OverlapParams.new()
 auraParams.FilterType = Enum.RaycastFilterType.Include
 
--- HELPERS
 local function getChar(plr)
     return plr and plr.Character
 end
@@ -44,8 +39,8 @@ local function getValidTargets()
 end
 
 local function getTouchPart(tool)
-    local touchTransmitter = tool and tool:FindFirstChildWhichIsA("TouchTransmitter", true)
-    return touchTransmitter and touchTransmitter.Parent
+    local tt = tool and tool:FindFirstChildWhichIsA("TouchTransmitter", true)
+    return tt and tt.Parent
 end
 
 local function autoEquip(tool)
@@ -55,52 +50,55 @@ local function autoEquip(tool)
     tool:Activate()
 end
 
--- MAIN LOOP (Heartbeat = 60hz hard cap)
-RunService.Heartbeat:Connect(function()
-    if not running then return end
-    local myChar = getChar(LocalPlayer)
-    if not myChar then return end
+-- MAIN LOOP
+task.spawn(function()
+    while running do
+        local myChar = getChar(LocalPlayer)
+        if not myChar then task.wait(0.5) continue end
 
-    local targets, enemyChars = getValidTargets()
-    auraParams.FilterDescendantsInstances = enemyChars
+        local targets, enemyChars = getValidTargets()
+        auraParams.FilterDescendantsInstances = enemyChars
 
-    if #enemyChars == 0 then return end -- ✅ don’t spam if no enemies
+        for _, tool in ipairs(myChar:GetChildren()) do
+            if tool:IsA("Tool") then
+                local fightEvent = tool:FindFirstChild("FightEvent")
+                local touchPart = getTouchPart(tool)
 
-    for _, tool in ipairs(myChar:GetChildren()) do
-        if tool:IsA("Tool") then
-            local fightEvent = tool:FindFirstChild("FightEvent")
-            local touchPart = getTouchPart(tool)
-
-            if fightEvent then
-                autoEquip(tool)
-                for i = 1, burstCount do
+                -- Only 1–2 remote hits per frame (still lethal)
+                if fightEvent then
+                    autoEquip(tool)
+                    fightEvent:FireServer()
                     fightEvent:FireServer()
                 end
-            end
 
-            if touchPart then
-                local partsInBox = workspace:GetPartBoundsInBox(
-                    touchPart.CFrame,
-                    touchPart.Size + auraSize,
-                    auraParams
-                )
+                -- Aura hit once per enemy model per frame
+                if touchPart then
+                    local partsInBox = workspace:GetPartBoundsInBox(
+                        touchPart.CFrame,
+                        touchPart.Size + auraSize,
+                        auraParams
+                    )
+                    local hitAlready = {}
 
-                for _, part in ipairs(partsInBox) do
-                    local model = part:FindFirstAncestorWhichIsA("Model")
-                    if model and table.find(enemyChars, model) then
-                        firetouchinterest(touchPart, part, 1)
-                        firetouchinterest(touchPart, part, 0)
+                    for _, part in ipairs(partsInBox) do
+                        local model = part:FindFirstAncestorWhichIsA("Model")
+                        if model and table.find(enemyChars, model) and not hitAlready[model] then
+                            firetouchinterest(touchPart, part, 1)
+                            firetouchinterest(touchPart, part, 0)
+                            hitAlready[model] = true -- prevent spamming same char
+                        end
                     end
                 end
             end
         end
+
+        task.wait(attackRate)
     end
 end)
 
--- RESET ON DEATH
 LocalPlayer.CharacterAdded:Connect(function()
     task.wait(0.1)
     running = true
 end)
 
-print("🔥 Insta-Kill v4 Enabled — Tick-Perfect Burst, No Lag Floods")
+print("⚡ Optimized Ultra Hit Aura ON — lethal but low-lag")

@@ -55,6 +55,74 @@ pcall(function()
     })
 end)
 
+-- === INTRO ANIMATION ===
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- Black full-screen frame
+local blackScreen = Instance.new("Frame")
+blackScreen.Size = UDim2.new(1, 0, 1, 0)
+blackScreen.Position = UDim2.new(0, 0, 0, 0)
+blackScreen.BackgroundColor3 = Color3.new(0,0,0)
+blackScreen.ZIndex = 9999
+blackScreen.Parent = playerGui
+
+-- TextLabel for the fade-in text
+local introText = Instance.new("TextLabel")
+introText.Size = UDim2.new(1, -20, 0, 100)
+introText.Position = UDim2.new(0, 10, 0.5, -50)
+introText.BackgroundTransparency = 1
+introText.TextColor3 = Color3.fromRGB(255,0,0)
+introText.TextWrapped = true
+introText.Font = Enum.Font.PatrickHand -- cursive
+introText.TextSize = 28
+introText.TextYAlignment = Enum.TextYAlignment.Top
+introText.Parent = blackScreen
+introText.Text = ""
+
+-- Sounds
+local audio1 = Instance.new("Sound") -- special audio during text
+audio1.SoundId = "rbxassetid://136223947483416" -- replace with your audio
+audio1.Volume = 1
+audio1.Parent = blackScreen
+
+local lightning = Instance.new("Sound") -- lightning at end
+lightning.SoundId = "rbxassetid://138081500" -- big lightning sound
+lightning.Volume = 1
+lightning.Parent = blackScreen
+
+-- Text split into two parts
+local part1 = "Fools.. You thought i was gone..?"
+local part2 = "\n\n      You have no idea what's coming..."
+
+-- Function to fade in letters
+local function fadeInText(label, text, interval)
+    for i = 1, #text do
+        label.Text = string.sub(text, 1, i)
+        task.wait(interval)
+    end
+end
+
+-- Animate
+task.spawn(function()
+    -- Fade in first part
+    fadeInText(introText, part1, 0.08) -- adjust speed here
+
+    -- Play special audio after first part
+    audio1:Play()
+
+    -- Fade in second part while audio plays
+    fadeInText(introText, part1 .. part2, 0.05) -- adjust speed here
+
+    -- Wait until audio is finished
+    audio1.Ended:Wait()
+
+    -- Play lightning
+    lightning:Play()
+
+    -- Remove black screen and continue to hub
+    blackScreen:Destroy()
+end)
+
 -- Create main ScreenGui
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "SPT"
@@ -142,13 +210,15 @@ updatesLabel.Position = UDim2.new(0, 10, 0, 10)
 updatesLabel.BackgroundTransparency = 1
 updatesLabel.Text = [[
 📝 Updates:
-- Kill/Death Tracker updated to V2
-- No Cooldown improved to V9
-- Use Tools improved to V7
-- Get Tools improved to V5
-- Insta-Kill improved to V3
-- Respawn improved to V6
-- Added Updates page
+- Optimized No Cooldowm, shouldnt overflow network services anymore.
+- Optimized Inta-Kill, Shouldnt overflow network servieces anymore.
+- Made respawn tick-perfect on death.
+- Made Get tools and use tools Tick-Perfect on respawn.
+- Fixed Loopbring breaking sometimes.
+
+Fools.. You thought i was gone.. You are wrong. 
+
+      You have no idea what's coming...
 ]]
 updatesLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 updatesLabel.TextWrapped = true
@@ -156,6 +226,43 @@ updatesLabel.TextYAlignment = Enum.TextYAlignment.Top
 updatesLabel.Font = Enum.Font.Code
 updatesLabel.TextSize = 16
 updatesLabel.Parent = updatesFrame
+
+-- Regular updates text
+local updatesLabel1 = Instance.new("TextLabel")
+updatesLabel1.Size = UDim2.new(1, -20, 0, 150)
+updatesLabel1.Position = UDim2.new(0, 10, 0, 10)
+updatesLabel1.BackgroundTransparency = 1
+updatesLabel1.Text = [[
+📝 Updates:
+- Optimized No Cooldowm, shouldnt overflow network services anymore.
+- Optimized Inta-Kill, Shouldnt overflow network servieces anymore.
+- Made respawn tick-perfect on death.
+- Made Get tools and use tools Tick-Perfect on respawn.
+- Fixed Loopbring breaking sometimes.
+]]
+updatesLabel1.TextColor3 = Color3.fromRGB(255, 255, 255)
+updatesLabel1.TextWrapped = true
+updatesLabel1.TextYAlignment = Enum.TextYAlignment.Top
+updatesLabel1.Font = Enum.Font.Code
+updatesLabel1.TextSize = 16
+updatesLabel1.Parent = updatesFrame
+
+-- Special cursive red text
+local updatesLabel2 = Instance.new("TextLabel")
+updatesLabel2.Size = UDim2.new(1, -20, 0, 80)
+updatesLabel2.Position = UDim2.new(0, 10, 0, 160)
+updatesLabel2.BackgroundTransparency = 1
+updatesLabel2.Text = [[
+Fools.. You thought i was gone.. You are wrong.
+
+      You have no idea what's coming...
+]]
+updatesLabel2.TextColor3 = Color3.fromRGB(255, 0, 0)
+updatesLabel2.TextWrapped = true
+updatesLabel2.TextYAlignment = Enum.TextYAlignment.Top
+updatesLabel2.Font = Enum.Font.PatrickHand -- cursive-style font
+updatesLabel2.TextSize = 16
+updatesLabel2.Parent = updatesFrame
 
 -- Title label with tweened color animation
 local titleLabel = Instance.new("TextLabel")
@@ -324,14 +431,14 @@ local function createPageButtons(pageNumber)
     local buttonsData = {}
     if pageNumber == 1 then
         buttonsData = {
-            {Text = "Get Tools V5", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Tools%20V5.lua"}, -- 1
-            {Text = "Use Tools V7", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Use%20Tools%20V7"}, -- 2
-            {Text = "No Cooldown V9", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V9"}, -- 3
-            {Text = "Insta-Kill V3", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Insta-Kill%20V3"}, -- 4
-            {Text = "Respawn V6", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V6.lua"}, -- 5
+            {Text = "Get Tools V6", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Tools%20V6.lua"}, -- 1
+            {Text = "Use Tools V8", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Use%20Tools%20V8"}, -- 2
+            {Text = "No Cooldown V10", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V10"}, -- 3
+            {Text = "Insta-Kill V4", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Insta-Kill%20V4"}, -- 4
+            {Text = "Respawn V6", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V7.lua"}, -- 5
             {Text = "Get Base", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Base%20V3"}, -- 6
             {Text = "Kill Aura", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20Aura"}, -- 7
-            {Text = "Loopbring", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Loopbring%20V4.lua"}, -- 8
+            {Text = "Loopbring", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Loopbring%20V5.lua"}, -- 8
 
         }
     elseif pageNumber == 2 then

@@ -1,10 +1,13 @@
--- === LOOPBRING V4 (Circle Mode) + RootPart Auto-Rebuild ===
+-- === LOOPBRING V6 (Circle Mode) — Tick-Perfect + Persistent ===
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 
-local bringTargets = {}
-local circleRadius = 5  -- Distance from player
-local circleSpeed = 0.1 -- Teleport speed
+local bringTargets = {}       -- currently active loopbring
+local persistentTargets = {}  -- remembers selected players even if they leave
+
+local circleRadius = 5
+local circleSpeed = 0.03 -- tick-perfect interval
 
 -- === UI ===
 local bringUI = Instance.new("ScreenGui")
@@ -39,7 +42,6 @@ frame.Position = UDim2.new(1, -220, 0, 50)
 frame.BackgroundColor3 = Color3.fromRGB(20, 0, 20)
 frame.Visible = false
 frame.Parent = bringUI
-
 Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
 Instance.new("UIStroke", frame).Color = Color3.fromRGB(150, 0, 150)
 
@@ -54,16 +56,12 @@ scroll.Parent = frame
 local layout = Instance.new("UIListLayout", scroll)
 layout.Padding = UDim.new(0, 2)
 
-toggle.MouseButton1Click:Connect(function()
-	frame.Visible = not frame.Visible
-	if frame.Visible then updatePlayerList() end
-end)
-
--- === Target Management ===
+-- === Player Selection Logic ===
 local function loopBring(name)
 	if not table.find(bringTargets, name) then
 		table.insert(bringTargets, name)
 	end
+	persistentTargets[name] = true
 end
 
 local function stopBring(name)
@@ -93,6 +91,7 @@ function updatePlayerList()
 			b.MouseButton1Click:Connect(function()
 				if table.find(bringTargets, p.Name) then
 					stopBring(p.Name)
+					persistentTargets[p.Name] = nil
 				else
 					loopBring(p.Name)
 				end
@@ -103,65 +102,48 @@ function updatePlayerList()
 	scroll.CanvasSize = UDim2.new(0, 0, 0, #Players:GetPlayers() * 30)
 end
 
-Players.PlayerAdded:Connect(updatePlayerList)
-Players.PlayerRemoving:Connect(function(p)
-	stopBring(p.Name)
+toggle.MouseButton1Click:Connect(function()
+	frame.Visible = not frame.Visible
+	if frame.Visible then updatePlayerList() end
+end)
+
+-- Auto re-add persistent targets when they join
+Players.PlayerAdded:Connect(function(p)
+	if persistentTargets[p.Name] then
+		loopBring(p.Name)
+	end
 	updatePlayerList()
 end)
 
--- === RootPart Rebuild Function ===
-local function rebuildRoot(char)
-	if not char then return end
+Players.PlayerRemoving:Connect(function(p)
+	stopBring(p.Name) -- stop actively loopbringing
+	updatePlayerList()
+end)
 
-	-- Ensure Humanoid exists
-	if not char:FindFirstChildOfClass("Humanoid") then
-		local hum = Instance.new("Humanoid")
-		hum.Health = 100
-		hum.MaxHealth = 100
-		hum.Parent = char
-	end
+-- Initial update
+updatePlayerList()
 
-	-- Ensure HumanoidRootPart exists
-	if not char:FindFirstChild("HumanoidRootPart") then
-		local rootPart = Instance.new("Part")
-		rootPart.Name = "HumanoidRootPart"
-		rootPart.Size = Vector3.new(2, 2, 1)
-		rootPart.Anchored = false
-		rootPart.CanCollide = false
-		rootPart.Transparency = 1
-		rootPart.CFrame = CFrame.new(char:GetModelCFrame().Position)
-		rootPart.Parent = char
+-- === Tick-Perfect LoopBring ===
+RunService.Heartbeat:Connect(function()
+	local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+	if not root or #bringTargets == 0 then return end
 
-		-- Weld it to torso or upper torso if available
-		local torso = char:FindFirstChild("Torso") or char:FindFirstChild("UpperTorso")
-		if torso then
-			local weld = Instance.new("WeldConstraint")
-			weld.Part0 = rootPart
-			weld.Part1 = torso
-			weld.Parent = rootPart
+	for i, name in ipairs(bringTargets) do
+		local plr = nil
+		for _, p in ipairs(Players:GetPlayers()) do
+			if p.Name == name then
+				plr = p
+				break
+			end
 		end
-	end
-end
 
--- === Circle Loop ===
-task.spawn(function()
-	while task.wait(circleSpeed) do
-		local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-		if root and #bringTargets > 0 then
-			for i, name in ipairs(bringTargets) do
-				local plr = Players:FindFirstChild(name)
-				local tChar = plr and plr.Character
-				if tChar then
-					-- Auto-rebuild parts if missing
-					rebuildRoot(tChar)
-
-					local tRoot = tChar:FindFirstChild("HumanoidRootPart")
-					if tRoot then
-						local angle = math.rad((i / #bringTargets) * 360)
-						local offset = Vector3.new(math.cos(angle) * circleRadius, 0, math.sin(angle) * circleRadius)
-						tRoot.CFrame = CFrame.new(root.Position + offset)
-					end
-				end
+		local tChar = plr and plr.Character
+		if tChar then
+			local tRoot = tChar:FindFirstChild("HumanoidRootPart")
+			if tRoot then
+				local angle = math.rad((i / #bringTargets) * 360)
+				local offset = Vector3.new(math.cos(angle) * circleRadius, 0, math.sin(angle) * circleRadius)
+				tRoot.CFrame = CFrame.new(root.Position + offset)
 			end
 		end
 	end

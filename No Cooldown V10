@@ -1,106 +1,34 @@
--- ⚡ Optimized No Cooldown Nuker ⚡
-local Players = game:GetService("Players")
+-- ⚡ Universal No Cooldown Script (Safe/Optimized)
+-- Removes cooldowns by overriding Roblox yield functions without causing server flooding
+
 local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-local LocalPlayer = Players.LocalPlayer
 
--- === 1️⃣ Cooldown nuker (patched less often)
-local function patchUpvalues()
-    for _, v in ipairs(getgc(true)) do
-        if typeof(v) == "function" and islclosure(v) then
-            for i = 1, debug.getinfo(v).nups do
-                local name = debug.getupvalue(v, i)
-                if type(name) == "string" and name:lower():find("cooldown") then
-                    debug.setupvalue(v, i, 0)
-                end
-            end
-        end
-    end
+-- Safe frame sync
+local function instantWait()
+    RunService.Heartbeat:Wait() -- syncs once per frame
+    return nil
 end
 
--- Run patch once on start + every 5s
-task.spawn(function()
-    while task.wait(5) do
-        patchUpvalues()
-    end
-end)
-patchUpvalues()
+-- Hook 'wait'
+hookfunction(wait, instantWait)
 
--- === 2️⃣ Remote spammer (rate limited)
-local function spamToolRemotes(target)
-    local char = LocalPlayer.Character
-    if not char then return end
-    local tool = char:FindFirstChildOfClass("Tool")
-    if not tool then return end
+-- Hook 'task.wait'
+hookfunction(task.wait, instantWait)
 
-    for _, remote in ipairs(tool:GetDescendants()) do
-        if remote:IsA("RemoteEvent") then
-            -- Send 2 hits per frame max (not 5+)
-            remote:FireServer(target)
-            remote:FireServer(target)
-        end
-    end
-end
-
--- === 3️⃣ Kill helpers
-local function softKill(humanoid)
-    if humanoid and humanoid.Health > 0 then
-        humanoid.Health = 0
-    end
-end
-
-local function hardBreak(humanoid)
-    if humanoid and humanoid.Parent then
-        local char = humanoid.Parent
-        for _, part in ipairs({"Head", "Torso", "UpperTorso", "LowerTorso"}) do
-            local p = char:FindFirstChild(part)
-            if p then p:Destroy() end
-        end
-        humanoid:Destroy()
-        char:Destroy()
-    end
-end
-
--- === 4️⃣ Toggles
-local hardBreakMode = false
-local ignoreRange = false
-
-UserInputService.InputBegan:Connect(function(input, gpe)
-    if gpe then return end
-    if input.KeyCode == Enum.KeyCode.H then
-        hardBreakMode = not hardBreakMode
-        print("💀 Hard Break Mode:", hardBreakMode)
-    elseif input.KeyCode == Enum.KeyCode.R then
-        ignoreRange = not ignoreRange
-        print("🌍 Ignore Range:", ignoreRange)
+-- Hook 'task.delay'
+hookfunction(task.delay, function(_, callback, ...)
+    -- Run instantly instead of waiting
+    if typeof(callback) == "function" then
+        return callback(...)
     end
 end)
 
-print("✅ [H] Hard Break toggle | [R] Ignore Range toggle")
-
--- === 5️⃣ Main loop (lighter)
-RunService.Heartbeat:Connect(function()
-    local myChar = LocalPlayer.Character
-    local myHRP = myChar and myChar:FindFirstChild("HumanoidRootPart")
-    if not myHRP then return end
-
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and player.Character then
-            local hum = player.Character:FindFirstChildOfClass("Humanoid")
-            local enemyHRP = player.Character:FindFirstChild("HumanoidRootPart")
-
-            if hum and enemyHRP and hum.Health > 0 then
-                local dist = (myHRP.Position - enemyHRP.Position).Magnitude
-                if ignoreRange or dist <= 30 then
-                    spamToolRemotes(enemyHRP)
-                    softKill(hum)
-                    if hardBreakMode then
-                        hardBreak(hum)
-                    end
-                end
-            end
-        end
+-- Hook 'task.defer'
+hookfunction(task.defer, function(callback, ...)
+    -- Run instantly (no defer)
+    if typeof(callback) == "function" then
+        return callback(...)
     end
 end)
 
-print("🔥 Optimized No Cooldown Nuker ENABLED — fast, but no lag flood.")
+print("[✅] Universal No Cooldown Enabled")

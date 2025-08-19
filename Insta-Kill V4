@@ -1,10 +1,10 @@
--- ⚡ Optimized Aura Spammer (Max Power, Safe From Flooding)
--- Auto-equips tools, spams remote/touch attacks on all nearby enemies
+-- ⚡ Optimized Insta-Kill Aura (Reliable Hits)
+-- Still max DPS without flooding Roblox
 
 -- CONFIG
 local auraRange = 25 -- Max distance to enemy
-local auraSize = Vector3.new(25, 25, 25) -- Aura box around tool
-local attackRate = 0.05 -- Loop speed (20/sec = deadly but safe)
+local auraSize = Vector3.new(40, 40, 40) -- Expanded aura box
+local attackRate = 0.05 -- Loop speed (20/sec)
 
 -- SERVICES
 local Players = game:GetService("Players")
@@ -72,7 +72,6 @@ task.spawn(function()
 
                 if fightEvent then
                     autoEquip(tool)
-                    -- Fire once per target (if remote supports it)
                     for _, enemy in ipairs(targets) do
                         pcall(function() fightEvent:FireServer(enemy) end)
                     end
@@ -85,7 +84,6 @@ task.spawn(function()
                         auraParams
                     )
 
-                    -- Deduplicate hits (one per model per loop)
                     local hitDone = {}
                     for _, part in ipairs(partsInBox) do
                         local model = part:FindFirstAncestorWhichIsA("Model")
@@ -95,20 +93,27 @@ task.spawn(function()
                             firetouchinterest(touchPart, part, 0)
                         end
                     end
+
+                    -- 🔹 Backup guarantee hit: force attack if enemy HRP in range
+                    for _, enemy in ipairs(targets) do
+                        local hrp = getHRP(enemy)
+                        if hrp and not hitDone[enemy.Character] then
+                            firetouchinterest(touchPart, hrp, 1)
+                            firetouchinterest(touchPart, hrp, 0)
+                        end
+                    end
                 end
             end
         end
 
-        -- Frame-synced loop with safe throttle
         RunService.Heartbeat:Wait()
         task.wait(attackRate)
     end
 end)
 
--- RESET ON DEATH
 LocalPlayer.CharacterAdded:Connect(function()
     task.wait(0.1)
     running = true
 end)
 
-print("[✅] Ultra Aura Spammer Activated (Safe & Max DPS)")
+print("[✅] Reliable Insta-Kill Aura Active")

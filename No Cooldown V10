@@ -1,14 +1,12 @@
--- ⚡ NO COOLDOWN V10 — Ultra OP but Network-Safe ⚡
+-- ⚡ Optimized No Cooldown Nuker ⚡
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 
-local Heartbeat = RunService.Heartbeat
-
--- === 1️⃣ Cooldown nuker (fast but safe: ~20x per second)
+-- === 1️⃣ Cooldown nuker (patched less often)
 local function patchUpvalues()
-    for _, v in pairs(getgc(true)) do
+    for _, v in ipairs(getgc(true)) do
         if typeof(v) == "function" and islclosure(v) then
             for i = 1, debug.getinfo(v).nups do
                 local name = debug.getupvalue(v, i)
@@ -20,13 +18,15 @@ local function patchUpvalues()
     end
 end
 
+-- Run patch once on start + every 5s
 task.spawn(function()
-    while task.wait(0.05) do
+    while task.wait(5) do
         patchUpvalues()
     end
 end)
+patchUpvalues()
 
--- === 2️⃣ Remote spammer (3–4 per frame, network safe but deadly)
+-- === 2️⃣ Remote spammer (rate limited)
 local function spamToolRemotes(target)
     local char = LocalPlayer.Character
     if not char then return end
@@ -35,32 +35,51 @@ local function spamToolRemotes(target)
 
     for _, remote in ipairs(tool:GetDescendants()) do
         if remote:IsA("RemoteEvent") then
-            for _ = 1, 3 do
-                remote:FireServer(target)
-            end
+            -- Send 2 hits per frame max (not 5+)
+            remote:FireServer(target)
+            remote:FireServer(target)
         end
     end
 end
 
--- === 3️⃣ Fallback kill (safety nuke if remotes don’t connect)
+-- === 3️⃣ Kill helpers
 local function softKill(humanoid)
     if humanoid and humanoid.Health > 0 then
         humanoid.Health = 0
     end
 end
 
--- === 4️⃣ Toggle
+local function hardBreak(humanoid)
+    if humanoid and humanoid.Parent then
+        local char = humanoid.Parent
+        for _, part in ipairs({"Head", "Torso", "UpperTorso", "LowerTorso"}) do
+            local p = char:FindFirstChild(part)
+            if p then p:Destroy() end
+        end
+        humanoid:Destroy()
+        char:Destroy()
+    end
+end
+
+-- === 4️⃣ Toggles
+local hardBreakMode = false
 local ignoreRange = false
+
 UserInputService.InputBegan:Connect(function(input, gpe)
     if gpe then return end
-    if input.KeyCode == Enum.KeyCode.R then
+    if input.KeyCode == Enum.KeyCode.H then
+        hardBreakMode = not hardBreakMode
+        print("💀 Hard Break Mode:", hardBreakMode)
+    elseif input.KeyCode == Enum.KeyCode.R then
         ignoreRange = not ignoreRange
         print("🌍 Ignore Range:", ignoreRange)
     end
 end)
 
--- === 5️⃣ Main loop
-Heartbeat:Connect(function()
+print("✅ [H] Hard Break toggle | [R] Ignore Range toggle")
+
+-- === 5️⃣ Main loop (lighter)
+RunService.Heartbeat:Connect(function()
     local myChar = LocalPlayer.Character
     local myHRP = myChar and myChar:FindFirstChild("HumanoidRootPart")
     if not myHRP then return end
@@ -74,11 +93,14 @@ Heartbeat:Connect(function()
                 local dist = (myHRP.Position - enemyHRP.Position).Magnitude
                 if ignoreRange or dist <= 30 then
                     spamToolRemotes(enemyHRP)
-                    softKill(hum) -- ✅ fallback
+                    softKill(hum)
+                    if hardBreakMode then
+                        hardBreak(hum)
+                    end
                 end
             end
         end
     end
 end)
 
-print("🔥 V10 No Cooldown ENABLED — 0.05s cooldown nuke, 3x remote spam, softKill safety.")
+print("🔥 Optimized No Cooldown Nuker ENABLED — fast, but no lag flood.")

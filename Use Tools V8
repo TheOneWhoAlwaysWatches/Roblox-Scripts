@@ -1,4 +1,4 @@
--- ⚔️ DEMONIC ULTRA TOOL SPAMMER — Optimized Tick Edition
+-- ⚔️ DEMONIC ULTRA TOOL SPAMMER — V9 Hybrid Edition (Auto-On + Safe Spam)
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
@@ -31,26 +31,23 @@ stroke.Color = Color3.fromRGB(120, 40, 200)
 local attacking = false
 local activeTools = {}
 
--- Single activation per tick per tool
+-- Activates tool in safe spam loop
 local function activateTool(tool)
 	if activeTools[tool] then return end
 	activeTools[tool] = true
 
-	local function loop()
+	task.spawn(function()
 		while attacking and tool.Parent == player.Character do
 			pcall(function()
-				-- Burst spam: safe per tick
-				for i = 1, 3 do
+				for i = 1, 3 do -- 🔥 burst per tick
 					tool:Activate()
 					table.insert(getgenv().TDW_HIT_TIMESTAMPS, tick())
 				end
 			end)
-			RunService.Heartbeat:Wait()
+			RunService.Heartbeat:Wait() -- per-tool loop timing
 		end
 		activeTools[tool] = nil
-	end
-
-	coroutine.wrap(loop)()
+	end)
 
 	tool.AncestryChanged:Connect(function(_, parent)
 		if not attacking or parent ~= player.Character then
@@ -59,6 +56,7 @@ local function activateTool(tool)
 	end)
 end
 
+-- Equips all tools + starts activation
 local function equipAndActivateAllTools()
 	if not attacking or not player.Character then return end
 	for _, tool in ipairs(player.Backpack:GetChildren()) do
@@ -74,6 +72,7 @@ local function equipAndActivateAllTools()
 	end
 end
 
+-- Toggle function
 local function toggleAttack(forceOn)
 	if forceOn ~= nil then attacking = forceOn else attacking = not attacking end
 	toolButton.Text = attacking and "ON" or "OFF"
@@ -93,7 +92,7 @@ end
 
 toolButton.MouseButton1Click:Connect(toggleAttack)
 
--- Instantly equip and activate new tools
+-- Instantly equip + activate new tools
 player.Backpack.ChildAdded:Connect(function(child)
 	if child:IsA("Tool") and attacking then
 		child.Parent = player.Character
@@ -101,10 +100,22 @@ player.Backpack.ChildAdded:Connect(function(child)
 	end
 end)
 
--- Instant activation on spawn
+-- Auto-reactivate after respawn
 player.CharacterAdded:Connect(function(char)
 	char:WaitForChild("HumanoidRootPart")
 	if attacking then
-		equipAndActivateAllTools()
+		task.defer(equipAndActivateAllTools)
 	end
 end)
+
+-- 🔁 Frame stack = constant check for new/equipped tools
+for _, event in ipairs({RunService.Heartbeat, RunService.Stepped, RunService.PostSimulation}) do
+	event:Connect(function()
+		if attacking then
+			equipAndActivateAllTools()
+		end
+	end)
+end
+
+-- Auto-on at start
+toggleAttack(true)

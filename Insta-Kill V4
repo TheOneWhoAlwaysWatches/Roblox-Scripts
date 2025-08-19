@@ -1,16 +1,19 @@
--- ⚡ Optimized Ultra Hit Aura ⚡
-local auraRange = 50 -- Max distance to enemy
-local auraSize = Vector3.new(40, 40, 40) -- Aura box around tool
-local attackRate = 1/60 -- ~60 attacks per sec (deadly fast but not laggy)
+-- CONFIG
+local auraRange = 25 -- Max distance to enemy
+local auraSize = Vector3.new(25, 25, 25) -- Aura box around tool
+local attackRate = 0.1 -- Speed of the loop (seconds)
 
+-- SERVICES
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 
+-- STATE
 local running = true
 local auraParams = OverlapParams.new()
 auraParams.FilterType = Enum.RaycastFilterType.Include
 
+-- HELPERS
 local function getChar(plr)
     return plr and plr.Character
 end
@@ -24,7 +27,9 @@ local function getValidTargets()
     local myHRP = getHRP(LocalPlayer)
     if not myHRP then return {}, {} end
 
-    local playersInRange, chars = {}, {}
+    local playersInRange = {}
+    local chars = {}
+
     for _, player in ipairs(Players:GetPlayers()) do
         if player ~= LocalPlayer then
             local hrp = getHRP(player)
@@ -35,12 +40,13 @@ local function getValidTargets()
             end
         end
     end
+
     return playersInRange, chars
 end
 
 local function getTouchPart(tool)
-    local tt = tool and tool:FindFirstChildWhichIsA("TouchTransmitter", true)
-    return tt and tt.Parent
+    local touchTransmitter = tool and tool:FindFirstChildWhichIsA("TouchTransmitter", true)
+    return touchTransmitter and touchTransmitter.Parent
 end
 
 local function autoEquip(tool)
@@ -54,7 +60,7 @@ end
 task.spawn(function()
     while running do
         local myChar = getChar(LocalPlayer)
-        if not myChar then task.wait(0.5) continue end
+        if not myChar then task.wait(1) continue end
 
         local targets, enemyChars = getValidTargets()
         auraParams.FilterDescendantsInstances = enemyChars
@@ -64,28 +70,23 @@ task.spawn(function()
                 local fightEvent = tool:FindFirstChild("FightEvent")
                 local touchPart = getTouchPart(tool)
 
-                -- Only 1–2 remote hits per frame (still lethal)
                 if fightEvent then
                     autoEquip(tool)
-                    fightEvent:FireServer()
-                    fightEvent:FireServer()
+                    fightEvent:FireServer()-- One powerful hit per scan
                 end
 
-                -- Aura hit once per enemy model per frame
                 if touchPart then
                     local partsInBox = workspace:GetPartBoundsInBox(
                         touchPart.CFrame,
                         touchPart.Size + auraSize,
                         auraParams
                     )
-                    local hitAlready = {}
 
                     for _, part in ipairs(partsInBox) do
                         local model = part:FindFirstAncestorWhichIsA("Model")
-                        if model and table.find(enemyChars, model) and not hitAlready[model] then
+                        if model and table.find(enemyChars, model) then
                             firetouchinterest(touchPart, part, 1)
                             firetouchinterest(touchPart, part, 0)
-                            hitAlready[model] = true -- prevent spamming same char
                         end
                     end
                 end
@@ -96,9 +97,10 @@ task.spawn(function()
     end
 end)
 
+-- RESET ON DEATH
 LocalPlayer.CharacterAdded:Connect(function()
     task.wait(0.1)
     running = true
 end)
 
-print("⚡ Optimized Ultra Hit Aura ON — lethal but low-lag")
+print("1 Shot Ultra Hit Spammer Activated!")

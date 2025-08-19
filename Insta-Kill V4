@@ -1,10 +1,7 @@
--- ⚡ Optimized Insta-Kill Aura (Reliable Hits)
--- Still max DPS without flooding Roblox
-
 -- CONFIG
 local auraRange = 25 -- Max distance to enemy
-local auraSize = Vector3.new(40, 40, 40) -- Expanded aura box
-local attackRate = 0.05 -- Loop speed (20/sec)
+local auraSize = Vector3.new(25, 25, 25) -- Aura box around tool
+local attackRate = 0.05 -- Maximum speed without flooding network
 
 -- SERVICES
 local Players = game:GetService("Players")
@@ -30,7 +27,9 @@ local function getValidTargets()
     local myHRP = getHRP(LocalPlayer)
     if not myHRP then return {}, {} end
 
-    local playersInRange, chars = {}, {}
+    local playersInRange = {}
+    local chars = {}
+
     for _, player in ipairs(Players:GetPlayers()) do
         if player ~= LocalPlayer then
             local hrp = getHRP(player)
@@ -41,6 +40,7 @@ local function getValidTargets()
             end
         end
     end
+
     return playersInRange, chars
 end
 
@@ -72,9 +72,7 @@ task.spawn(function()
 
                 if fightEvent then
                     autoEquip(tool)
-                    for _, enemy in ipairs(targets) do
-                        pcall(function() fightEvent:FireServer(enemy) end)
-                    end
+                    fightEvent:FireServer()-- One powerful hit per scan
                 end
 
                 if touchPart then
@@ -84,36 +82,25 @@ task.spawn(function()
                         auraParams
                     )
 
-                    local hitDone = {}
                     for _, part in ipairs(partsInBox) do
                         local model = part:FindFirstAncestorWhichIsA("Model")
-                        if model and table.find(enemyChars, model) and not hitDone[model] then
-                            hitDone[model] = true
+                        if model and table.find(enemyChars, model) then
                             firetouchinterest(touchPart, part, 1)
                             firetouchinterest(touchPart, part, 0)
-                        end
-                    end
-
-                    -- 🔹 Backup guarantee hit: force attack if enemy HRP in range
-                    for _, enemy in ipairs(targets) do
-                        local hrp = getHRP(enemy)
-                        if hrp and not hitDone[enemy.Character] then
-                            firetouchinterest(touchPart, hrp, 1)
-                            firetouchinterest(touchPart, hrp, 0)
                         end
                     end
                 end
             end
         end
 
-        RunService.Heartbeat:Wait()
         task.wait(attackRate)
     end
 end)
 
+-- RESET ON DEATH
 LocalPlayer.CharacterAdded:Connect(function()
     task.wait(0.1)
     running = true
 end)
 
-print("[✅] Reliable Insta-Kill Aura Active")
+print("1 Shot Ultra Insta-Killer Activated!")

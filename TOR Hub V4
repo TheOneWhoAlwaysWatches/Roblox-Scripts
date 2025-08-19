@@ -214,8 +214,10 @@ updatesLabel1.Text = [[
 - Optimized No Cooldowm, shouldnt overflow network services anymore.
 - Optimized Inta-Kill, Shouldnt overflow network servieces anymore.
 - Made respawn tick-perfect on death.
-- Made Get tools and use tools Tick-Perfect on respawn.
+- Made Get tools and use tools Tick-Perfect on respawn. 
 - Fixed Loopbring breaking sometimes.
+
+(Mini Upd: Fixed some of the script updates above not working at all)
 ]]
 updatesLabel1.TextColor3 = Color3.fromRGB(255, 255, 255)
 updatesLabel1.TextWrapped = true

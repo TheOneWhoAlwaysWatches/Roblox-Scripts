@@ -1,11 +1,14 @@
+-- Instant Respawn Script (Optimized)
+-- Purpose: Respawns the player on the exact tick they die, no spam, no delay.
+
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local LocalPlayer = Players.LocalPlayer
 
--- Configuración del estado del script
+-- Script State
 _G.RespawnScript = _G.RespawnScript or { Active = false, Connections = {} }
 
--- Función para desconectar todas las conexiones activas
+-- Disconnect all active connections
 local function disconnectAll()
     for _, connection in ipairs(_G.RespawnScript.Connections) do
         if connection and connection.Connected then
@@ -15,28 +18,27 @@ local function disconnectAll()
     _G.RespawnScript.Connections = {}
 end
 
--- Fuerza un respawn inmediato con la función más rápida disponible
+-- Force an instant respawn using the fastest available method
 local function forceRespawn()
     if ReplicatedStorage:FindFirstChild("Guide") then
-        ReplicatedStorage.Guide:FireServer() -- Llama al evento de respawn
+        ReplicatedStorage.Guide:FireServer() -- Preferred respawn remote
     elseif LocalPlayer and LocalPlayer:FindFirstChild("LoadCharacter") then
-        LocalPlayer:LoadCharacter() -- Alternativa más rápida si está disponible
+        LocalPlayer:LoadCharacter() -- Fallback direct method
     else
-        print("[RespawnScript] No se encontró 'Guide' ni 'LoadCharacter'.")
+        warn("[RespawnScript] Could not find 'Guide' or 'LoadCharacter'.")
     end
 end
 
--- Maneja el evento `CharacterAdded`
+-- Set up death detection for a character
 local function onCharacterAdded(character)
     if not _G.RespawnScript.Active then return end
 
-    local humanoid = character:WaitForChild("Humanoid", 3)
+    local humanoid = character:WaitForChild("Humanoid", 2)
     if not humanoid then return end
 
-    -- Asegura que solo se haga una vez el respawn por muerte
     local hasRespawned = false
 
-    -- Conectar el evento de muerte para respawn inmediato
+    -- Tick-perfect: Trigger on the exact death frame
     local deathConnection = humanoid.Died:Connect(function()
         if _G.RespawnScript.Active and not hasRespawned then
             hasRespawned = true
@@ -46,7 +48,7 @@ local function onCharacterAdded(character)
 
     table.insert(_G.RespawnScript.Connections, deathConnection)
 
-    -- Respawn instantáneo al detectar vida en 0
+    -- Extra safety: if death somehow wasn’t caught
     local healthConnection = humanoid.HealthChanged:Connect(function(health)
         if health <= 0 and _G.RespawnScript.Active and not hasRespawned then
             hasRespawned = true
@@ -57,29 +59,28 @@ local function onCharacterAdded(character)
     table.insert(_G.RespawnScript.Connections, healthConnection)
 end
 
--- Alterna el estado del script
+-- Toggle script on/off
 local function toggleScript()
     if _G.RespawnScript.Active then
-        print("[RespawnScript] Desactivando...")
+        print("[RespawnScript] Deactivating...")
         _G.RespawnScript.Active = false
         disconnectAll()
     else
-        print("[RespawnScript] Activando...")
+        print("[RespawnScript] Activating...")
         _G.RespawnScript.Active = true
 
-        -- Conexión al evento `CharacterAdded`
+        -- Always listen for new characters
         local charAddedConnection = LocalPlayer.CharacterAdded:Connect(onCharacterAdded)
         table.insert(_G.RespawnScript.Connections, charAddedConnection)
 
-        -- Maneja el personaje actual si ya está cargado
+        -- If already alive, set up immediately
         if LocalPlayer.Character then
             onCharacterAdded(LocalPlayer.Character)
         else
-            -- Si el personaje no existe, fuerza el respawn
             forceRespawn()
         end
     end
 end
 
--- Ejecuta la función para alternar el estado
+-- Start script
 toggleScript()

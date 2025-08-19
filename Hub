@@ -1,0 +1,291 @@
+local Players = game:GetService("Players")
+
+local StarterGui = game:GetService("StarterGui")
+
+local player = Players.LocalPlayer
+
+if player:FindFirstChild("PlayerGui"):FindFirstChild("MyHubGui") then
+
+    return
+
+end
+
+local function createHub()
+
+    local playerGui = player:WaitForChild("PlayerGui")
+
+    local screenGui = Instance.new("ScreenGui")
+
+    screenGui.Name = "MyHubGui"
+
+    screenGui.ResetOnSpawn = false
+
+    screenGui.Parent = playerGui
+
+    local mainFrame = Instance.new("Frame")
+
+    mainFrame.Parent = screenGui
+
+    mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+
+    mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+
+    mainFrame.Size = UDim2.new(0.7, 0, 0.75, 0)
+
+    mainFrame.Visible = false
+
+    Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 20)
+
+    -- Nuevo fondo con degradado rojo y rotación de 130 grados
+
+    local gradient = Instance.new("UIGradient", mainFrame)
+
+    gradient.Color = ColorSequence.new({
+
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 0, 0)), -- Negro
+
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 0, 0)), -- Rojo
+
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(139, 0, 0)) -- Rojo oscuro
+
+    })
+
+    gradient.Rotation = 130
+
+    local titleLabel = Instance.new("TextLabel")
+
+    titleLabel.Size = UDim2.new(1, 0, 0, 50)
+
+    titleLabel.Text = "CTLM HUB"
+
+    titleLabel.TextColor3 = Color3.fromRGB(255, 0, 0) -- Texto rojo
+
+    titleLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+
+    titleLabel.Font = Enum.Font.SourceSansBold
+
+    titleLabel.TextSize = 32
+
+    titleLabel.Parent = mainFrame
+
+    local toggleButton = Instance.new("TextButton")
+
+    toggleButton.Size = UDim2.new(0, 150, 0, 50)
+
+    toggleButton.Position = UDim2.new(1, -170, 0, 10)
+
+    toggleButton.Text = "CTLM HUB"
+
+    toggleButton.TextColor3 = Color3.fromRGB(255, 0, 0) -- Letras en rojo
+
+    toggleButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+
+    toggleButton.Font = Enum.Font.SourceSans
+
+    toggleButton.TextSize = 24
+
+    toggleButton.Parent = screenGui
+
+    -- Redondear el botón
+
+    local corner = Instance.new("UICorner")
+
+    corner.CornerRadius = UDim.new(0, 12)  -- Redondear las esquinas
+
+    corner.Parent = toggleButton
+
+    toggleButton.MouseButton1Click:Connect(function()
+
+        mainFrame.Visible = not mainFrame.Visible
+
+    end)
+
+    local scriptPages = {
+
+        {
+
+            { "Use tools", "https://pastefy.app/yMJ8xWFB/raw" },
+
+            { "Respawn", "https://pastefy.app/giXKYRgS/raw" },
+
+            { "Kill aura", "https://pastebin.com/raw/c3G0NFCj" },
+
+            { "Get tools", "https://pastefy.app/wmP3Tu5N/raw" },
+
+            {"Get base", "https://pastefy.app/XSUPpfSo/raw" },
+
+            { "Cooldown", "https://pastefy.app/XSUPpfSo/raw" },
+
+            { "Damage", "https://pastefy.app/K1NmO5YQ/raw" },
+
+            { "Reach", "https://pastefy.app/hdY9SpQa/raw" }
+
+        },
+
+        {
+
+            { "Hitbox", "https://pastefy.app/8V2mQTDW/raw" },
+
+            { "Fly tools+ reach", "https://pastefy.app/qUhwQRQx/raw" },
+
+            { "Cooldown no move", "https://pastefy.app/pRlYgFSC/raw" },
+
+            { "Loopbring", "https://pastefy.app/uTNGpDPv/raw" },
+
+            { "Float tools", "https://pastebin.com/raw/1kPQEkLG" },
+
+            { "Reach ball", "https://pastefy.app/wMjvlIQh/raw" },
+
+            { "Buy basé", "https://pastefy.app/mvHtMRAE/raw" },
+
+            { "Ifinite yield", "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source" }
+
+        },
+
+        -- Nueva página con botones
+
+        {
+
+            { "Chat spy", "https://pastefy.app/FHR73F7D/raw" },
+
+            { "Damage 2", "https://pastebin.com/raw/abcd5678" },
+
+            { "Speed", "https://pastefy.app/bR7yaoOi/raw" },
+
+            { "Lag server", "https://pastefy.app/4lJmjeh2/raw" },
+
+            { "Antibug ", "https://pastebin.com/raw/ZViwRN7Z" },
+
+            { "Soon", "https://pastebin.com/raw/abcd1617" },
+
+            { "Soon", "https://pastebin.com/raw/abcd1819" },
+
+            { "Soon", "https://pastebin.com/raw/abcd2021" }
+
+        }
+
+    }
+
+    local buttonSize = UDim2.new(0.45, 0, 0, 50)
+
+    local currentPage = 1
+
+    local buttons = {}
+
+    local pageIndicator = Instance.new("TextLabel")
+
+    pageIndicator.Size = UDim2.new(0, 100, 0, 30)
+
+    pageIndicator.Position = UDim2.new(0.5, -50, 0.9, 0)
+
+    pageIndicator.BackgroundTransparency = 1
+
+    pageIndicator.TextColor3 = Color3.fromRGB(255, 255, 255) -- Texto blanco
+
+    pageIndicator.Font = Enum.Font.SourceSansBold
+
+    pageIndicator.TextSize = 20
+
+    pageIndicator.Parent = mainFrame
+
+    local function updateButtons()
+
+        for _, button in pairs(buttons) do
+
+            button:Destroy()
+
+        end
+
+        buttons = {}
+
+        pageIndicator.Text = tostring(currentPage) .. " / " .. tostring(#scriptPages)
+
+        for i, info in ipairs(scriptPages[currentPage]) do
+
+            local button = Instance.new("TextButton")
+
+            button.Size = buttonSize
+
+            button.Position = UDim2.new((i % 2 == 1) and 0.05 or 0.5, 0, 0.2 + math.floor((i - 1) / 2) * 0.15, 0)
+
+            button.Text = info[1]
+
+            button.TextColor3 = Color3.fromRGB(255, 0, 0) -- Letras rojas
+
+            button.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+
+            button.Font = Enum.Font.SourceSans
+
+            button.TextSize = 24
+
+            button.Parent = mainFrame
+
+            table.insert(buttons, button)
+
+            button.MouseButton1Click:Connect(function()
+
+                loadstring(game:HttpGet(info[2], true))()
+
+            end)
+
+        end
+
+    end
+
+    local prevButton = Instance.new("TextButton")
+
+    prevButton.Size = UDim2.new(0, 50, 0, 30)
+
+    prevButton.Position = UDim2.new(0.25, -25, 0.9, 0)
+
+    prevButton.Text = "<"
+
+    prevButton.TextColor3 = Color3.fromRGB(255, 0, 0) -- Letras rojas
+
+    prevButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+
+    prevButton.Parent = mainFrame
+
+    prevButton.MouseButton1Click:Connect(function()
+
+        if currentPage > 1 then
+
+            currentPage = currentPage - 1
+
+            updateButtons()
+
+        end
+
+    end)
+
+    local nextButton = Instance.new("TextButton")
+
+    nextButton.Size = UDim2.new(0, 50, 0, 30)
+
+    nextButton.Position = UDim2.new(0.75, -25, 0.9, 0)
+
+    nextButton.Text = ">"
+
+    nextButton.TextColor3 = Color3.fromRGB(255, 0, 0) -- Letras rojas
+
+    nextButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+
+    nextButton.Parent = mainFrame
+
+    nextButton.MouseButton1Click:Connect(function()
+
+        if currentPage < #scriptPages then
+
+            currentPage = currentPage + 1
+
+            updateButtons()
+
+        end
+
+    end)
+
+    updateButtons()
+
+end
+
+createHub()

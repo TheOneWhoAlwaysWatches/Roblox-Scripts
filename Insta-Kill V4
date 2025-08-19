@@ -1,9 +1,7 @@
--- ⚡ Reliable Insta-Kill Aura (Fix for missed hits after respawn)
-
 -- CONFIG
-local auraRange = 25
-local auraSize = Vector3.new(30, 30, 30) -- slightly bigger box
-local attackRate = 0.05
+local auraRange = 25 -- Max distance to enemy
+local auraSize = Vector3.new(25, 25, 25) -- Aura box around tool
+local attackRate = 0.05 -- Maximum speed without flooding network
 
 -- SERVICES
 local Players = game:GetService("Players")
@@ -25,16 +23,13 @@ local function getHRP(plr)
     return char and char:FindFirstChild("HumanoidRootPart")
 end
 
-local function getHum(plr)
-    local char = getChar(plr)
-    return char and char:FindFirstChildOfClass("Humanoid")
-end
-
 local function getValidTargets()
     local myHRP = getHRP(LocalPlayer)
     if not myHRP then return {}, {} end
 
-    local playersInRange, chars = {}, {}
+    local playersInRange = {}
+    local chars = {}
+
     for _, player in ipairs(Players:GetPlayers()) do
         if player ~= LocalPlayer then
             local hrp = getHRP(player)
@@ -45,19 +40,18 @@ local function getValidTargets()
             end
         end
     end
+
     return playersInRange, chars
 end
 
 local function getTouchPart(tool)
-    local tx = tool and tool:FindFirstChildWhichIsA("TouchTransmitter", true)
-    return tx and tx.Parent
+    local touchTransmitter = tool and tool:FindFirstChildWhichIsA("TouchTransmitter", true)
+    return touchTransmitter and touchTransmitter.Parent
 end
 
 local function autoEquip(tool)
-    local char = getChar(LocalPlayer)
-    if char and not tool:IsDescendantOf(char) then
-        tool.Parent = char
-        task.wait() -- ensure equip finishes
+    if not tool:IsDescendantOf(workspace) then
+        tool.Parent = getChar(LocalPlayer)
     end
     tool:Activate()
 end
@@ -78,15 +72,7 @@ task.spawn(function()
 
                 if fightEvent then
                     autoEquip(tool)
-                    -- 🔹 Try to target Humanoids directly (more reliable than blank FireServer)
-                    for _, enemy in ipairs(targets) do
-                        local hum = getHum(enemy)
-                        if hum then
-                            pcall(function() fightEvent:FireServer(hum) end)
-                        else
-                            pcall(function() fightEvent:FireServer() end)
-                        end
-                    end
+                    fightEvent:FireServer()-- One powerful hit per scan
                 end
 
                 if touchPart then
@@ -96,37 +82,25 @@ task.spawn(function()
                         auraParams
                     )
 
-                    local hitDone = {}
                     for _, part in ipairs(partsInBox) do
                         local model = part:FindFirstAncestorWhichIsA("Model")
-                        if model and table.find(enemyChars, model) and not hitDone[model] then
-                            hitDone[model] = true
+                        if model and table.find(enemyChars, model) then
                             firetouchinterest(touchPart, part, 1)
                             firetouchinterest(touchPart, part, 0)
-                        end
-                    end
-
-                    -- 🔹 Backup guaranteed hit (directly touch HRP if in range)
-                    for _, enemy in ipairs(targets) do
-                        local hrp = getHRP(enemy)
-                        if hrp and not hitDone[enemy.Character] then
-                            firetouchinterest(touchPart, hrp, 1)
-                            firetouchinterest(touchPart, hrp, 0)
                         end
                     end
                 end
             end
         end
 
-        RunService.Heartbeat:Wait()
         task.wait(attackRate)
     end
 end)
 
 -- RESET ON DEATH
 LocalPlayer.CharacterAdded:Connect(function()
-    task.wait(0.2) -- let tools load properly
+    task.wait(0.1)
     running = true
 end)
 
-print("[✅] Reliable Insta-Kill Aura Activated")
+print("1 Shot Ultra Insta-Killer Activated!")

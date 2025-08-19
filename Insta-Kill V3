@@ -1,7 +1,9 @@
+-- ⚡ OPTIMIZED INSTA-KILL (Balanced OP Edition)
+
 -- CONFIG
-local auraRange = 50 -- Max distance to enemy
-local auraSize = Vector3.new(50, 50, 50) -- Aura box around tool
-local attackRate = 0.0001 -- Speed of the loop (seconds)
+local auraRange = 25 -- Max distance to enemy
+local auraSize = Vector3.new(25, 25, 25) -- Aura box expansion
+local burstCount = 2 -- Events per tick (network safe, still brutal)
 
 -- SERVICES
 local Players = game:GetService("Players")
@@ -27,9 +29,7 @@ local function getValidTargets()
     local myHRP = getHRP(LocalPlayer)
     if not myHRP then return {}, {} end
 
-    local playersInRange = {}
-    local chars = {}
-
+    local playersInRange, chars = {}, {}
     for _, player in ipairs(Players:GetPlayers()) do
         if player ~= LocalPlayer then
             local hrp = getHRP(player)
@@ -40,7 +40,6 @@ local function getValidTargets()
             end
         end
     end
-
     return playersInRange, chars
 end
 
@@ -56,44 +55,45 @@ local function autoEquip(tool)
     tool:Activate()
 end
 
--- MAIN LOOP
-task.spawn(function()
-    while running do
-        local myChar = getChar(LocalPlayer)
-        if not myChar then task.wait(1) continue end
+-- MAIN LOOP (Heartbeat = 60hz hard cap)
+RunService.Heartbeat:Connect(function()
+    if not running then return end
+    local myChar = getChar(LocalPlayer)
+    if not myChar then return end
 
-        local targets, enemyChars = getValidTargets()
-        auraParams.FilterDescendantsInstances = enemyChars
+    local targets, enemyChars = getValidTargets()
+    auraParams.FilterDescendantsInstances = enemyChars
 
-        for _, tool in ipairs(myChar:GetChildren()) do
-            if tool:IsA("Tool") then
-                local fightEvent = tool:FindFirstChild("FightEvent")
-                local touchPart = getTouchPart(tool)
+    if #enemyChars == 0 then return end -- ✅ don’t spam if no enemies
 
-                if fightEvent then
-                    autoEquip(tool)
-                    fightEvent:FireServer()-- One powerful hit per scan
+    for _, tool in ipairs(myChar:GetChildren()) do
+        if tool:IsA("Tool") then
+            local fightEvent = tool:FindFirstChild("FightEvent")
+            local touchPart = getTouchPart(tool)
+
+            if fightEvent then
+                autoEquip(tool)
+                for i = 1, burstCount do
+                    fightEvent:FireServer()
                 end
+            end
 
-                if touchPart then
-                    local partsInBox = workspace:GetPartBoundsInBox(
-                        touchPart.CFrame,
-                        touchPart.Size + auraSize,
-                        auraParams
-                    )
+            if touchPart then
+                local partsInBox = workspace:GetPartBoundsInBox(
+                    touchPart.CFrame,
+                    touchPart.Size + auraSize,
+                    auraParams
+                )
 
-                    for _, part in ipairs(partsInBox) do
-                        local model = part:FindFirstAncestorWhichIsA("Model")
-                        if model and table.find(enemyChars, model) then
-                            firetouchinterest(touchPart, part, 1)
-                            firetouchinterest(touchPart, part, 0)
-                        end
+                for _, part in ipairs(partsInBox) do
+                    local model = part:FindFirstAncestorWhichIsA("Model")
+                    if model and table.find(enemyChars, model) then
+                        firetouchinterest(touchPart, part, 1)
+                        firetouchinterest(touchPart, part, 0)
                     end
                 end
             end
         end
-
-        task.wait(attackRate)
     end
 end)
 
@@ -103,4 +103,4 @@ LocalPlayer.CharacterAdded:Connect(function()
     running = true
 end)
 
-print("1 Shot Ultra Hit Spammer Activated!")
+print("🔥 Insta-Kill v4 Enabled — Tick-Perfect Burst, No Lag Floods")

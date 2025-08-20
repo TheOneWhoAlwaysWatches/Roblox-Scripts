@@ -332,19 +332,23 @@ local function createPageButtons(pageNumber)
             {Text = "Get Base", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Base%20V3"}, -- 6
             {Text = "Kill Aura V2", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20Aura%20V2"}, -- 7
             {Text = "Loopbring", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Loopbring%20V5.lua"}, -- 8
-            {Text = "OP Anti-Lag", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Lag%20V3"}
+            {Text = "Damage", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Damage"}, -- 9
+            {Text = "OP Anti-Lag", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Lag%20V3"} -- 10
+
 
         }
     elseif pageNumber == 2 then
         buttonsData = {
-            {Text = "Reach", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Reach"}, -- 1
-            {Text = "Float Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Float%20Tools%20V2"}, -- 2
-            {Text = "Anim Remover", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anim%20Remover"}, -- 3
-            {Text = "Fly Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Fly%20Tools"}, -- 4
-            {Text = "Grip Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Grip%20Tools"}, -- 5
-            {Text = "Axe Smash Sheild", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Axe%20Smash%20Spam"}, -- 6
-            {Text = "Axe Smash Trap", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Axe%20Smash%20Trap"}, -- 7
-            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 8
+            {Text = "Buy Base", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Buy%20Base"}, -- 1
+            {Text = "Reach", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Reach"}, -- 2
+            {Text = "Float Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Float%20Tools%20V2"}, -- 3
+            {Text = "Anim Remover", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anim%20Remover"}, -- 4
+            {Text = "Fly Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Fly%20Tools"}, -- 5
+            {Text = "Grip Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Grip%20Tools"}, -- 6
+            {Text = "Axe Smash Sheild", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Axe%20Smash%20Spam"}, -- 7
+            {Text = "Axe Smash Trap", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Axe%20Smash%20Trap"}, -- 8
+            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 9
+            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 10
 
 
         }
@@ -358,6 +362,8 @@ local function createPageButtons(pageNumber)
             {Text = "Walking God Mode", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Walking%20God%20Mode"}, -- 6
             {Text = "Super Cool Emotes", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/UGC%20Emotes"}, -- 7
             {Text = "Emote While Moving", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Emote%20Cancelation%20Remover"}, -- 8
+            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 9
+            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 10
         }
     elseif pageNumber == 4 then
         buttonsData = {
@@ -369,6 +375,8 @@ local function createPageButtons(pageNumber)
             {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 6
             {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 7
             {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 8
+            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 9
+            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 10
         }
     end
 

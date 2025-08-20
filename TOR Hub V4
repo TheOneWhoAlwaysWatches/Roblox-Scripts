@@ -55,13 +55,81 @@ pcall(function()
     })
 end)
 
+-- === INTRO ANIMATION ===
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- Black full-screen frame
+local blackScreen = Instance.new("Frame")
+blackScreen.Size = UDim2.new(1, 0, 1, 0)
+blackScreen.Position = UDim2.new(0, 0, 0, 0)
+blackScreen.BackgroundColor3 = Color3.new(0,0,0)
+blackScreen.ZIndex = 9999
+blackScreen.Parent = playerGui
+
+-- TextLabel for the fade-in text
+local introText = Instance.new("TextLabel")
+introText.Size = UDim2.new(1, -20, 0, 100)
+introText.Position = UDim2.new(0, 10, 0.5, -50)
+introText.BackgroundTransparency = 1
+introText.TextColor3 = Color3.fromRGB(255,0,0)
+introText.TextWrapped = true
+introText.Font = Enum.Font.PatrickHand -- cursive
+introText.TextSize = 28
+introText.TextYAlignment = Enum.TextYAlignment.Top
+introText.Parent = blackScreen
+introText.Text = ""
+
+-- Sounds
+local audio1 = Instance.new("Sound") -- special audio during text
+audio1.SoundId = "rbxassetid://136223947483416" -- replace with your audio
+audio1.Volume = 1
+audio1.Parent = blackScreen
+
+local lightning = Instance.new("Sound") -- lightning at end
+lightning.SoundId = "rbxassetid://138081500" -- big lightning sound
+lightning.Volume = 1
+lightning.Parent = blackScreen
+
+-- Text split into two parts
+local part1 = "Fools.. You thought i was gone..?"
+local part2 = "\n\n      You have no idea what's coming..."
+
+-- Function to fade in letters
+local function fadeInText(label, text, interval)
+    for i = 1, #text do
+        label.Text = string.sub(text, 1, i)
+        task.wait(interval)
+    end
+end
+
+-- Animate
+task.spawn(function()
+    -- Fade in first part
+    fadeInText(introText, part1, 0.08) -- adjust speed here
+
+    -- Play special audio after first part
+    audio1:Play()
+
+    -- Fade in second part while audio plays
+    fadeInText(introText, part1 .. part2, 0.05) -- adjust speed here
+
+    -- Wait until audio is finished
+    audio1.Ended:Wait()
+
+    -- Play lightning
+    lightning:Play()
+
+    -- Remove black screen and continue to hub
+    blackScreen:Destroy()
+end)
+
 -- Create main ScreenGui
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "SPT"
 screenGui.Parent = player:WaitForChild("PlayerGui")
 screenGui.ResetOnSpawn = false
 
--- Main frame
+-- Main frame (hacker style)
 local mainFrame = Instance.new("Frame")
 mainFrame.Size = UDim2.new(0, 550, 0, 300)
 mainFrame.Position = UDim2.new(0.31, 0, 0.322, 0)
@@ -70,6 +138,7 @@ mainFrame.BorderSizePixel = 0
 mainFrame.Visible = true
 mainFrame.Parent = screenGui
 
+-- Rounded corners & neon purple stroke
 local uiCornerMain = Instance.new("UICorner", mainFrame)
 uiCornerMain.CornerRadius = UDim.new(0.2, 0)
 
@@ -77,13 +146,13 @@ local uiStrokeMain = Instance.new("UIStroke", mainFrame)
 uiStrokeMain.Color = Color3.fromRGB(139,0,0)
 uiStrokeMain.Thickness = 4
 
--- Secondary frame
+-- Secondary frame (page selector, now scrollable)
 local secondaryFrame = Instance.new("ScrollingFrame")
 secondaryFrame.Size = UDim2.new(0, 160, 0, 280)
 secondaryFrame.Position = UDim2.new(0.015, 0, 0, 40)
 secondaryFrame.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
 secondaryFrame.BorderSizePixel = 0
-secondaryFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+secondaryFrame.CanvasSize = UDim2.new(0, 0, 0, 0) -- will auto adjust
 secondaryFrame.ScrollBarThickness = 6
 secondaryFrame.Parent = mainFrame
 
@@ -94,11 +163,12 @@ local uiStrokeSecondary = Instance.new("UIStroke", secondaryFrame)
 uiStrokeSecondary.Color = Color3.fromRGB(139,0,0)
 uiStrokeSecondary.Thickness = 3
 
+-- UIListLayout for automatic button placement
 local uiListLayout = Instance.new("UIListLayout", secondaryFrame)
 uiListLayout.Padding = UDim.new(0, 8)
 uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
--- Third frame
+-- Third frame (page content)
 local thirdFrame = Instance.new("Frame")
 thirdFrame.Size = UDim2.new(0, 370, 0, 280)
 thirdFrame.Position = UDim2.new(0.321, 0, 0.035, 0)
@@ -118,7 +188,7 @@ local uiStrokeThirdAccent = Instance.new("UIStroke", thirdFrame)
 uiStrokeThirdAccent.Color = Color3.fromRGB(139,0,0)
 uiStrokeThirdAccent.Thickness = 2
 
--- Updates frame
+-- Updates page frame (hidden by default)
 local updatesFrame = Instance.new("Frame")
 updatesFrame.Size = UDim2.new(0, 370, 0, 280)
 updatesFrame.Position = UDim2.new(0.321, 0, 0.035, 0)
@@ -134,7 +204,7 @@ local uiStrokeUpdates = Instance.new("UIStroke", updatesFrame)
 uiStrokeUpdates.Color = Color3.fromRGB(139,0,0)
 uiStrokeUpdates.Thickness = 3
 
--- Updates labels
+-- Regular updates text
 local updatesLabel1 = Instance.new("TextLabel")
 updatesLabel1.Size = UDim2.new(1, -20, 0, 150)
 updatesLabel1.Position = UDim2.new(0, 10, 0, 10)
@@ -150,19 +220,20 @@ updatesLabel1.Font = Enum.Font.Code
 updatesLabel1.TextSize = 16
 updatesLabel1.Parent = updatesFrame
 
+-- Special cursive red text
 local updatesLabel2 = Instance.new("TextLabel")
 updatesLabel2.Size = UDim2.new(1, -20, 0, 80)
 updatesLabel2.Position = UDim2.new(0, 10, 0, 160)
 updatesLabel2.BackgroundTransparency = 1
 updatesLabel2.Text = nil
-updatesLabel2.TextColor3 = Color3.fromRGB(139,0,0)
+updatesLabel2.TextColor3 = Color3.fromRGB(255, 0, 0)
 updatesLabel2.TextWrapped = true
 updatesLabel2.TextYAlignment = Enum.TextYAlignment.Top
-updatesLabel2.Font = Enum.Font.PatrickHand
+updatesLabel2.Font = Enum.Font.PatrickHand -- cursive-style font
 updatesLabel2.TextSize = 16
 updatesLabel2.Parent = updatesFrame
 
--- Title label with tween animation
+-- Title label with tweened color animation
 local titleLabel = Instance.new("TextLabel")
 titleLabel.Size = UDim2.new(0, 160, 0, 30)
 titleLabel.Position = UDim2.new(0, 0, 0.05, 0)
@@ -177,19 +248,20 @@ titleLabel.TextColor3 = Color3.fromRGB(139,0,0)
 titleLabel.Parent = mainFrame
 
 local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1, true)
-local tweenRed = TweenService:Create(titleLabel, tweenInfo, {TextColor3 = Color3.fromRGB(139,0,0)})
-local tweenDarkRed = TweenService:Create(titleLabel, tweenInfo, {TextColor3 = Color3.fromRGB(100,0,0)})
+local tweenPurple = TweenService:Create(titleLabel, tweenInfo, {TextColor3 = Color3.fromRGB(255, 0, 255)})
+local tweenCyan = TweenService:Create(titleLabel, tweenInfo, {TextColor3 = Color3.fromRGB(0, 255, 255)})
 
+-- Loop tween color between purple and cyan
 local function tweenLoop()
-    tweenRed:Play()
-    tweenRed.Completed:Connect(function()
-        tweenDarkRed:Play()
-        tweenDarkRed.Completed:Connect(tweenLoop)
+    tweenPurple:Play()
+    tweenPurple.Completed:Connect(function()
+        tweenCyan:Play()
+        tweenCyan.Completed:Connect(tweenLoop)
     end)
 end
 tweenLoop()
 
--- Toggle button
+-- Toggle button for showing/hiding main frame
 local toggleButton = Instance.new("TextButton")
 toggleButton.Size = UDim2.new(0, 65, 0, 63)
 toggleButton.Position = UDim2.new(0.5, -32, 0, -10)
@@ -203,6 +275,7 @@ toggleButton.Parent = screenGui
 local uiCornerToggle = Instance.new("UICorner", toggleButton)
 uiCornerToggle.CornerRadius = UDim.new(1, 0)
 
+-- Border frame & stroke around toggle button
 local borderFrame = Instance.new("Frame", toggleButton)
 borderFrame.Size = UDim2.new(1, 0, 1, 0)
 borderFrame.BackgroundTransparency = 1
@@ -215,9 +288,11 @@ uiStrokeToggle.Thickness = 3
 local uiCornerBorder = Instance.new("UICorner", borderFrame)
 uiCornerBorder.CornerRadius = UDim.new(1, 0)
 
+-- Toggle stroke animation (optional)
 local strokeTween = TweenService:Create(uiStrokeToggle, tweenInfo, {Color = Color3.fromRGB(139,0,0)})
 strokeTween:Play()
 
+-- Toggle visibility of mainFrame
 local isVisible = false
 toggleButton.MouseButton1Click:Connect(function()
     isVisible = not isVisible
@@ -258,10 +333,11 @@ local function makeDraggable(gui)
     end)
 end
 
+-- Apply to toggle and main frame
 makeDraggable(toggleButton)
 makeDraggable(mainFrame)
 
--- Page selector buttons
+-- Helper to create page selector buttons
 local function createPageSelectorButton(text, parent)
     local button = Instance.new("TextButton")
     button.Size = UDim2.new(0, 140, 0, 38)
@@ -278,13 +354,14 @@ local function createPageSelectorButton(text, parent)
     return button
 end
 
+-- Create page selector buttons
 local button1 = createPageSelectorButton("Main", secondaryFrame)
 local button2 = createPageSelectorButton("Usefull Scripts", secondaryFrame)
 local button3 = createPageSelectorButton("Misc Scripts", secondaryFrame)
 local button4 = createPageSelectorButton("Misc Scripts 2", secondaryFrame)
 local buttonUpdates = createPageSelectorButton("Updates", secondaryFrame)
 
--- Script buttons
+-- Helper to create script buttons
 local function createScriptButton(text, position, scriptLink, parent)
     local button = Instance.new("TextButton")
     button.Size = UDim2.new(0.45, 0, 0, 40)

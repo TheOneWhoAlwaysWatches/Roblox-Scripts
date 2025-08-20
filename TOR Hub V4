@@ -55,81 +55,13 @@ pcall(function()
     })
 end)
 
--- === INTRO ANIMATION ===
-local playerGui = player:WaitForChild("PlayerGui")
-
--- Black full-screen frame
-local blackScreen = Instance.new("Frame")
-blackScreen.Size = UDim2.new(1, 0, 1, 0)
-blackScreen.Position = UDim2.new(0, 0, 0, 0)
-blackScreen.BackgroundColor3 = Color3.new(0,0,0)
-blackScreen.ZIndex = 9999
-blackScreen.Parent = playerGui
-
--- TextLabel for the fade-in text
-local introText = Instance.new("TextLabel")
-introText.Size = UDim2.new(1, -20, 0, 100)
-introText.Position = UDim2.new(0, 10, 0.5, -50)
-introText.BackgroundTransparency = 1
-introText.TextColor3 = Color3.fromRGB(255,0,0)
-introText.TextWrapped = true
-introText.Font = Enum.Font.PatrickHand -- cursive
-introText.TextSize = 28
-introText.TextYAlignment = Enum.TextYAlignment.Top
-introText.Parent = blackScreen
-introText.Text = ""
-
--- Sounds
-local audio1 = Instance.new("Sound") -- special audio during text
-audio1.SoundId = "rbxassetid://136223947483416" -- replace with your audio
-audio1.Volume = 1
-audio1.Parent = blackScreen
-
-local lightning = Instance.new("Sound") -- lightning at end
-lightning.SoundId = "rbxassetid://138081500" -- big lightning sound
-lightning.Volume = 1
-lightning.Parent = blackScreen
-
--- Text split into two parts
-local part1 = "Fools.. You thought i was gone..?"
-local part2 = "\n\n      You have no idea what's coming..."
-
--- Function to fade in letters
-local function fadeInText(label, text, interval)
-    for i = 1, #text do
-        label.Text = string.sub(text, 1, i)
-        task.wait(interval)
-    end
-end
-
--- Animate
-task.spawn(function()
-    -- Fade in first part
-    fadeInText(introText, part1, 0.08) -- adjust speed here
-
-    -- Play special audio after first part
-    audio1:Play()
-
-    -- Fade in second part while audio plays
-    fadeInText(introText, part1 .. part2, 0.05) -- adjust speed here
-
-    -- Wait until audio is finished
-    audio1.Ended:Wait()
-
-    -- Play lightning
-    lightning:Play()
-
-    -- Remove black screen and continue to hub
-    blackScreen:Destroy()
-end)
-
 -- Create main ScreenGui
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "SPT"
 screenGui.Parent = player:WaitForChild("PlayerGui")
 screenGui.ResetOnSpawn = false
 
--- Main frame (hacker style)
+-- Main frame
 local mainFrame = Instance.new("Frame")
 mainFrame.Size = UDim2.new(0, 550, 0, 300)
 mainFrame.Position = UDim2.new(0.31, 0, 0.322, 0)
@@ -138,21 +70,20 @@ mainFrame.BorderSizePixel = 0
 mainFrame.Visible = true
 mainFrame.Parent = screenGui
 
--- Rounded corners & neon purple stroke
 local uiCornerMain = Instance.new("UICorner", mainFrame)
 uiCornerMain.CornerRadius = UDim.new(0.2, 0)
 
 local uiStrokeMain = Instance.new("UIStroke", mainFrame)
-uiStrokeMain.Color = Color3.fromRGB(255, 0, 255)
+uiStrokeMain.Color = Color3.fromRGB(139,0,0)
 uiStrokeMain.Thickness = 4
 
--- Secondary frame (page selector, now scrollable)
+-- Secondary frame
 local secondaryFrame = Instance.new("ScrollingFrame")
 secondaryFrame.Size = UDim2.new(0, 160, 0, 280)
 secondaryFrame.Position = UDim2.new(0.015, 0, 0, 40)
 secondaryFrame.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
 secondaryFrame.BorderSizePixel = 0
-secondaryFrame.CanvasSize = UDim2.new(0, 0, 0, 0) -- will auto adjust
+secondaryFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
 secondaryFrame.ScrollBarThickness = 6
 secondaryFrame.Parent = mainFrame
 
@@ -160,15 +91,14 @@ local uiCornerSecondary = Instance.new("UICorner", secondaryFrame)
 uiCornerSecondary.CornerRadius = UDim.new(0.3, 0)
 
 local uiStrokeSecondary = Instance.new("UIStroke", secondaryFrame)
-uiStrokeSecondary.Color = Color3.fromRGB(255, 0, 255)
+uiStrokeSecondary.Color = Color3.fromRGB(139,0,0)
 uiStrokeSecondary.Thickness = 3
 
--- UIListLayout for automatic button placement
 local uiListLayout = Instance.new("UIListLayout", secondaryFrame)
 uiListLayout.Padding = UDim.new(0, 8)
 uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
--- Third frame (page content)
+-- Third frame
 local thirdFrame = Instance.new("Frame")
 thirdFrame.Size = UDim2.new(0, 370, 0, 280)
 thirdFrame.Position = UDim2.new(0.321, 0, 0.035, 0)
@@ -181,14 +111,14 @@ local uiCornerThird = Instance.new("UICorner", thirdFrame)
 uiCornerThird.CornerRadius = UDim.new(0.3, 0)
 
 local uiStrokeThird = Instance.new("UIStroke", thirdFrame)
-uiStrokeThird.Color = Color3.fromRGB(255, 0, 255)
+uiStrokeThird.Color = Color3.fromRGB(139,0,0)
 uiStrokeThird.Thickness = 5
 
 local uiStrokeThirdAccent = Instance.new("UIStroke", thirdFrame)
-uiStrokeThirdAccent.Color = Color3.fromRGB(255, 0, 255)
+uiStrokeThirdAccent.Color = Color3.fromRGB(139,0,0)
 uiStrokeThirdAccent.Thickness = 2
 
--- Updates page frame (hidden by default)
+-- Updates frame
 local updatesFrame = Instance.new("Frame")
 updatesFrame.Size = UDim2.new(0, 370, 0, 280)
 updatesFrame.Position = UDim2.new(0.321, 0, 0.035, 0)
@@ -201,23 +131,17 @@ local uiCornerUpdates = Instance.new("UICorner", updatesFrame)
 uiCornerUpdates.CornerRadius = UDim.new(0.3, 0)
 
 local uiStrokeUpdates = Instance.new("UIStroke", updatesFrame)
-uiStrokeUpdates.Color = Color3.fromRGB(255, 0, 255)
+uiStrokeUpdates.Color = Color3.fromRGB(139,0,0)
 uiStrokeUpdates.Thickness = 3
 
--- Regular updates text
+-- Updates labels
 local updatesLabel1 = Instance.new("TextLabel")
 updatesLabel1.Size = UDim2.new(1, -20, 0, 150)
 updatesLabel1.Position = UDim2.new(0, 10, 0, 10)
 updatesLabel1.BackgroundTransparency = 1
 updatesLabel1.Text = [[
 📝 Updates:
-- Optimized No Cooldowm, shouldnt overflow network services anymore.
-- Optimized Inta-Kill, Shouldnt overflow network servieces anymore.
-- Made respawn tick-perfect on death.
-- Made Get tools and use tools Tick-Perfect on respawn. 
-- Fixed Loopbring breaking sometimes.
-
-(Mini Upd: Fixed some of the script updates above not working at all)
+- Fools... thy end is now...
 ]]
 updatesLabel1.TextColor3 = Color3.fromRGB(255, 255, 255)
 updatesLabel1.TextWrapped = true
@@ -226,24 +150,19 @@ updatesLabel1.Font = Enum.Font.Code
 updatesLabel1.TextSize = 16
 updatesLabel1.Parent = updatesFrame
 
--- Special cursive red text
 local updatesLabel2 = Instance.new("TextLabel")
 updatesLabel2.Size = UDim2.new(1, -20, 0, 80)
 updatesLabel2.Position = UDim2.new(0, 10, 0, 160)
 updatesLabel2.BackgroundTransparency = 1
-updatesLabel2.Text = [[
-Fools.. You thought i was gone.. You are wrong.
-
-      You have no idea what's coming...
-]]
-updatesLabel2.TextColor3 = Color3.fromRGB(255, 0, 0)
+updatesLabel2.Text = nil
+updatesLabel2.TextColor3 = Color3.fromRGB(139,0,0)
 updatesLabel2.TextWrapped = true
 updatesLabel2.TextYAlignment = Enum.TextYAlignment.Top
-updatesLabel2.Font = Enum.Font.PatrickHand -- cursive-style font
+updatesLabel2.Font = Enum.Font.PatrickHand
 updatesLabel2.TextSize = 16
 updatesLabel2.Parent = updatesFrame
 
--- Title label with tweened color animation
+-- Title label with tween animation
 local titleLabel = Instance.new("TextLabel")
 titleLabel.Size = UDim2.new(0, 160, 0, 30)
 titleLabel.Position = UDim2.new(0, 0, 0.05, 0)
@@ -254,30 +173,29 @@ titleLabel.Font = Enum.Font.SourceSans
 titleLabel.TextScaled = true
 titleLabel.TextStrokeTransparency = 0.1
 titleLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-titleLabel.TextColor3 = Color3.fromRGB(255, 0, 255)
+titleLabel.TextColor3 = Color3.fromRGB(139,0,0)
 titleLabel.Parent = mainFrame
 
 local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1, true)
-local tweenPurple = TweenService:Create(titleLabel, tweenInfo, {TextColor3 = Color3.fromRGB(255, 0, 255)})
-local tweenCyan = TweenService:Create(titleLabel, tweenInfo, {TextColor3 = Color3.fromRGB(0, 255, 255)})
+local tweenRed = TweenService:Create(titleLabel, tweenInfo, {TextColor3 = Color3.fromRGB(139,0,0)})
+local tweenDarkRed = TweenService:Create(titleLabel, tweenInfo, {TextColor3 = Color3.fromRGB(100,0,0)})
 
--- Loop tween color between purple and cyan
 local function tweenLoop()
-    tweenPurple:Play()
-    tweenPurple.Completed:Connect(function()
-        tweenCyan:Play()
-        tweenCyan.Completed:Connect(tweenLoop)
+    tweenRed:Play()
+    tweenRed.Completed:Connect(function()
+        tweenDarkRed:Play()
+        tweenDarkRed.Completed:Connect(tweenLoop)
     end)
 end
 tweenLoop()
 
--- Toggle button for showing/hiding main frame
+-- Toggle button
 local toggleButton = Instance.new("TextButton")
 toggleButton.Size = UDim2.new(0, 65, 0, 63)
 toggleButton.Position = UDim2.new(0.5, -32, 0, -10)
 toggleButton.Text = "Open"
 toggleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-toggleButton.TextColor3 = Color3.fromRGB(255, 0, 255)
+toggleButton.TextColor3 = Color3.fromRGB(139,0,0)
 toggleButton.TextSize = 20
 toggleButton.Font = Enum.Font.SourceSans
 toggleButton.Parent = screenGui
@@ -285,24 +203,21 @@ toggleButton.Parent = screenGui
 local uiCornerToggle = Instance.new("UICorner", toggleButton)
 uiCornerToggle.CornerRadius = UDim.new(1, 0)
 
--- Border frame & stroke around toggle button
 local borderFrame = Instance.new("Frame", toggleButton)
 borderFrame.Size = UDim2.new(1, 0, 1, 0)
 borderFrame.BackgroundTransparency = 1
 borderFrame.Position = UDim2.new(0, 0, 0, 0)
 
 local uiStrokeToggle = Instance.new("UIStroke", borderFrame)
-uiStrokeToggle.Color = Color3.fromRGB(255, 0, 255)
+uiStrokeToggle.Color = Color3.fromRGB(139,0,0)
 uiStrokeToggle.Thickness = 3
 
 local uiCornerBorder = Instance.new("UICorner", borderFrame)
 uiCornerBorder.CornerRadius = UDim.new(1, 0)
 
--- Toggle stroke animation (optional)
-local strokeTween = TweenService:Create(uiStrokeToggle, tweenInfo, {Color = Color3.fromRGB(255, 0, 255)})
+local strokeTween = TweenService:Create(uiStrokeToggle, tweenInfo, {Color = Color3.fromRGB(139,0,0)})
 strokeTween:Play()
 
--- Toggle visibility of mainFrame
 local isVisible = false
 toggleButton.MouseButton1Click:Connect(function()
     isVisible = not isVisible
@@ -343,17 +258,16 @@ local function makeDraggable(gui)
     end)
 end
 
--- Apply to toggle and main frame
 makeDraggable(toggleButton)
 makeDraggable(mainFrame)
 
--- Helper to create page selector buttons
+-- Page selector buttons
 local function createPageSelectorButton(text, parent)
     local button = Instance.new("TextButton")
     button.Size = UDim2.new(0, 140, 0, 38)
     button.Text = text
     button.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    button.TextColor3 = Color3.fromRGB(255, 0, 255)
+    button.TextColor3 = Color3.fromRGB(139,0,0)
     button.TextSize = 18
     button.Font = Enum.Font.SourceSans
     button.Parent = parent
@@ -364,21 +278,20 @@ local function createPageSelectorButton(text, parent)
     return button
 end
 
--- Create page selector buttons
 local button1 = createPageSelectorButton("Main", secondaryFrame)
 local button2 = createPageSelectorButton("Usefull Scripts", secondaryFrame)
 local button3 = createPageSelectorButton("Misc Scripts", secondaryFrame)
 local button4 = createPageSelectorButton("Misc Scripts 2", secondaryFrame)
 local buttonUpdates = createPageSelectorButton("Updates", secondaryFrame)
 
--- Helper to create script buttons
+-- Script buttons
 local function createScriptButton(text, position, scriptLink, parent)
     local button = Instance.new("TextButton")
     button.Size = UDim2.new(0.45, 0, 0, 40)
     button.Position = position
     button.Text = text
     button.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-    button.TextColor3 = Color3.fromRGB(255, 0, 255)
+    button.TextColor3 = Color3.fromRGB(139,0,0)
     button.TextSize = 14
     button.Font = Enum.Font.Code
     button.Parent = parent
@@ -412,24 +325,27 @@ local function createPageButtons(pageNumber)
         buttonsData = {
             {Text = "Get Tools V6", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Tools%20V6.lua"}, -- 1
             {Text = "Use Tools V8", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Use%20Tools%20V8"}, -- 2
-            {Text = "No Cooldown V10", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V10"}, -- 3
+            {Text = "No Cooldown V11", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V11"}, -- 3
             {Text = "Insta-Kill V4", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Insta-Kill%20V4"}, -- 4
-            {Text = "Respawn V6", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V7.lua"}, -- 5
+            {Text = "Respawn V8", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V8.lua"}, -- 5
             {Text = "Get Base", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Base%20V3"}, -- 6
-            {Text = "Kill Aura", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20Aura"}, -- 7
+            {Text = "Kill Aura V2", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20Aura%20V2"}, -- 7
             {Text = "Loopbring", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Loopbring%20V5.lua"}, -- 8
+            {Text = "OP Anti-Lag", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Lag%20V3"}
 
         }
     elseif pageNumber == 2 then
         buttonsData = {
             {Text = "Reach", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Reach"}, -- 1
-            {Text = "Float Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Float%20Tools"}, -- 2
+            {Text = "Float Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Float%20Tools%20V2"}, -- 2
             {Text = "Anim Remover", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anim%20Remover"}, -- 3
             {Text = "Fly Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Fly%20Tools"}, -- 4
-            {Text = "Antilag", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Lag%20V2"}, -- 5
-            {Text = "Grip Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Grip%20Tools"}, -- 6
-            {Text = "Axe Smash Sheild", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Axe%20Smash%20Spam"}, -- 7
-            {Text = "Axe Smash Trap", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Axe%20Smash%20Trap"}, -- 8
+            {Text = "Grip Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Grip%20Tools"}, -- 5
+            {Text = "Axe Smash Sheild", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Axe%20Smash%20Spam"}, -- 6
+            {Text = "Axe Smash Trap", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Axe%20Smash%20Trap"}, -- 7
+            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 8
+
+
         }
     elseif pageNumber == 3 then
         buttonsData = {

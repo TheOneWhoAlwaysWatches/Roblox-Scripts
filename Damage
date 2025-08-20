@@ -1,0 +1,247 @@
+-- "Damage"
+
+-- Variables del jugador y servicios
+local player = game.Players.LocalPlayer
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local gui = player:WaitForChild("PlayerGui")
+
+-- Configuraciones globales
+_G.HeadSize = 15
+_G.HitboxSize = Vector3.new(15, 15, 15)
+_G.Disabled = false
+_G.ToggleKey = Enum.KeyCode.H
+_G.DamageMultiplier = 1
+_G.AttackRange = 20
+_G.Tools = {
+    ["Energy Sword"] = {damage = 20, part = "Head"},
+    ["Staff"] = {damage = 20, part = "Torso"},
+    ["Axe"] = {damage = 20, part = "LeftLeg"},
+    ["Fists"] = {damage = 20, part = "RightArm"}
+}
+
+-- GUI para mostrar el nombre del objetivo
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 200, 0, 50)
+frame.Position = UDim2.new(0.5, -100, 0.1, 0)
+frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+frame.BackgroundTransparency = 0.5
+frame.Visible = false
+frame.Parent = gui
+
+local label = Instance.new("TextLabel")
+label.Size = UDim2.new(1, 0, 1, 0)
+label.BackgroundTransparency = 1
+label.TextColor3 = Color3.fromRGB(255, 255, 255)
+label.TextScaled = true
+label.Parent = frame
+
+-- Función para encontrar automáticamente el enemigo más cercano
+local function findClosestTarget()
+    local closestPlayer = nil
+    local minDistance = _G.AttackRange
+    for _, v in pairs(game.Players:GetPlayers()) do
+        if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+            local distance = (player.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude
+            if distance <= minDistance then
+                minDistance = distance
+                closestPlayer = v
+            end
+        end
+    end
+    return closestPlayer
+end
+
+-- Función para aplicar daño
+local function applyInstantDamage(target, damage)
+    local humanoid = target.Character and target.Character:FindFirstChildOfClass("Humanoid")
+    if humanoid and humanoid.Health > 0 then
+        for _ = 1, 3 do
+            humanoid.Health = humanoid.Health - (damage * _G.DamageMultiplier)
+            if humanoid.Health <= 0 then
+                humanoid.Health = 0
+                break
+            end
+            RunService.Heartbeat:Wait()
+        end
+    end
+end
+
+-- Función para aplicar daño con las herramientas actuales
+local function applyDamageWithTools()
+    local toolsInUse = {}
+    for toolName in pairs(_G.Tools) do
+        local tool = player.Backpack:FindFirstChild(toolName) or player.Character:FindFirstChild(toolName)
+        if tool then
+            table.insert(toolsInUse, toolName)
+        end
+    end
+
+    for _, toolName in pairs(toolsInUse) do
+        local toolInfo = _G.Tools[toolName]
+        local part = player.Character:FindFirstChild(toolInfo.part)
+        if part then
+            for _, target in pairs(game.Players:GetPlayers()) do
+                if target ~= player and target.Character and target.Character:FindFirstChild("Humanoid") then
+                    local targetPart = target.Character:FindFirstChild(toolInfo.part)
+                    if targetPart then
+                        local distance = (targetPart.Position - part.Position).Magnitude
+                        if distance <= (_G.HitboxSize.X / 2 + _G.AttackRange) then
+                            applyInstantDamage(target, toolInfo.damage)
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+-- Función de ataque AOE
+local function aoeAttack()
+    for _, target in pairs(game.Players:GetPlayers()) do
+        if target ~= player and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+            local distance = (player.Character.HumanoidRootPart.Position - target.Character.HumanoidRootPart.Position).Magnitude
+            if distance <= _G.AttackRange then
+                for _, toolData in pairs(_G.Tools) do
+                    applyInstantDamage(target, toolData.damage)
+                end
+            end
+        end
+    end
+end
+
+-- Función para seguir al objetivo automáticamente
+local following = false
+local function followTarget()
+    if following then return end
+    following = true
+    RunService.Heartbeat:Connect(function()
+        local closestEnemy = findClosestTarget()
+        if closestEnemy and closestEnemy.Character and closestEnemy.Character:FindFirstChild("HumanoidRootPart") then
+            label.Text = "Siguiendo a: " .. closestEnemy.Name
+            frame.Visible = true
+            local targetHRP = closestEnemy.Character.HumanoidRootPart
+            for _, tool in pairs(player.Character:GetChildren()) do
+                if tool:IsA("Tool") then
+                    local handle = tool:FindFirstChild("Handle")
+                    if handle then
+                        handle.Position = targetHRP.Position + Vector3.new(0, 2, 0)
+                    elseif tool.PrimaryPart then
+                        tool:SetPrimaryPartCFrame(targetHRP.CFrame * CFrame.new(0, 2, 0))
+                    end
+                end
+            end
+        else
+            frame.Visible = false
+        end
+    end)
+end
+
+followTarget()
+
+-- Toggle para activar/desactivar
+UserInputService.InputBegan:Connect(function(input, isProcessed)
+    if not isProcessed and input.KeyCode == _G.ToggleKey then
+        _G.Disabled = not _G.Disabled
+    elseif not isProcessed and input.UserInputType == Enum.UserInputType.MouseButton1 then
+        aoeAttack()
+    end
+end)
+
+-- HITBOX OPTIMIZADO: NO FREEZEA, NO TOCA HEAD, SIN LAG
+RunService.Heartbeat:Connect(function()
+    if not _G.Disabled then
+        for _, v in pairs(game.Players:GetPlayers()) do
+            if v ~= player and v.Character and v.Character:FindFirstChild("Head") then
+                pcall(function()
+                    local head = v.Character.Head
+                    local hitbox = v.Character:FindFirstChild("Hitbox")
+                    if not hitbox then
+                        hitbox = Instance.new("Part")
+                        hitbox.Name = "Hitbox"
+                        hitbox.Size = _G.HitboxSize
+                        hitbox.Transparency = 0.8
+                        hitbox.BrickColor = BrickColor.new("Bright green")
+                        hitbox.Material = "Neon"
+                        hitbox.CanCollide = false
+                        hitbox.Massless = true
+                        hitbox.Anchored = false
+                        hitbox.CFrame = head.CFrame
+                        hitbox.Parent = v.Character
+
+                        local weld = Instance.new("WeldConstraint")
+                        weld.Part0 = head
+                        weld.Part1 = hitbox
+                        weld.Parent = hitbox
+                    end
+                    hitbox.CFrame = head.CFrame
+
+                    local distance = (player.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude
+                    if distance <= _G.AttackRange then
+                        local gui = hitbox:FindFirstChild("DistanceGui")
+                        if not gui then
+                            gui = Instance.new("BillboardGui")
+                            gui.Name = "DistanceGui"
+                            gui.Adornee = hitbox
+                            gui.Size = UDim2.new(0, 200, 0, 50)
+                            gui.StudsOffset = Vector3.new(0, 3, 0)
+                            gui.Parent = hitbox
+
+                            local label = Instance.new("TextLabel")
+                            label.Name = "DistanceLabel"
+                            label.Size = UDim2.new(1, 0, 1, 0)
+                            label.BackgroundTransparency = 1
+                            label.TextColor3 = Color3.new(1, 1, 1)
+                            label.TextStrokeTransparency = 0.5
+                            label.TextScaled = true
+                            label.Parent = gui
+                        end
+
+                        local label = gui:FindFirstChild("DistanceLabel")
+                        if label then
+                            label.Text = string.format("Distance: %.0f metros", distance)
+                        end
+
+                        if v.Character:FindFirstChildOfClass("Humanoid") then
+                            local health = v.Character.Humanoid.Health
+                            hitbox.BrickColor = BrickColor.new(health < 50 and "Bright red" or "Bright green")
+                        end
+                    end
+                end)
+            end
+        end
+    end
+end)
+
+-- Herramientas si muere
+RunService.Stepped:Connect(function()
+    local char = player.Character
+    if char then
+        local hum = char:FindFirstChild("Humanoid")
+        if hum and hum.Health <= 0 then
+            for _, tool in pairs(player.Backpack:GetChildren()) do
+                if tool:IsA("Tool") and _G.Tools[tool.Name] then
+                    tool.Parent = char
+                end
+            end
+        end
+    end
+end)
+
+-- Autoataque al equipar herramienta
+local function setupCharacter(char)
+    local fired = false
+    char.ChildAdded:Connect(function(tool)
+        if tool:IsA("Tool") and _G.Tools[tool.Name] and not fired then
+            fired = true
+            task.wait(0.5)
+            applyDamageWithTools()
+            fired = false
+        end
+    end)
+end
+
+if player.Character then
+    setupCharacter(player.Character)
+end
+player.CharacterAdded:Connect(setupCharacter)

@@ -1,150 +1,175 @@
--- === LOOPBRING V6 (Circle Mode) — Tick-Perfect + Persistent ===
 local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
+local TweenService = game:GetService("TweenService")
 
-local bringTargets = {}       -- currently active loopbring
-local persistentTargets = {}  -- remembers selected players even if they leave
+local LoopBrings = {}
 
-local circleRadius = 5
-local circleSpeed = 0.03 -- tick-perfect interval
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "LoopBringGUI"
+ScreenGui.Parent = game:GetService("CoreGui")
 
--- === UI ===
-local bringUI = Instance.new("ScreenGui")
-bringUI.Name = "LoopBringCircleUI"
-bringUI.Parent = game.CoreGui
-bringUI.ResetOnSpawn = false
-bringUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+-- Small toggle button frame
+local ToggleFrame = Instance.new("Frame", ScreenGui)
+ToggleFrame.Size = UDim2.new(0, 80, 0, 30)
+ToggleFrame.Position = UDim2.new(1, -90, 0, 20)
+ToggleFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+ToggleFrame.BorderSizePixel = 0
+ToggleFrame.ClipsDescendants = true
+
+local UICorner = Instance.new("UICorner", ToggleFrame)
+UICorner.CornerRadius = UDim.new(0, 6)
+
+-- Blood-red glow stroke
+local Stroke = Instance.new("UIStroke", ToggleFrame)
+Stroke.Color = Color3.fromRGB(139,0,0)
+Stroke.Thickness = 2
+Stroke.Transparency = 0.2
+Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
 -- Toggle button
-local toggle = Instance.new("TextButton")
-toggle.Size = UDim2.new(0, 35, 0, 35)
-toggle.Position = UDim2.new(1, -45, 0, 10)
-toggle.AnchorPoint = Vector2.new(0.5, 0)
-toggle.Text = "≡"
-toggle.Font = Enum.Font.GothamBold
-toggle.TextScaled = true
-toggle.TextColor3 = Color3.new(1, 1, 1)
-toggle.BackgroundColor3 = Color3.fromRGB(40, 0, 40)
-toggle.Parent = bringUI
+local ToggleButton = Instance.new("TextButton", ToggleFrame)
+ToggleButton.Size = UDim2.new(1, 0, 1, 0)
+ToggleButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+ToggleButton.TextColor3 = Color3.fromRGB(139,0,0)
+ToggleButton.Text = "loopbring"
+ToggleButton.Font = Enum.Font.GothamBold
+ToggleButton.TextSize = 14
+ToggleButton.AutoButtonColor = false
 
-local grad = Instance.new("UIGradient", toggle)
-grad.Color = ColorSequence.new{
-	ColorSequenceKeypoint.new(0, Color3.fromRGB(180, 0, 180)),
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(60, 0, 60))
+local UICornerBtn = Instance.new("UICorner", ToggleButton)
+UICornerBtn.CornerRadius = UDim.new(0, 6)
+
+-- Player list panel
+local Frame = Instance.new("Frame", ScreenGui)
+Frame.Size = UDim2.new(0, 220, 0, 50)
+Frame.Position = UDim2.new(1, -230, 0, 60)
+Frame.BorderSizePixel = 2
+Frame.BorderColor3 = Color3.fromRGB(139,0,0)
+Frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Frame.ClipsDescendants = true
+
+local Gradient = Instance.new("UIGradient")
+Gradient.Parent = Frame
+Gradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(139,0,0)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 0, 0))
 }
-grad.Rotation = 45
+Gradient.Rotation = 130
 
--- Dropdown frame
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 200, 0, 250)
-frame.Position = UDim2.new(1, -220, 0, 50)
-frame.BackgroundColor3 = Color3.fromRGB(20, 0, 20)
-frame.Visible = false
-frame.Parent = bringUI
-Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
-Instance.new("UIStroke", frame).Color = Color3.fromRGB(150, 0, 150)
+local UICornerFrame = Instance.new("UICorner", Frame)
+UICornerFrame.CornerRadius = UDim.new(0, 8)
 
-local scroll = Instance.new("ScrollingFrame")
-scroll.Size = UDim2.new(1, -10, 1, -10)
-scroll.Position = UDim2.new(0, 5, 0, 5)
-scroll.CanvasSize = UDim2.new(0, 0, 0, 0)
-scroll.ScrollBarThickness = 5
-scroll.BackgroundTransparency = 1
-scroll.Parent = frame
+local ListFrame = Instance.new("ScrollingFrame", Frame)
+ListFrame.Size = UDim2.new(1, 0, 1, -10)
+ListFrame.Position = UDim2.new(0, 0, 0, 10)
+ListFrame.BackgroundTransparency = 1
+ListFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+ListFrame.ScrollBarThickness = 5
 
-local layout = Instance.new("UIListLayout", scroll)
-layout.Padding = UDim.new(0, 2)
+local UIListLayout = Instance.new("UIListLayout", ListFrame)
+UIListLayout.FillDirection = Enum.FillDirection.Vertical
+UIListLayout.Padding = UDim.new(0, 5)
 
--- === Player Selection Logic ===
-local function loopBring(name)
-	if not table.find(bringTargets, name) then
-		table.insert(bringTargets, name)
-	end
-	persistentTargets[name] = true
+-- Toggle animation
+local function toggleVisibility()
+    local goal = {Size = Frame.Visible and UDim2.new(0, 220, 0, 50) or UDim2.new(0, 220, 0, 250)}
+    local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.Out)
+    local tween = TweenService:Create(Frame, tweenInfo, goal)
+
+    Frame.Visible = true
+    tween:Play()
+
+    tween.Completed:Connect(function()
+        if goal.Size == UDim2.new(0, 220, 0, 50) then
+            Frame.Visible = false
+        end
+    end)
 end
 
-local function stopBring(name)
-	local i = table.find(bringTargets, name)
-	if i then
-		table.remove(bringTargets, i)
-	end
+ToggleButton.MouseButton1Click:Connect(toggleVisibility)
+
+-- LoopBring function
+local function loopBring(targetPlayer, label)
+    if LoopBrings[targetPlayer.UserId] then
+        LoopBrings[targetPlayer.UserId] = nil
+        label.Text = targetPlayer.Name
+        label.TextColor3 = Color3.fromRGB(139,0,0)
+        return
+    end
+
+    LoopBrings[targetPlayer.UserId] = true
+    label.Text = targetPlayer.Name .. " [Loopbringed]"
+    label.TextColor3 = Color3.fromRGB(255, 85, 85)
+
+    task.spawn(function()
+        while LoopBrings[targetPlayer.UserId] and targetPlayer and targetPlayer.Character and LocalPlayer.Character do
+            if not Players:FindFirstChild(targetPlayer.Name) then break end
+            if targetPlayer.Character:FindFirstChild("HumanoidRootPart") and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                targetPlayer.Character.HumanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, -3)
+                targetPlayer.Character.HumanoidRootPart.Velocity = Vector3.new(0, 0, 0)
+            end
+            wait(0.1)
+        end
+    end)
 end
 
-function updatePlayerList()
-	for _, btn in ipairs(scroll:GetChildren()) do
-		if btn:IsA("TextButton") then btn:Destroy() end
-	end
-	for _, p in ipairs(Players:GetPlayers()) do
-		if p ~= LocalPlayer then
-			local b = Instance.new("TextButton")
-			b.Size = UDim2.new(1, -8, 0, 28)
-			b.Text = p.Name
-			b.TextScaled = true
-			b.Font = Enum.Font.Gotham
-			b.BackgroundColor3 = table.find(bringTargets, p.Name) and Color3.fromRGB(120, 0, 120) or Color3.fromRGB(40, 0, 40)
-			b.TextColor3 = Color3.new(1, 1, 1)
-			b.Parent = scroll
+-- Update player list
+local function updatePlayerList()
+    for _, child in ipairs(ListFrame:GetChildren()) do
+        if child:IsA("TextButton") then
+            child:Destroy()
+        end
+    end
 
-			Instance.new("UICorner", b).CornerRadius = UDim.new(0, 6)
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            local playerButton = Instance.new("TextButton", ListFrame)
+            playerButton.Size = UDim2.new(1, 0, 0, 30)
+            playerButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+            playerButton.TextColor3 = Color3.fromRGB(139,0,0)
+            playerButton.Font = Enum.Font.GothamBold
+            playerButton.TextSize = 16
+            playerButton.AutoButtonColor = false
+            playerButton.Text = player.Name
 
-			b.MouseButton1Click:Connect(function()
-				if table.find(bringTargets, p.Name) then
-					stopBring(p.Name)
-					persistentTargets[p.Name] = nil
-				else
-					loopBring(p.Name)
-				end
-				updatePlayerList()
-			end)
-		end
-	end
-	scroll.CanvasSize = UDim2.new(0, 0, 0, #Players:GetPlayers() * 30)
+            local UICornerPlayer = Instance.new("UICorner", playerButton)
+            UICornerPlayer.CornerRadius = UDim.new(0, 6)
+
+            if LoopBrings[player.UserId] then
+                playerButton.Text = player.Name .. " [Loopbringed]"
+                playerButton.TextColor3 = Color3.fromRGB(255, 85, 85)
+            end
+
+            playerButton.MouseEnter:Connect(function()
+                playerButton.BackgroundColor3 = Color3.fromRGB(50, 0, 0)
+            end)
+
+            playerButton.MouseLeave:Connect(function()
+                playerButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+            end)
+
+            playerButton.MouseButton1Click:Connect(function()
+                loopBring(player, playerButton)
+            end)
+
+            playerButton.Parent = ListFrame
+        end
+    end
+
+    ListFrame.CanvasSize = UDim2.new(0, 0, 0, #Players:GetPlayers() * 35)
 end
 
-toggle.MouseButton1Click:Connect(function()
-	frame.Visible = not frame.Visible
-	if frame.Visible then updatePlayerList() end
+Players.PlayerAdded:Connect(function(player)
+    updatePlayerList()
+    if LoopBrings[player.UserId] then
+        task.wait(1)
+        for _, button in ipairs(ListFrame:GetChildren()) do
+            if button:IsA("TextButton") and button.Text:find(player.Name) then
+                loopBring(player, button)
+            end
+        end
+    end
 end)
 
--- Auto re-add persistent targets when they join
-Players.PlayerAdded:Connect(function(p)
-	if persistentTargets[p.Name] then
-		loopBring(p.Name)
-	end
-	updatePlayerList()
-end)
-
-Players.PlayerRemoving:Connect(function(p)
-	stopBring(p.Name) -- stop actively loopbringing
-	updatePlayerList()
-end)
-
--- Initial update
+Players.PlayerRemoving:Connect(updatePlayerList)
 updatePlayerList()
-
--- === Tick-Perfect LoopBring ===
-RunService.Heartbeat:Connect(function()
-	local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-	if not root or #bringTargets == 0 then return end
-
-	for i, name in ipairs(bringTargets) do
-		local plr = nil
-		for _, p in ipairs(Players:GetPlayers()) do
-			if p.Name == name then
-				plr = p
-				break
-			end
-		end
-
-		local tChar = plr and plr.Character
-		if tChar then
-			local tRoot = tChar:FindFirstChild("HumanoidRootPart")
-			if tRoot then
-				local angle = math.rad((i / #bringTargets) * 360)
-				local offset = Vector3.new(math.cos(angle) * circleRadius, 0, math.sin(angle) * circleRadius)
-				tRoot.CFrame = CFrame.new(root.Position + offset)
-			end
-		end
-	end
-end)

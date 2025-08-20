@@ -2,6 +2,30 @@ local Players = game:GetService("Players")
 local StarterGui = game:GetService("StarterGui")
 local player = Players.LocalPlayer
 
+
+local verifiedUsers = {
+    "jhoans_8", "IHeart_Emma253", "DAISHINKANSAMA93", "XAverageSwordManX", "",
+    "moro12302", "meliodas_lp2", "slenderrrrrrrr411x", "Just_Preston444", "draconic_aqua",
+    "zorro78x", "REAPER24VII", "", "the_new591", "alisonwed1313",
+    "Yamil_V3Y", "Adair_2", "", "TheDarkWarrior7685", "abril_7881",
+    "kevin_kl98", "Just_Preston444", "Malvinna_aaa11", "1234545b6", "Dilan_amdres",
+    "IITerminal_Void", "FXTEFLEX", "wedontknowbria", "slenderrrrrrrr411x", "1_bsa1111111"
+	"iamrobloxbrotherr"
+}
+pcall(function()
+    game.StarterGui:SetCore("SendNotification", {
+        Title = "GND HUB",
+        Text = "(✅Welcome)",
+        Duration = 15,
+        Icon = "rbxthumb://type=Asset&id=111505420074613&w=150&h=150"
+    })
+end)
+
+if not table.find(verifiedUsers, player.Name) then
+    player:Kick("Try more kid u ain't getting Nothing")
+    return
+end
+
 -- Crear el frame principal
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "GND"

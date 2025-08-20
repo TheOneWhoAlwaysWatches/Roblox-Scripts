@@ -16,16 +16,16 @@ toolButton.Name = "AttackToggle"
 toolButton.Parent = screenGui
 toolButton.Position = UDim2.new(0.5, -40, 0.85, -20)
 toolButton.Size = UDim2.new(0, 80, 0, 40)
-toolButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+toolButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- midnight black background
 toolButton.Font = Enum.Font.FredokaOne
 toolButton.Text = "OFF"
-toolButton.TextColor3 = Color3.fromRGB(180, 100, 255)
+toolButton.TextColor3 = Color3.fromRGB(139,0,0) -- blood red text
 toolButton.TextSize = 22
 toolButton.BorderSizePixel = 0
 
 local stroke = Instance.new("UIStroke", toolButton)
 stroke.Thickness = 3
-stroke.Color = Color3.fromRGB(120, 40, 200)
+stroke.Color = Color3.fromRGB(139,0,0) -- blood red border
 
 -- Logic
 local attacking = false
@@ -76,7 +76,7 @@ end
 local function toggleAttack(forceOn)
 	if forceOn ~= nil then attacking = forceOn else attacking = not attacking end
 	toolButton.Text = attacking and "ON" or "OFF"
-	toolButton.TextColor3 = attacking and Color3.fromRGB(255, 60, 60) or Color3.fromRGB(0, 255, 0)
+	toolButton.TextColor3 = attacking and Color3.fromRGB(255, 60, 60) or Color3.fromRGB(139,0,0) -- blood red ON, blood red OFF
 
 	if attacking then
 		equipAndActivateAllTools()

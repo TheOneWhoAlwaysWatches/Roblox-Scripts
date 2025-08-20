@@ -142,13 +142,7 @@ updatesLabel.Position = UDim2.new(0, 10, 0, 10)
 updatesLabel.BackgroundTransparency = 1
 updatesLabel.Text = [[
 📝 Updates:
-- Kill/Death Tracker updated to V2
-- No Cooldown improved to V9
-- Use Tools improved to V7
-- Get Tools improved to V5
-- Insta-Kill improved to V3
-- Respawn improved to V6
-- Added Updates page
+- Imporved No-Anim, Peak No Anim Tools Now
 ]]
 updatesLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 updatesLabel.TextWrapped = true

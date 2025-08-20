@@ -1,0 +1,86 @@
+-- Float Tools
+-- Servicios
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+
+-- Altura a la que flotarán las herramientas cuando el jugador muera
+local deathHeight = 10
+
+-- Función para detectar si el jugador está muerto
+local function IsPlayerDead()
+	local char = player.Character
+	if not char then return false end
+	local humanoid = char:FindFirstChildOfClass("Humanoid")
+	return humanoid and humanoid.Health <= 0
+end
+
+-- Función para hacer flotar las herramientas cuando el jugador muere
+local function FloatToolsOnDeath()
+	if not player.Character then return end
+
+	for _, tool in ipairs(player.Character:GetChildren()) do
+		if tool:IsA("Tool") then
+			local handle = tool:FindFirstChild("Handle")
+			if handle then
+				local bodyPosition = handle:FindFirstChild("BodyPosition")
+
+				if IsPlayerDead() then
+					if not bodyPosition then
+						bodyPosition = Instance.new("BodyPosition")
+						bodyPosition.MaxForce = Vector3.new(400000, 400000, 400000)
+						bodyPosition.D = 10
+						bodyPosition.Parent = handle
+					end
+
+					local rootPart = player.Character:FindFirstChild("HumanoidRootPart")
+					if rootPart then
+						bodyPosition.Position = rootPart.Position + Vector3.new(0, deathHeight, 0)
+					end
+				else
+					if bodyPosition then
+						bodyPosition:Destroy()
+					end
+				end
+			end
+		end
+	end
+end
+
+-- Función para cambiar la gravedad
+local function setGravity(value)
+	Workspace.Gravity = value
+end
+
+-- Al morir, quitar gravedad y activar flotación
+local function onCharacterAdded(char)
+	local humanoid = char:WaitForChild("Humanoid")
+
+	humanoid.Died:Connect(function()
+		setGravity(0) -- Sin gravedad
+	end)
+
+	humanoid.Died:Once(function()
+		player.CharacterAdded:Wait()
+		wait(4) -- Esperar antes de restaurar
+		setGravity(196.2) -- Gravedad por defecto de Roblox
+	end)
+end
+
+-- Iniciar monitoreo de flotación
+RunService.Heartbeat:Connect(FloatToolsOnDeath)
+
+-- Ejecutar en personaje actual
+if character then
+	onCharacterAdded(character)
+end
+
+-- Detectar respawn y volver a aplicar lógicas
+player.CharacterAdded:Connect(function(char)
+	wait(1) -- Espera para asegurarse de que el personaje se cargue
+	FloatToolsOnDeath()
+	onCharacterAdded(char)
+end)

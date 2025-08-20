@@ -142,7 +142,7 @@ updatesLabel.Position = UDim2.new(0, 10, 0, 10)
 updatesLabel.BackgroundTransparency = 1
 updatesLabel.Text = [[
 📝 Updates:
-- Imporved No-Anim, Peak No Anim Tools Now
+- Nothin New
 ]]
 updatesLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 updatesLabel.TextWrapped = true

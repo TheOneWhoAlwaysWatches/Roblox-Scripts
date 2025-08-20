@@ -181,20 +181,6 @@ titleLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
 titleLabel.TextColor3 = Color3.fromRGB(139,0,0)
 titleLabel.Parent = mainFrame
 
-local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1, true)
-local tweenPurple = TweenService:Create(titleLabel, tweenInfo, {TextColor3 = Color3.fromRGB(255, 0, 255)})
-local tweenCyan = TweenService:Create(titleLabel, tweenInfo, {TextColor3 = Color3.fromRGB(0, 255, 255)})
-
--- Loop tween color between purple and cyan
-local function tweenLoop()
-    tweenPurple:Play()
-    tweenPurple.Completed:Connect(function()
-        tweenCyan:Play()
-        tweenCyan.Completed:Connect(tweenLoop)
-    end)
-end
-tweenLoop()
-
 -- Toggle button for showing/hiding main frame
 local toggleButton = Instance.new("TextButton")
 toggleButton.Size = UDim2.new(0, 65, 0, 63)

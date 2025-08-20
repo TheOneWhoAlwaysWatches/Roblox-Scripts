@@ -342,7 +342,7 @@ local function createPageButtons(pageNumber)
             {Text = "Buy Base", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Buy%20Base"}, -- 1
             {Text = "Reach", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Reach"}, -- 2
             {Text = "Float Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Float%20Tools%20V2"}, -- 3
-            {Text = "Anim Remover", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anim%20Remover"}, -- 4
+            {Text = "No Tool Anim", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Remove-Anim"}, -- 4
             {Text = "Fly Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Fly%20Tools"}, -- 5
             {Text = "Grip Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Grip%20Tools"}, -- 6
             {Text = "Axe Smash Sheild", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Axe%20Smash%20Spam"}, -- 7

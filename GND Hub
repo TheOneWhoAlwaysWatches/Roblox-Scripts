@@ -1,13 +1,15 @@
+-- Services
 local Players = game:GetService("Players")
 local StarterGui = game:GetService("StarterGui")
+local TweenService = game:GetService("TweenService")
 local player = Players.LocalPlayer
 
-local verifiedUsers = {
-	"iamrobloxbrotherr"
-}
+-- Verified users
+local verifiedUsers = { "iamrobloxbrotherr" }
 
+-- Welcome notification
 pcall(function()
-    game.StarterGui:SetCore("SendNotification", {
+    StarterGui:SetCore("SendNotification", {
         Title = "GND HUB",
         Text = "(✅Welcome)",
         Duration = 15,
@@ -15,161 +17,90 @@ pcall(function()
     })
 end)
 
+-- Kick unverified users
 if not table.find(verifiedUsers, player.Name) then
     player:Kick("Try more kid u ain't getting Nothing")
     return
 end
 
--- Crear el frame principal
+-- ScreenGui
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "GND"
-screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-screenGui.ResetOnSpawn = false  -- Evita que el ScreenGui se elimine al respawnear
+screenGui.ResetOnSpawn = false
+screenGui.Parent = player:WaitForChild("PlayerGui")
 
--- -- -- Frame Principal estilo Hacker
+-- Main Frame
 local mainFrame = Instance.new("Frame")
 mainFrame.Size = UDim2.new(0, 476, 0, 230)
 mainFrame.Position = UDim2.new(0.31, 0, 0.322, 0)
-mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Negro total
+mainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15) -- dark gray
 mainFrame.BorderSizePixel = 0
 mainFrame.Visible = true
+mainFrame.ZIndex = 1
 mainFrame.Parent = screenGui
 
--- (0.2, 0)
-uiCornerMain.Parent = mainFrame
-
--- local mainFrame = script.Parent -- Asegúrate de que esté bien referenciado
-
--- Crear el UIStroke
-local uiStroke = Instance.new("UIStroke")
-uiStroke.Thickness = 2
-uiStroke.Color = Color3.fromRGB(255, 0, 0) -- Rojo estilo Azlo
-uiStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-uiStroke.Parent = mainFrame
-
--- Efecto futurista opcional (borde brillante animado)
-task.spawn(function()
-	while true do
-		for i = 2, 4, 0.1 do
-			uiStroke.Thickness = i
-			task.wait(0.03)
-		end
-		for i = 4, 2, -0.1 do
-			uiStroke.Thickness = i
-			task.wait(0.03)
-		end
-	end
-end)
--- Efecto futurista para bordes
-local uiCornerMain = Instance.new("UICorner")
-uiCornerMain.CornerRadius = UDim.new(0.2, 0)  -- Bordes más marcados
-uiCornerMain.Parent = mainFrame
-
--- Borde rojo estilo hacker
-local redStroke = Instance.new("UIStroke")
-redStroke.Thickness = 2
-redStroke.Color = Color3.fromRGB(255, 0, 0)  -- Rojo intenso
-redStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-redStroke.Parent = mainFrame
-
--- Degradado en el borde para efecto más futurista (opcional)
-local gradient = Instance.new("UIGradient")
-gradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 60, 60))
-}
-gradient.Rotation = 45
-gradient.Parent = redStroke
-
-
--- Efecto futurista para bordes
+-- Main Frame Corner & Stroke
 local uiCornerMain = Instance.new("UICorner")
 uiCornerMain.CornerRadius = UDim.new(0.2, 0)
 uiCornerMain.Parent = mainFrame
 
--- Borde rojo estilo hacker
-local redStroke = Instance.new("UIStroke")
-redStroke.Thickness = 2
-redStroke.Color = Color3.fromRGB(255, 0, 0) -- Rojo intenso
-redStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-redStroke.Parent = mainFrame
-
-
--- Efecto futurista para bordes
-local uiCornerMain = Instance.new("UICorner")
-uiCornerMain.CornerRadius = UDim.new(0.2, 0)  -- Bordes mÃ¡s marcados
-uiCornerMain.Parent = mainFrame
-
--- UIStroke color verde neÃ³n para el frame principal
 local uiStrokeMainFrame = Instance.new("UIStroke")
-uiStrokeMainFrame.Color = Color3.fromRGB(0, 255, 0)  -- Verde neÃ³n (muy hacker)
-uiStrokeMainFrame.Thickness = 4  -- Grosor del trazo para mayor impacto
+uiStrokeMainFrame.Color = Color3.fromRGB(0, 255, 0)
+uiStrokeMainFrame.Thickness = 2
 uiStrokeMainFrame.Parent = mainFrame
 
--- Frame Secundario (Para los botones principales) (Estilo Hacker)
+-- Secondary Frame (Buttons)
 local secondaryFrame = Instance.new("Frame")
 secondaryFrame.Size = UDim2.new(0, 138, 0, 214)
 secondaryFrame.Position = UDim2.new(0.015, 0, 0.035, 0)
-secondaryFrame.BackgroundColor3 = Color3.fromRGB(24, 24, 24)  -- Fondo oscuro
+secondaryFrame.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
 secondaryFrame.BorderSizePixel = 0
-secondaryFrame.Visible = true
+secondaryFrame.ZIndex = 2
 secondaryFrame.Parent = mainFrame
 
--- Efecto futurista para los bordes del secondaryFrame
 local uiCornerSecondary = Instance.new("UICorner")
-uiCornerSecondary.CornerRadius = UDim.new(0.3, 0)  -- Bordes mÃ¡s pronunciados
+uiCornerSecondary.CornerRadius = UDim.new(0.3, 0)
 uiCornerSecondary.Parent = secondaryFrame
 
--- UIStroke color verde neÃ³n para el frame secundario
-local uiStrokeSecondaryFrame = Instance.new("UIStroke")
-uiStrokeSecondaryFrame.Color = Color3.fromRGB(255, 0, 0)  -- Rojo
-uiStrokeSecondaryFrame.Thickness = 3  -- Grosor medio para resaltar
-uiStrokeSecondaryFrame.Parent = secondaryFrame
+local uiStrokeSecondary = Instance.new("UIStroke")
+uiStrokeSecondary.Color = Color3.fromRGB(255, 0, 0)
+uiStrokeSecondary.Thickness = 2
+uiStrokeSecondary.Parent = secondaryFrame
 
-
--- Frame Tercero (Para mostrar los botones de cada pÃ¡gina) (Estilo Hacker)
+-- Third Frame (Page content)
 local thirdFrame = Instance.new("Frame")
 thirdFrame.Size = UDim2.new(0, 313, 0, 214)
 thirdFrame.Position = UDim2.new(0.321, 0, 0.035, 0)
-thirdFrame.BackgroundColor3 = Color3.fromRGB(32, 32, 32)  -- Fondo oscuro
+thirdFrame.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
 thirdFrame.BorderSizePixel = 0
-thirdFrame.Visible = true
+thirdFrame.ZIndex = 3
 thirdFrame.Parent = mainFrame
 
--- Efecto futurista para bordes del thirdFrame
 local uiCornerThird = Instance.new("UICorner")
-uiCornerThird.CornerRadius = UDim.new(0.3, 0)  -- Bordes futuristas
+uiCornerThird.CornerRadius = UDim.new(0.3, 0)
 uiCornerThird.Parent = thirdFrame
 
--- UIStroke color verde neÃ³n para el frame terciario
-local uiStrokeThirdFrame = Instance.new("UIStroke")
-uiStrokeThirdFrame.Color = Color3.fromRGB(255, 0, 0)  -- Rojo
+local uiStrokeThird = Instance.new("UIStroke")
+uiStrokeThird.Color = Color3.fromRGB(255, 0, 0)
+uiStrokeThird.Thickness = 3
+uiStrokeThird.Parent = thirdFrame
 
-uiStrokeThirdFrame.Thickness = 5  -- Grosor mÃ¡s marcado para dar ese efecto "hacker"
-uiStrokeThirdFrame.Parent = thirdFrame
-
--- UIStroke color morado neÃ³n para el tercer borde (agregando un toque de estilo hacker)
-local uiStrokeThirdFrame2 = Instance.new("UIStroke")
-uiStrokeThirdFrame2.Color = Color3.fromRGB(255, 0, 255)  -- Morado neÃ³n
-uiStrokeThirdFrame2.Thickness = 2
-uiStrokeThirdFrame2.Parent = thirdFrame
-
-
--- TÃ­tulo de GND estilo Hacker
+-- Title Label
 local titleLabel = Instance.new("TextLabel")
 titleLabel.Size = UDim2.new(0, 160, 0, 30)
 titleLabel.Position = UDim2.new(0, 0, 0.05, 0)
-titleLabel.Text = "GND"
 titleLabel.BackgroundTransparency = 1
+titleLabel.Text = "GND"
 titleLabel.TextSize = 40
-titleLabel.Font = Enum.Font.SourceSans
+titleLabel.Font = Enum.Font.SourceSansBold
 titleLabel.TextScaled = true
-titleLabel.TextStrokeTransparency = 0.5
-titleLabel.TextStrokeColor3 = Color3.fromRGB(255, 0, 0)
 titleLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+titleLabel.TextStrokeTransparency = 0.1
+titleLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+titleLabel.ZIndex = 4
 titleLabel.Parent = mainFrame
 
--- Efecto rainbow
+-- Rainbow effect for title
 task.spawn(function()
     while true do
         for hue = 0, 1, 0.01 do
@@ -181,307 +112,99 @@ task.spawn(function()
     end
 end)
 
-
-
-
--- AÃ±adir el contorno de texto (TextStroke) con mayor visibilidad y color mÃ¡s brillante
-titleLabel.TextStrokeTransparency = 0.1  -- MÃ¡s visible y grueso
-titleLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)  -- Contorno negro para darle un toque mÃ¡s "crudo"
-
--- AnimaciÃ³n de cambio de color (cÃ³digo verde â†’ verde neon â†’ rojo neÃ³n)
-local tweenService = game:GetService("TweenService")
-local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1, true)
-
--- -- Inicializa el primer color de la animación (rojo neón)
-local goal = {TextColor3 = Color3.fromRGB(255, 0, 0)}  -- Rojo neón
-local tween = tweenService:Create(titleLabel, tweenInfo, goal)
-tween:Play()
-
-
--- Cambiar a color rojo neÃ³n despuÃ©s de que la animaciÃ³n verde termine
-local TweenService = game:GetService("TweenService")
-
-local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-local goalGreen = {TextColor3 = Color3.fromRGB(0, 255, 0)} -- Verde neón
-local goalRed = {TextColor3 = Color3.fromRGB(255, 0, 0)} -- Rojo neón
-
-local function animateColor()
-	local tweenToRed = TweenService:Create(titleLabel, tweenInfo, goalRed)
-	tweenToRed:Play()
-	tweenToRed.Completed:Connect(function()
-		local tweenToGreen = TweenService:Create(titleLabel, tweenInfo, goalGreen)
-		tweenToGreen:Play()
-		tweenToGreen.Completed:Connect(function()
-			animateColor() -- Vuelve a comenzar
-		end)
-	end)
-end
-
-animateColor()
-
-
-
--- Crear el botón circular de abrir/cerrar estilo hacker
+-- Toggle Button
 local toggleButton = Instance.new("TextButton")
 toggleButton.Size = UDim2.new(0, 65, 0, 65)
 toggleButton.Position = UDim2.new(0.5, -32, 0, -10)
 toggleButton.Text = "GND"
-toggleButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Fondo negro
-toggleButton.TextColor3 = Color3.fromRGB(255, 0, 0) -- Rojo hacker
+toggleButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+toggleButton.TextColor3 = Color3.fromRGB(255, 0, 0)
 toggleButton.TextSize = 20
 toggleButton.Font = Enum.Font.SourceSansBold
 toggleButton.BorderSizePixel = 0
+toggleButton.ZIndex = 5
 toggleButton.Parent = screenGui
 
--- Hacer el botón circular
 local uiCornerToggle = Instance.new("UICorner")
 uiCornerToggle.CornerRadius = UDim.new(1, 0)
 uiCornerToggle.Parent = toggleButton
 
--- Borde animado alrededor del botón
-local borderFrame = Instance.new("Frame")
-borderFrame.Size = UDim2.new(1, 6, 1, 6)
-borderFrame.Position = UDim2.new(0, -3, 0, -3)
-borderFrame.BackgroundTransparency = 1
-borderFrame.ZIndex = toggleButton.ZIndex - 1
-borderFrame.Parent = toggleButton
-
-local uiStroke = Instance.new("UIStroke")
-uiStroke.Color = Color3.fromRGB(255, 0, 0)
-uiStroke.Thickness = 2.5
-uiStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-uiStroke.Parent = borderFrame
-
-local uiCornerBorder = Instance.new("UICorner")
-uiCornerBorder.CornerRadius = UDim.new(1, 0)
-uiCornerBorder.Parent = borderFrame
-
--- Tween para borde
-local tweenService = game:GetService("TweenService")
-local tweenInfo = TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-
-local colorSequence = {
-	{Color = Color3.fromRGB(255, 0, 0)},
-	{Color = Color3.fromRGB(100, 0, 0)}
-}
-
-local currentIndex = 1
-local function playNextTween()
-	currentIndex = 3 - currentIndex
-	local goal = colorSequence[currentIndex]
-	local tween = tweenService:Create(uiStroke, tweenInfo, goal)
-	tween:Play()
-	tween.Completed:Connect(playNextTween)
-end
-
-playNextTween()
-
--- Efecto glow/parpadeo rojo para el texto
-local function animateTextPulse()
-	while true do
-		tweenService:Create(toggleButton, TweenInfo.new(0.4, Enum.EasingStyle.Linear), {
-			TextColor3 = Color3.fromRGB(255, 80, 80)
-		}):Play()
-		wait(0.4)
-		tweenService:Create(toggleButton, TweenInfo.new(0.4, Enum.EasingStyle.Linear), {
-			TextColor3 = Color3.fromRGB(255, 0, 0)
-		}):Play()
-		wait(0.4)
-	end
-end
-
-task.spawn(animateTextPulse)
-
--- Alternar visibilidad y texto
+-- Toggle button functionality
 local isVisible = false
 toggleButton.MouseButton1Click:Connect(function()
-	isVisible = not isVisible
-	mainFrame.Visible = isVisible
-
-	toggleButton.Text = isVisible and "ON" or "OFF"
+    isVisible = not isVisible
+    mainFrame.Visible = isVisible
+    toggleButton.Text = isVisible and "ON" or "OFF"
 end)
 
-
-
-
-
-
--- *CÃ³digo para arrastrar el botÃ³n*
-
-local toggleDragging = false
-local toggleDragStart = nil
-local toggleStartPos = nil
-
--- FunciÃ³n para iniciar el arrastre del botÃ³n
-local function startToggleDrag(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-		toggleDragging = true
-		toggleDragStart = input.Position
-		toggleStartPos = toggleButton.Position
-	end
-end
-
--- FunciÃ³n para arrastrar el botÃ³n
-local function updateToggleDrag(input)
-	if toggleDragging then
-		local delta = input.Position - toggleDragStart
-		toggleButton.Position = UDim2.new(toggleStartPos.X.Scale, toggleStartPos.X.Offset + delta.X, toggleStartPos.Y.Scale, toggleStartPos.Y.Offset + delta.Y)
-	end
-end
-
--- FunciÃ³n para finalizar el arrastre del botÃ³n
-local function stopToggleDrag()
-	toggleDragging = false
-end
-
--- Conectar los eventos de arrastre al botÃ³n
-toggleButton.InputBegan:Connect(startToggleDrag)
-toggleButton.InputChanged:Connect(updateToggleDrag)
-toggleButton.InputEnded:Connect(stopToggleDrag)
-
--- *CÃ³digo para arrastrar el hub (mainFrame)*
-
+-- Draggable mainFrame
 local dragging = false
 local dragStart = nil
 local startPos = nil
 
--- FunciÃ³n para iniciar el arrastre del hub
 local function startHubDrag(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-		dragging = true
-		dragStart = input.Position
-		startPos = mainFrame.Position
-	end
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = mainFrame.Position
+    end
 end
 
--- FunciÃ³n para arrastrar el hub
 local function updateHubDrag(input)
-	if dragging then
-		local delta = input.Position - dragStart
-		mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-	end
+    if dragging then
+        local delta = input.Position - dragStart
+        mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
+                                       startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
 end
 
--- FunciÃ³n para finalizar el arrastre del hub
 local function stopHubDrag()
-	dragging = false
+    dragging = false
 end
 
--- Conectar los eventos de arrastre al hub
 mainFrame.InputBegan:Connect(startHubDrag)
 mainFrame.InputChanged:Connect(updateHubDrag)
 mainFrame.InputEnded:Connect(stopHubDrag)
 
--- FunciÃ³n para crear botones con mÃ¡s UICorner, cambio de fuente, y texto negro
+-- Function to create buttons in secondaryFrame
 local function createButton(text, position, parentFrame)
-	local button = Instance.new("TextButton")
-	button.Size = UDim2.new(0, 120, 0, 38)
-	button.Position = position
-	button.Text = text
-	button.BackgroundColor3 = Color3.fromRGB(0, 0, 0)  -- Fondo negro para el estilo hacker
-	button.TextColor3 = Color3.fromRGB(0, 0, 0)  -- Texto en negro
-	button.TextSize = 18  -- Reducir tamaÃ±o del texto
-	button.Font = Enum.Font.SourceSans  -- Fuente estilo consola/terminal
-	button.Parent = parentFrame
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(0, 120, 0, 38)
+    button.Position = position
+    button.Text = text
+    button.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    button.TextColor3 = Color3.fromRGB(255, 0, 0)
+    button.Font = Enum.Font.SourceSans
+    button.TextSize = 18
+    button.Parent = parentFrame
 
-	-- Crear UICorner para redondear mÃ¡s los bordes del botÃ³n (radio mayor)
-	local uiCorner = Instance.new("UICorner")
-	uiCorner.CornerRadius = UDim.new(0.3, 0)  -- Mayor radio de esquina
-	uiCorner.Parent = button
+    local uiCorner = Instance.new("UICorner")
+    uiCorner.CornerRadius = UDim.new(0.3, 0)
+    uiCorner.Parent = button
 
-	-- Agregar trazo de texto (stroke)
-	button.TextStrokeTransparency = 0.4  -- Ajusta la transparencia del trazo (0 es sin transparencia)
-	button.TextStrokeColor3 = Color3.fromRGB(255, 0, 0)  -- Color del trazo (rojo)
+    local uiStroke = Instance.new("UIStroke")
+    uiStroke.Color = Color3.fromRGB(255, 0, 0)
+    uiStroke.Thickness = 2
+    uiStroke.Parent = button
 
-
-	-- Crear UIStroke para agregar borde al botÃ³n
-	local uiStroke = Instance.new("UIStroke")
-uiStroke.Color = Color3.fromRGB(255, 0, 0)  -- Borde rojo para el estilo hacker
-
-	uiStroke.Thickness = 3  -- Grosor del borde
-	uiStroke.Parent = button  -- AÃ±adimos el UIStroke al botÃ³n
-
-	return button
+    return button
 end
 
--- Crear los botones principales de la pÃ¡gina (PÃ¡gina 1, 2, 3)
+-- Page Buttons
 local button1 = createButton("Pagina 1", UDim2.new(0.08, 0, 0.183, 0), secondaryFrame)
 local button2 = createButton("Pagina 2", UDim2.new(0.08, 0, 0.383, 0), secondaryFrame)
 local button3 = createButton("Pagina 3", UDim2.new(0.08, 0, 0.583, 0), secondaryFrame)
 
--- Crear un tÃ­tulo "Hub v2" debajo del botÃ³n de PÃ¡gina 3 con emojis de calavera a los lados
-local hubTitle = Instance.new("TextLabel")
-hubTitle.Size = UDim2.new(0, 200, 0, 30)
-hubTitle.Position = UDim2.new(0.5, -100, 0.8, 0)
-hubTitle.Text = "💀 Hub v2 💀"
-hubTitle.BackgroundTransparency = 1
-hubTitle.TextColor3 = Color3.fromRGB(255, 0, 0)
-hubTitle.TextSize = 28
-hubTitle.Font = Enum.Font.Arcade
-hubTitle.TextStrokeTransparency = 0.3
-hubTitle.TextStrokeColor3 = Color3.fromRGB(255, 0, 0)
-hubTitle.Parent = secondaryFrame
-
-
-
-
---  FunciÃ³n para crear los botones de las pÃ¡ginas con el mismo estilo que los botones principales
-local function createButton (text, position, scriptLink, parentFrame)
-	local button = Instance.new("TextButton")
-	button.Size = UDim2.new(0.45, 0, 0.14, 0)  -- TamaÃ±o ajustado (45% del ancho y 14% de la altura del frame)
-	button.Position = position
-	button.Text = text
-	button.BackgroundColor3 = Color3.fromRGB(0, 1, 0)  -- Fondo negro (estilo hacker)
-	button.TextColor3 = Color3.fromRGB(255, 0, 0)  -- Texto rojo brillante
-
-	button.TextSize = 14  -- Texto mÃ¡s pequeÃ±o
-	button.Font = Enum.Font.Code -- Fuente tipo cÃ³digo (similar a las terminales)
-	button.Parent = parentFrame
-
-	-- Crear UICorner para redondear los bordes del botÃ³n
-	local uiCorner = Instance.new("UICorner")
-	uiCorner.CornerRadius = UDim.new(0.2, 0)  -- Redondeo moderado
-	uiCorner.Parent = button
-
-	-- -- Crear UIStroke para agregar borde al botón
-local uiStroke = Instance.new("UIStroke")
-uiStroke.Color = Color3.fromRGB(255, 0, 0)  -- Borde rojo
-uiStroke.Thickness = 1  -- Grosor sutil del borde
-uiStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-uiStroke.Parent = button  -- Añadimos el UIStroke al botón
-
-
-	-- Agregar trazo de texto (stroke)
-	button.TextStrokeTransparency = 0.3  -- Trazo sutil
-	button.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)  -- Trazo negro para el texto
-
-	-- AcciÃ³n al hacer clic en el botÃ³n (cargar script)
-	button.MouseButton1Click:Connect(function()
-		-- Agregar manejo de errores para cargar el script de prueba
-		local success, result = pcall(function()
-			loadstring(game:HttpGet(scriptLink))()  -- AquÃ­ es donde se coloca el enlace real
-		end)
-		if not success then
-			warn("Error al cargar el script: " .. result)
-		end
-	end)
-
-	return button
-end
-
--- FunciÃ³n para crear los botones de las pÃ¡ginas con los scripts
+-- Function to create page content
 local function createPageButtons(pageNumber)
-	-- Limpiar los botones existentes
-	for _, child in pairs(thirdFrame:GetChildren()) do
-		if child:IsA("TextButton") then
-			child:Destroy()
-		end
-	end
+    for _, child in pairs(thirdFrame:GetChildren()) do
+        if child:IsA("TextButton") then
+            child:Destroy()
+        end
+    end
 
-	-- Variables para los datos de los botones dependiendo de la pÃ¡gina
-	local buttonsData = {}
+    local buttonsData = {}
 
-	-- PÃ¡gina 1 (botones 1 a 8)
 	if pageNumber == 1 then
 		buttonsData = {
 			{Text = "Spam tools", ScriptLink = "https://pastebin.com/raw/q81GEhK8", Position = UDim2.new(0.03, 0, 0.074, 0)},
@@ -493,9 +216,6 @@ local function createPageButtons(pageNumber)
 			{Text = "hitbox", ScriptLink = "https://pastebin.com/raw/0aGGgGsa", Position = UDim2.new(0.03, 0, 0.7, 0)},
 			{Text = "kill aura", ScriptLink = "https://pastebin.com/raw/qWmPN4f5", Position = UDim2.new(0.51, 0, 0.7, 0)}
 		}
-	end
-
-	-- PÃ¡gina 2 (botones 9 a 16)
 	if pageNumber == 2 then
 		buttonsData = {
 			{Text = "Reach", ScriptLink = "https://pastefy.app/rNQ6FvYC/raw", Position = UDim2.new(0.03, 0, 0.074, 0)},
@@ -507,9 +227,6 @@ local function createPageButtons(pageNumber)
 			{Text = "Antilag", ScriptLink = "https://pastebin.com/raw/bCGNs6ZU", Position = UDim2.new(0.03, 0, 0.7, 0)},
 			{Text = "Grip tools", ScriptLink = "https://pastebin.com/raw/jJQgNbXa", Position = UDim2.new(0.51, 0, 0.7, 0)}
 		}
-	end
-
-	-- PÃ¡gina 3 (botones 17 a 24)
 	if pageNumber == 3 then
 		buttonsData = {
 			{Text = "buy base", ScriptLink = "https://pastebin.com/raw/XqF6uqet", Position = UDim2.new(0.03, 0, 0.074, 0)},
@@ -521,70 +238,23 @@ local function createPageButtons(pageNumber)
 			{Text = "kill counter", ScriptLink = "https://pastebin.com/raw/jHjFv4fc", Position = UDim2.new(0.03, 0, 0.7, 0)},
 			{Text = "spawnpoint", ScriptLink = "https://pastefy.app/RwHIt6uY/raw", Position = UDim2.new(0.51, 0, 0.7, 0)}
 		}
-	end
+    end
 
-	-- Crear los botones para la pÃ¡gina actual con UIStroke
-	for _, buttonData in ipairs(buttonsData) do
-		createButton(buttonData.Text, buttonData.Position, buttonData.ScriptLink, thirdFrame)
-	end
-end
-
--- Conectar los botones principales para cambiar de pÃ¡gina
-button1.MouseButton1Click:Connect(function()
-	createPageButtons(1) -- Cargar PÃ¡gina 1
-end)
-button2.MouseButton1Click:Connect(function()
-	createPageButtons(2) -- Cargar PÃ¡gina 2
-end)
-button3.MouseButton1Click:Connect(function()
-	createPageButtons(3) -- Cargar PÃ¡gina 3
-end)
-local buttons = {}  -- Tabla para almacenar los botones
-
--- Función para alternar el estado de activado/desactivado
-function toggleButtonState(button)
-    if button.Text == "[off]" then
-        button.Text = "[on]"  -- Cambiar el texto del botón a "on"
-        -- Activar el script correspondiente aquí
-        activateScript(button)  -- Llama a la función para activar el script
-    else
-        button.Text = "[off]"  -- Cambiar el texto del botón a "off"
-        -- Desactivar el script correspondiente aquí
-        deactivateScript(button)  -- Llama a la función para desactivar el script
+    for _, data in ipairs(buttonsData) do
+        local btn = createButton(data.Text, data.Position, thirdFrame)
+        btn.MouseButton1Click:Connect(function()
+            local success, err = pcall(function()
+                loadstring(game:HttpGet(data.ScriptLink))()
+            end)
+            if not success then warn("Error loading script:", err) end
+        end)
     end
 end
 
--- Función para activar el script correspondiente (puedes personalizar esto)
-function activateScript(button)
-    -- Aquí va la lógica para activar el script correspondiente al botón
-    print(button.Name .. " activado.")
-end
+-- Connect page buttons
+button1.MouseButton1Click:Connect(function() createPageButtons(1) end)
+button2.MouseButton1Click:Connect(function() createPageButtons(2) end)
+button3.MouseButton1Click:Connect(function() createPageButtons(3) end)
 
--- Función para activar el script correspondiente (puedes personalizar esto)
-function activateScript(button)
-    -- Aquí va la lógica para activar el script correspondiente al botón
-    print(button.Name .. " activado.")
-end
- 
--- Función para desactivar el script correspo
- 
--- Cargar PÃ¡gina 1 por defecto
+-- Load default page
 createPageButtons(1)
-local StarterGui = game:GetService("StarterGui")
-
-local function MensajeChat(txt)
-	StarterGui:SetCore("ChatMakeSystemMessage", {
-		Text = txt,
-		Color = Color3.new(1, 1, 1),
-		Font = Enum.Font.SourceSans,
-		TextSize = 14
-	})
-end
-
-game.Players.PlayerAdded:Connect(function(p)
-	pcall(function() MensajeChat(p.Name .. " se ha unido.") end)
-end)
-
-game.Players.PlayerRemoving:Connect(function(p)
-	pcall(function() MensajeChat(p.Name .. " se ha salido.") end)
-end)

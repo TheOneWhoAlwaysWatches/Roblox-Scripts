@@ -34,6 +34,7 @@ local whitelist = {
     [8038942934] = true, -- Ethan
     [1723790049] = true, -- Angel
     [8983260988] = true, -- Rat
+    [3816480506] = true, -- Messi
     [2271342427] = true, -- Kaiden
     [7659480884] = true, -- Kam
 }
@@ -142,7 +143,7 @@ updatesLabel1.Position = UDim2.new(0, 10, 0, 10)
 updatesLabel1.BackgroundTransparency = 1
 updatesLabel1.Text = [[
 📝 Updates:
-- Fools... You thought i was weak... you thought i would never catch up...
+- Fools... thy end is now...
 ]]
 updatesLabel1.TextColor3 = Color3.fromRGB(255, 255, 255)
 updatesLabel1.TextWrapped = true
@@ -156,9 +157,7 @@ local updatesLabel2 = Instance.new("TextLabel")
 updatesLabel2.Size = UDim2.new(1, -20, 0, 80)
 updatesLabel2.Position = UDim2.new(0, 10, 0, 160)
 updatesLabel2.BackgroundTransparency = 1
-updatesLabel2.Text = [[
-You were wrong..
-]]
+updatesLabel2.Text = nil
 updatesLabel2.TextColor3 = Color3.fromRGB(255, 0, 0)
 updatesLabel2.TextWrapped = true
 updatesLabel2.TextYAlignment = Enum.TextYAlignment.Top

@@ -16,7 +16,7 @@ local frame = Instance.new("Frame")
 frame.Name = "Frame"
 frame.Size = UDim2.new(0, 200, 0, 130)
 frame.Position = UDim2.new(1, -210, 0, 20)
-frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+frame.BackgroundColor3 = Color3.fromRGB(15, 15, 15) -- dark faded black
 frame.BorderSizePixel = 0
 frame.Active = true
 frame.Draggable = true
@@ -25,9 +25,9 @@ frame.Parent = screenGui
 -- ROUND FRAME CORNERS
 Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
 
--- BRIGHT RED BORDER FOR FRAME
+-- BLOOD-RED BORDER FOR FRAME
 local glow = Instance.new("UIStroke")
-glow.Color = Color3.fromRGB(255, 0, 0)
+glow.Color = Color3.fromRGB(139, 0, 0) -- blood red
 glow.Thickness = 2
 glow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 glow.Parent = frame
@@ -37,11 +37,17 @@ local closeBtn = Instance.new("TextButton")
 closeBtn.Size = UDim2.new(0, 20, 0, 20)
 closeBtn.Position = UDim2.new(1, -22, 0, 2)
 closeBtn.Text = "X"
-closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-closeBtn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+closeBtn.TextColor3 = Color3.fromRGB(139, 0, 0) -- blood-red text
+closeBtn.BackgroundColor3 = Color3.fromRGB(25, 0, 0) -- very dark red-ish black
 closeBtn.BorderSizePixel = 0
 closeBtn.Parent = frame
 Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 5)
+
+local closeStroke = Instance.new("UIStroke")
+closeStroke.Color = Color3.fromRGB(139, 0, 0) -- blood red border
+closeStroke.Thickness = 2
+closeStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+closeStroke.Parent = closeBtn
 
 closeBtn.MouseButton1Click:Connect(function()
 	frame.Visible = false
@@ -53,29 +59,29 @@ local function createButton(name, position, url)
 	button.Size = UDim2.new(0.9, 0, 0, 35)
 	button.Position = position
 	button.Text = "" -- hide button text
-	button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+	button.BackgroundColor3 = Color3.fromRGB(30, 30, 30) -- slightly lighter black than frame
 	button.BorderSizePixel = 0
 	button.Parent = frame
 
 	Instance.new("UICorner", button).CornerRadius = UDim.new(0, 6)
 
 	local stroke = Instance.new("UIStroke")
-	stroke.Color = Color3.fromRGB(255, 0, 0)
-	stroke.Thickness = 1.5
+	stroke.Color = Color3.fromRGB(139, 0, 0) -- blood-red border
+	stroke.Thickness = 2
 	stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 	stroke.Parent = button
 
-	-- Create text effect with red border
+	-- Create text effect with blood-red border
 	local textBorder = Instance.new("TextLabel")
 	textBorder.Size = UDim2.new(1, 0, 1, 0)
 	textBorder.Position = UDim2.new(0, 0, 0, 0)
 	textBorder.BackgroundTransparency = 1
 	textBorder.Text = name
-	textBorder.TextColor3 = Color3.fromRGB(255, 0, 0) -- red border
+	textBorder.TextColor3 = Color3.fromRGB(139, 0, 0) -- blood red
 	textBorder.TextStrokeTransparency = 0
-	textBorder.TextStrokeColor3 = Color3.fromRGB(255, 0, 0)
+	textBorder.TextStrokeColor3 = Color3.fromRGB(139, 0, 0)
 	textBorder.Font = Enum.Font.GothamBold
-	textBorder.TextSize = 14 -- smaller font size
+	textBorder.TextSize = 14
 	textBorder.TextScaled = false
 	textBorder.ZIndex = 2
 	textBorder.Parent = button
@@ -85,9 +91,9 @@ local function createButton(name, position, url)
 	frontText.Position = UDim2.new(0, 0, 0, 0)
 	frontText.BackgroundTransparency = 1
 	frontText.Text = name
-	frontText.TextColor3 = Color3.fromRGB(255, 255, 255) -- main white text
+	frontText.TextColor3 = Color3.fromRGB(139, 0, 0) -- blood red
 	frontText.Font = Enum.Font.GothamBold
-	frontText.TextSize = 14 -- smaller font size
+	frontText.TextSize = 14
 	frontText.TextScaled = false
 	frontText.ZIndex = 3
 	frontText.Parent = button
@@ -98,8 +104,8 @@ local function createButton(name, position, url)
 	end)
 end
 
--- BUTTON 1 - Buy all base (slightly raised)
-createButton("Buy all base", UDim2.new(0.05, 0, 0.25, 0),"https://pastebin.com/raw/rQQtEYJY")
+-- BUTTON 1 - Buy all base
+createButton("Buy all base", UDim2.new(0.05, 0, 0.25, 0), "https://pastebin.com/raw/rQQtEYJY")
 
 -- BUTTON 2 - Buy only sword
 createButton("Buy only sword", UDim2.new(0.05, 0, 0.65, 0), "https://pastebin.com/raw/p2616YxD")

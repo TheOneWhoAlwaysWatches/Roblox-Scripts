@@ -105,7 +105,7 @@ local function createButton(name, position, url)
 end
 
 -- BUTTON 1 - Buy all base
-createButton("Buy all base", UDim2.new(0.05, 0, 0.25, 0), "https://pastebin.com/raw/rQQtEYJY")
+createButton("Buy Entire Base", UDim2.new(0.05, 0, 0.25, 0), "https://pastebin.com/raw/rQQtEYJY")
 
 -- BUTTON 2 - Buy only sword
-createButton("Buy only sword", UDim2.new(0.05, 0, 0.65, 0), "https://pastebin.com/raw/p2616YxD")
+createButton("Buy Sword", UDim2.new(0.05, 0, 0.65, 0), "https://pastebin.com/raw/p2616YxD")

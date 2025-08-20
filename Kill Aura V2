@@ -1,0 +1,159 @@
+-- Kill Aura
+
+-- Configuración global y de conexiones
+local auraRange = 30
+local auraSize = Vector3.new(30, 30, 30) -- Tamaño mejorado para mayor precisión
+local connections = getgenv().configs and getgenv().configs.connection
+
+-- Desactivación y limpieza de conexiones previas
+if connections then
+    local Disable = getgenv().configs.Disable
+    for _, v in ipairs(connections) do
+        v:Disconnect()
+    end
+    Disable:Fire()
+    Disable:Destroy()
+    table.clear(getgenv().configs)
+end
+
+-- Creación de eventos y configuración
+local Disable = Instance.new("BindableEvent")
+getgenv().configs = { connections = {}, Disable = Disable, Size = auraSize, DeathCheck = false }
+
+-- Servicios y variables necesarias
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local lp = Players.LocalPlayer
+local Run = true
+local Ignorelist = OverlapParams.new()
+Ignorelist.FilterType = Enum.RaycastFilterType.Include
+
+-- Funciones auxiliares
+local function getchar(plr)
+    return (plr or lp).Character
+end
+
+local function GetTouchInterest(Tool)
+    return Tool and Tool:FindFirstChildWhichIsA("TouchTransmitter", true)
+end
+
+local function GetCharacters()
+    local Characters = {}
+    for _, v in ipairs(Players:GetPlayers()) do
+        if v ~= lp then
+            local character = getchar(v)
+            if character and character:FindFirstChild("Humanoid") and character.Humanoid.Health > 0 then
+                table.insert(Characters, character)
+            end
+        end
+    end
+    return Characters
+end
+
+local function AutoActivateTool(Tool)
+    if Tool:IsDescendantOf(workspace) then
+        Tool:Activate()
+    end
+end
+
+local function Attack(Tool, TouchPart, TargetPart)
+    if Tool:IsDescendantOf(workspace) then
+        -- Evitar movimiento del tool al aplicar el daño
+        firetouchinterest(TouchPart, TargetPart, 1)
+        firetouchinterest(TouchPart, TargetPart, 0)
+    end
+end
+
+-- Conexión para desactivar
+table.insert(getgenv().configs.connections, Disable.Event:Connect(function()
+    Run = false
+end))
+
+-- Función para aplicar daño instantáneo sin mover los tools
+local function ApplyDamageInstant(Tool, TouchPart, Characters)
+    -- Se obtiene la lista de instancias en el área del aura
+    local InstancesInBox = workspace:GetPartBoundsInBox(TouchPart.CFrame, TouchPart.Size + getgenv().configs.Size, Ignorelist)
+
+    -- Iteramos por las instancias dentro del área
+    for _, v in ipairs(InstancesInBox) do
+        local Character = v:FindFirstAncestorWhichIsA("Model")
+        -- Si la instancia es un personaje y está en el rango, se aplica el daño
+        if Character and table.find(Characters, Character) then
+            -- Aplicar el daño solo sin mover la herramienta
+            Attack(Tool, TouchPart, v)
+        end
+    end
+end
+
+-- Función para activar el aura de inmediato cuando se equipa un tool
+local function CheckAndActivateAura()
+    local char = getchar()
+    if char then
+        local Tools = char:GetChildren()
+        for _, tool in ipairs(Tools) do
+            if tool:IsA("Tool") and GetTouchInterest(tool) then
+                local TouchPart = GetTouchInterest(tool).Parent
+                AutoActivateTool(tool)
+                ApplyDamageInstant(tool, TouchPart, GetCharacters())
+            end
+        end
+    end
+end
+
+-- Llamamos a esta función inmediatamente para asegurar que se active al reaparecer
+CheckAndActivateAura()
+
+-- Aura principal optimizada (primera lógica)
+RunService.Heartbeat:Connect(function()
+    local char = getchar()
+    local Characters = GetCharacters()
+    Ignorelist.FilterDescendantsInstances = Characters
+
+    local Tools = char and char:GetChildren() or lp.Backpack:GetChildren()
+    for _, tool in ipairs(Tools) do
+        if tool:IsA("Tool") and GetTouchInterest(tool) then
+            local TouchPart = GetTouchInterest(tool).Parent
+            AutoActivateTool(tool)
+            ApplyDamageInstant(tool, TouchPart, Characters)
+        end
+    end
+end)
+
+-- Segunda aura (manejo de herramientas especiales)
+local range = 30
+RunService.RenderStepped:Connect(function()
+    local char = getchar()
+    for _, k in ipairs(Players:GetPlayers()) do
+        local v = k.Character
+        if k ~= lp and v and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 and v:FindFirstChild("HumanoidRootPart") and lp:DistanceFromCharacter(v.HumanoidRootPart.Position) <= range then
+            local tool = char and char:FindFirstChildOfClass("Tool")
+            if tool then
+                AutoActivateTool(tool)
+                if tool:FindFirstChild("Handle") then
+                    for _, part in ipairs(v:GetChildren()) do
+                        if part:IsA("BasePart") then
+                            -- Evitar movimiento de los tools al aplicar firetouch
+                            firetouchinterest(tool.Handle, part, 0)
+                            firetouchinterest(tool.Handle, part, 1)
+                        end
+                    end
+                else
+                    for _, specialTool in ipairs(tool:GetChildren()) do
+                        if specialTool.Name == "RocketArm1" or specialTool.Name == "RocketArm2" or specialTool.Name == "SuperFist" or specialTool.Name == "SuprrFist1" then
+                            local touch = specialTool:FindFirstChild("Middle")
+                            if touch then
+                                for _, part in ipairs(v:GetChildren()) do
+                                    if part:IsA("BasePart") or part:IsA("Part") then
+                                        -- Evitar movimiento de los tools al aplicar firetouch
+                                        firetouchinterest(touch, part, 0)
+                                        firetouchinterest(touch, part, 1)
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end)

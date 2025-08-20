@@ -75,7 +75,7 @@ local uiCornerMain = Instance.new("UICorner", mainFrame)
 uiCornerMain.CornerRadius = UDim.new(0.2, 0)
 
 local uiStrokeMain = Instance.new("UIStroke", mainFrame)
-uiStrokeMain.Color = Color3.fromRGB(139,0,0)
+uiStrokeMain.Color = Color3.fromRGB(139, 0, 0)
 uiStrokeMain.Thickness = 4
 
 -- Secondary frame (page selector, now scrollable)
@@ -92,7 +92,7 @@ local uiCornerSecondary = Instance.new("UICorner", secondaryFrame)
 uiCornerSecondary.CornerRadius = UDim.new(0.3, 0)
 
 local uiStrokeSecondary = Instance.new("UIStroke", secondaryFrame)
-uiStrokeSecondary.Color = Color3.fromRGB(139,0,0)
+uiStrokeSecondary.Color = Color3.fromRGB(139, 0, 0)
 uiStrokeSecondary.Thickness = 3
 
 -- UIListLayout for automatic button placement
@@ -113,11 +113,11 @@ local uiCornerThird = Instance.new("UICorner", thirdFrame)
 uiCornerThird.CornerRadius = UDim.new(0.3, 0)
 
 local uiStrokeThird = Instance.new("UIStroke", thirdFrame)
-uiStrokeThird.Color = Color3.fromRGB(139,0,0)
+uiStrokeThird.Color = Color3.fromRGB(139, 0, 0)
 uiStrokeThird.Thickness = 5
 
 local uiStrokeThirdAccent = Instance.new("UIStroke", thirdFrame)
-uiStrokeThirdAccent.Color = Color3.fromRGB(139,0,0)
+uiStrokeThirdAccent.Color = Color3.fromRGB(255, 0, 0)
 uiStrokeThirdAccent.Thickness = 2
 
 -- Updates page frame (hidden by default)
@@ -133,37 +133,29 @@ local uiCornerUpdates = Instance.new("UICorner", updatesFrame)
 uiCornerUpdates.CornerRadius = UDim.new(0.3, 0)
 
 local uiStrokeUpdates = Instance.new("UIStroke", updatesFrame)
-uiStrokeUpdates.Color = Color3.fromRGB(139,0,0)
+uiStrokeUpdates.Color = Color3.fromRGB(139, 0, 0)
 uiStrokeUpdates.Thickness = 3
 
--- Regular updates text
-local updatesLabel1 = Instance.new("TextLabel")
-updatesLabel1.Size = UDim2.new(1, -20, 0, 150)
-updatesLabel1.Position = UDim2.new(0, 10, 0, 10)
-updatesLabel1.BackgroundTransparency = 1
-updatesLabel1.Text = [[
+local updatesLabel = Instance.new("TextLabel")
+updatesLabel.Size = UDim2.new(1, -20, 1, -20)
+updatesLabel.Position = UDim2.new(0, 10, 0, 10)
+updatesLabel.BackgroundTransparency = 1
+updatesLabel.Text = [[
 📝 Updates:
-- Fools... thy end is now...
+- Kill/Death Tracker updated to V2
+- No Cooldown improved to V9
+- Use Tools improved to V7
+- Get Tools improved to V5
+- Insta-Kill improved to V3
+- Respawn improved to V6
+- Added Updates page
 ]]
-updatesLabel1.TextColor3 = Color3.fromRGB(255, 255, 255)
-updatesLabel1.TextWrapped = true
-updatesLabel1.TextYAlignment = Enum.TextYAlignment.Top
-updatesLabel1.Font = Enum.Font.Code
-updatesLabel1.TextSize = 16
-updatesLabel1.Parent = updatesFrame
-
--- Special cursive red text
-local updatesLabel2 = Instance.new("TextLabel")
-updatesLabel2.Size = UDim2.new(1, -20, 0, 80)
-updatesLabel2.Position = UDim2.new(0, 10, 0, 160)
-updatesLabel2.BackgroundTransparency = 1
-updatesLabel2.Text = nil
-updatesLabel2.TextColor3 = Color3.fromRGB(255, 0, 0)
-updatesLabel2.TextWrapped = true
-updatesLabel2.TextYAlignment = Enum.TextYAlignment.Top
-updatesLabel2.Font = Enum.Font.PatrickHand -- cursive-style font
-updatesLabel2.TextSize = 16
-updatesLabel2.Parent = updatesFrame
+updatesLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+updatesLabel.TextWrapped = true
+updatesLabel.TextYAlignment = Enum.TextYAlignment.Top
+updatesLabel.Font = Enum.Font.Code
+updatesLabel.TextSize = 16
+updatesLabel.Parent = updatesFrame
 
 -- Title label with tweened color animation
 local titleLabel = Instance.new("TextLabel")
@@ -176,8 +168,22 @@ titleLabel.Font = Enum.Font.SourceSans
 titleLabel.TextScaled = true
 titleLabel.TextStrokeTransparency = 0.1
 titleLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-titleLabel.TextColor3 = Color3.fromRGB(139,0,0)
+titleLabel.TextColor3 = Color3.fromRGB(139, 0, 0)
 titleLabel.Parent = mainFrame
+
+local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1, true)
+local tweenPurple = TweenService:Create(titleLabel, tweenInfo, {TextColor3 = Color3.fromRGB(139, 0, 0)})
+local tweenCyan = TweenService:Create(titleLabel, tweenInfo, {TextColor3 = Color3.fromRGB(255, 0, 0)})
+
+-- Loop tween color between purple and cyan
+local function tweenLoop()
+    tweenPurple:Play()
+    tweenPurple.Completed:Connect(function()
+        tweenCyan:Play()
+        tweenCyan.Completed:Connect(tweenLoop)
+    end)
+end
+tweenLoop()
 
 -- Toggle button for showing/hiding main frame
 local toggleButton = Instance.new("TextButton")
@@ -185,7 +191,7 @@ toggleButton.Size = UDim2.new(0, 65, 0, 63)
 toggleButton.Position = UDim2.new(0.5, -32, 0, -10)
 toggleButton.Text = "Open"
 toggleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-toggleButton.TextColor3 = Color3.fromRGB(139,0,0)
+toggleButton.TextColor3 = Color3.fromRGB(139, 0, 0)
 toggleButton.TextSize = 20
 toggleButton.Font = Enum.Font.SourceSans
 toggleButton.Parent = screenGui
@@ -200,14 +206,14 @@ borderFrame.BackgroundTransparency = 1
 borderFrame.Position = UDim2.new(0, 0, 0, 0)
 
 local uiStrokeToggle = Instance.new("UIStroke", borderFrame)
-uiStrokeToggle.Color = Color3.fromRGB(139,0,0)
+uiStrokeToggle.Color = Color3.fromRGB(139, 0, 0)
 uiStrokeToggle.Thickness = 3
 
 local uiCornerBorder = Instance.new("UICorner", borderFrame)
 uiCornerBorder.CornerRadius = UDim.new(1, 0)
 
 -- Toggle stroke animation (optional)
-local strokeTween = TweenService:Create(uiStrokeToggle, tweenInfo, {Color = Color3.fromRGB(139,0,0)})
+local strokeTween = TweenService:Create(uiStrokeToggle, tweenInfo, {Color = Color3.fromRGB(139, 0, 0)})
 strokeTween:Play()
 
 -- Toggle visibility of mainFrame
@@ -261,7 +267,7 @@ local function createPageSelectorButton(text, parent)
     button.Size = UDim2.new(0, 140, 0, 38)
     button.Text = text
     button.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    button.TextColor3 = Color3.fromRGB(139,0,0)
+    button.TextColor3 = Color3.fromRGB(139, 0, 0)
     button.TextSize = 18
     button.Font = Enum.Font.SourceSans
     button.Parent = parent
@@ -286,7 +292,7 @@ local function createScriptButton(text, position, scriptLink, parent)
     button.Position = position
     button.Text = text
     button.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-    button.TextColor3 = Color3.fromRGB(139,0,0)
+    button.TextColor3 = Color3.fromRGB(139, 0, 0)
     button.TextSize = 14
     button.Font = Enum.Font.Code
     button.Parent = parent

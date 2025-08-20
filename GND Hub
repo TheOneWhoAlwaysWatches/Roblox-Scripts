@@ -9,7 +9,7 @@ local verifiedUsers = {
     "zorro78x", "REAPER24VII", "", "the_new591", "alisonwed1313",
     "Yamil_V3Y", "Adair_2", "", "TheDarkWarrior7685", "abril_7881",
     "kevin_kl98", "Just_Preston444", "Malvinna_aaa11", "1234545b6", "Dilan_amdres",
-    "IITerminal_Void", "FXTEFLEX", "wedontknowbria", "slenderrrrrrrr411x", "1_bsa1111111"
+    "IITerminal_Void", "FXTEFLEX", "wedontknowbria", "slenderrrrrrrr411x", "1_bsa1111111",
 	"iamrobloxbrotherr"
 }
 pcall(function()

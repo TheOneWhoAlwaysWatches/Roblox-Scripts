@@ -142,7 +142,7 @@ updatesLabel.Position = UDim2.new(0, 10, 0, 10)
 updatesLabel.BackgroundTransparency = 1
 updatesLabel.Text = [[
 📝 Updates:
-- Nothin New
+- Updated use tools design, made it a bit more stable and added some new built-in features to it
 ]]
 updatesLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 updatesLabel.TextWrapped = true
@@ -319,7 +319,7 @@ local function createPageButtons(pageNumber)
     if pageNumber == 1 then
         buttonsData = {
             {Text = "Get Tools V6", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Tools%20V6.lua"}, -- 1
-            {Text = "Use Tools V8", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Use%20Tools%20V8"}, -- 2
+            {Text = "Use Tools V9", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Use%20Tools%20V9"}, -- 2
             {Text = "No Cooldown V11", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V11"}, -- 3
             {Text = "Insta-Kill V4", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Insta-Kill%20V4"}, -- 4
             {Text = "Respawn V8", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V8.lua"}, -- 5

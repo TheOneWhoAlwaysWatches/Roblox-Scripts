@@ -13,30 +13,17 @@ local whitelist = {
     [2647384879] = true, -- Crainer (Alt)
     [8892518697] = true, -- Getoutmywaylillbro (My Alt)
     [8893225109] = true, -- Mr. Fish (My Alt)
-    [8407911841] = true, -- Void (Star)
-    [8646139977] = true, -- Stars Alt
     [1548866917] = true, -- Timmy
     [8551057429] = true, -- Timmy Alt
-    [1799483953] = true, -- Sora
     [7750010724] = true, -- Alijah
     [8846161829] = true, -- Alijahs Alt
     [7891871620] = true, -- Alijahs Other Alt
-    [1746591571] = true, -- Jenn
     [2901968025] = true, -- Eggy Alt
     [1513169967] = true, -- Eggy Main
     [7641469342] = true, -- Eggy Other Alt
     [8695113281] = true, -- Eggy Other Other Alt
-    [4150656085] = true, -- Zach Main
-    [8811302905] = true, -- Zach Alt
-    [8062979485] = true, -- Troy Main
-    [8129415259] = true, -- Troy Alt
-    [7191792176] = true, -- Troy Other Alt
-    [8038942934] = true, -- Ethan
-    [1723790049] = true, -- Angel
     [8983260988] = true, -- Rat
     [3816480506] = true, -- Messi
-    [2271342427] = true, -- Kaiden
-    [7659480884] = true, -- Kam
 }
 
 -- Kick player if not whitelisted
@@ -142,7 +129,8 @@ updatesLabel.Position = UDim2.new(0, 10, 0, 10)
 updatesLabel.BackgroundTransparency = 1
 updatesLabel.Text = [[
 📝 Updates:
-- Updated use tools design, made it a bit more stable and added some new built-in features to it
+- Added a new Anti-Kick/Anti-Ban Script
+- Made a new kind of Chat Spy, Hopfully it works
 ]]
 updatesLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 updatesLabel.TextWrapped = true
@@ -341,14 +329,14 @@ local function createPageButtons(pageNumber)
             {Text = "Grip Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Grip%20Tools"}, -- 6
             {Text = "Axe Smash Sheild", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Axe%20Smash%20Spam"}, -- 7
             {Text = "Axe Smash Trap", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Axe%20Smash%20Trap"}, -- 8
-            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 9
+            {Text = "Anti-Kick/Ban", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Kick-Anti-Ban"}, -- 9
             {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 10
 
 
         }
     elseif pageNumber == 3 then
         buttonsData = {
-            {Text = "Chat Spy", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Chat%20Spy"}, -- 1
+            {Text = "Chat Spy V2", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Chat-Spy"}, -- 1
             {Text = "Anti Chat Spy", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti%20Chat%20Spy"}, -- 2
             {Text = "Infinite Yield", ScriptLink = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"}, -- 3
             {Text = "Lag Server", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Lag%20Server"}, -- 4

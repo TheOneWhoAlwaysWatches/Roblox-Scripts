@@ -1,0 +1,127 @@
+-- 🟣 Ultimate Ping-Stabilizer with UI (Mobile + PC)
+-- Toggle via RightShift (PC) or Button (Mobile)
+
+local UIS = game:GetService("UserInputService")
+local Stats = game:GetService("Stats")
+local Lighting = game:GetService("Lighting")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- State
+local StabilizerActive = true
+local ToggleKey = Enum.KeyCode.RightShift
+
+-- UI Setup
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Parent = game:GetService("CoreGui")
+
+local ToggleButton = Instance.new("TextButton")
+ToggleButton.Size = UDim2.new(0, 140, 0, 40)
+ToggleButton.Position = UDim2.new(0.02, 0, 0.2, 0) -- left side
+ToggleButton.Text = "Ping Stabilizer: ON 🟢"
+ToggleButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+ToggleButton.TextColor3 = Color3.fromRGB(200, 200, 255)
+ToggleButton.BorderSizePixel = 2
+ToggleButton.BorderColor3 = Color3.fromRGB(150, 0, 255)
+ToggleButton.Font = Enum.Font.SourceSansBold
+ToggleButton.TextScaled = true
+ToggleButton.Parent = ScreenGui
+
+-- Update UI
+local function updateUI()
+    if StabilizerActive then
+        ToggleButton.Text = "Ping Stabilizer: ON 🟢"
+        ToggleButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    else
+        ToggleButton.Text = "Ping Stabilizer: OFF 🔴"
+        ToggleButton.BackgroundColor3 = Color3.fromRGB(80, 0, 0)
+    end
+end
+
+-- Console Clear
+task.spawn(function()
+    while task.wait(1) do
+        if StabilizerActive then
+            pcall(function() rconsoleclear() end)
+        end
+    end
+end)
+
+-- Reduce Lag Function
+local function reduceLag()
+    if not StabilizerActive then return end
+
+    -- Kill hats/accessories
+    for _,v in pairs(LocalPlayer.Character:GetChildren()) do
+        if v:IsA("Accessory") then
+            v:Destroy()
+        end
+    end
+
+    -- Kill particles/decals/textures
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("ParticleEmitter") or obj:IsA("Trail") then
+            obj.Enabled = false
+        elseif obj:IsA("Decal") or obj:IsA("Texture") then
+            obj.Transparency = 1
+        elseif obj:IsA("Explosion") then
+            obj:Destroy()
+        end
+    end
+
+    -- Kill shadows
+    Lighting.GlobalShadows = false
+    Lighting.FogEnd = 9e9
+end
+
+-- Network Ownership Trick
+local function forceServerOwnership()
+    if not StabilizerActive then return end
+
+    for _, part in pairs(workspace:GetDescendants()) do
+        if part:IsA("BasePart") and not part.Anchored then
+            part:SetNetworkOwner(nil)
+        end
+    end
+end
+
+-- Loop Throttlers
+task.spawn(function()
+    while task.wait(5) do
+        if StabilizerActive then
+            reduceLag()
+            forceServerOwnership()
+        end
+    end
+end)
+
+-- Ping display loop (optional)
+task.spawn(function()
+    while task.wait(2) do
+        if StabilizerActive then
+            local ping = Stats.Network.ServerStatsItem["Data Ping"]:GetValueString()
+            print("Ping:", ping)
+        end
+    end
+end)
+
+-- Toggle Functions
+local function toggleStabilizer()
+    StabilizerActive = not StabilizerActive
+    updateUI()
+    warn("Ping-Stabilizer is now:", StabilizerActive and "ON" or "OFF")
+end
+
+UIS.InputBegan:Connect(function(input, gp)
+    if not gp and input.KeyCode == ToggleKey then
+        toggleStabilizer()
+    end
+end)
+
+ToggleButton.MouseButton1Click:Connect(toggleStabilizer)
+
+-- Initial
+reduceLag()
+forceServerOwnership()
+updateUI()
+warn("🟣 Ping-Stabilizer Loaded. Toggle with RightShift or Button.")

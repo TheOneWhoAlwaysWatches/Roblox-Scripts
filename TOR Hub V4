@@ -129,8 +129,11 @@ updatesLabel.Position = UDim2.new(0, 10, 0, 10)
 updatesLabel.BackgroundTransparency = 1
 updatesLabel.Text = [[
 📝 Updates:
-- Added a new Anti-Kick/Anti-Ban Script
-- Made a new kind of Chat Spy, Hopfully it works
+- Added a new Ping-Stabilizer Script (page 2)
+
+Note: This is not gaurenteed to fully reduce high ping spikes, but is a useful script to help throttle those spikes as much as possible, but might not always work
+
+- Chat spy still in progress, coming soon ;)
 ]]
 updatesLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 updatesLabel.TextWrapped = true
@@ -330,7 +333,7 @@ local function createPageButtons(pageNumber)
             {Text = "Axe Smash Sheild", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Axe%20Smash%20Spam"}, -- 7
             {Text = "Axe Smash Trap", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Axe%20Smash%20Trap"}, -- 8
             {Text = "Anti-Kick/Ban", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Kick-Anti-Ban"}, -- 9
-            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 10
+            {Text = "Ping-Stabilizer", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Ping-Stabilizer"}, -- 10
 
 
         }

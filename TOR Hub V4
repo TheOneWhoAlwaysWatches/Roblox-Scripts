@@ -130,8 +130,9 @@ updatesLabel.BackgroundTransparency = 1
 updatesLabel.Text = [[
 📝 Updates:
 - Reworked loopbring a lil bit, brought back distance control!
+- Anti-Anims, OFFICIALLY REMOVES ALL TOOL ANIMS!!! 9this is veru important to use)
+- Insta-Kill, Slowly updating piece by piece, constently under testeing and development until i find the perfect form of the script.
 
-- Update notes: Lot of things in the work, what im doing might help make us much stronger, and if it does work, new clan soon.. ;)
 ]]
 updatesLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 updatesLabel.TextWrapped = true
@@ -322,10 +323,10 @@ local function createPageButtons(pageNumber)
         }
     elseif pageNumber == 2 then
         buttonsData = {
-            {Text = "Buy Base", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Buy%20Base"}, -- 1
-            {Text = "Reach", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Reach"}, -- 2
-            {Text = "Float Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Float%20Tools%20V2"}, -- 3
-            {Text = "No Tool Anim", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Remove-Anim"}, -- 4
+            {Text = "Anti-Anims", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Anims"}, -- 1
+            {Text = "Buy Base", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Buy%20Base"}, -- 2
+            {Text = "Reach", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Reach"}, -- 3
+            {Text = "Float Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Float%20Tools%20V2"}, -- 4
             {Text = "Fly Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Fly%20Tools"}, -- 5
             {Text = "Grip Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Grip%20Tools"}, -- 6
             {Text = "Axe Smash Sheild", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Axe%20Smash%20Spam"}, -- 7

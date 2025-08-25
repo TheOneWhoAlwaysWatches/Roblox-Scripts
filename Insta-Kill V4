@@ -1,7 +1,7 @@
 -- CONFIG
 local auraRange = 25 -- Max distance to enemy
 local auraSize = Vector3.new(25, 25, 25) -- Aura box around tool
-local attackRate = 0.1 -- Maximum speed without flooding network
+local attackRate = 0.05 -- Maximum speed without flooding network
 
 -- SERVICES
 local Players = game:GetService("Players")

@@ -43,5 +43,3 @@ if LocalPlayer.Character then
         end
     end)
 end
-
-print("Anti-Tool Anims Active, Note: You need insta-Kill for it to work)

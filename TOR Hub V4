@@ -129,11 +129,9 @@ updatesLabel.Position = UDim2.new(0, 10, 0, 10)
 updatesLabel.BackgroundTransparency = 1
 updatesLabel.Text = [[
 📝 Updates:
-- Added a new Ping-Stabilizer Script (page 2)
+- Reworked loopbring a lil bit, brought back distance control!
 
-Note: This is not gaurenteed to fully reduce high ping spikes, but is a useful script to help throttle those spikes as much as possible, but might not always work
-
-- Chat spy still in progress, coming soon ;)
+- Update notes: Lot of things in the work, what im doing might help make us much stronger, and if it does work, new clan soon.. ;)
 ]]
 updatesLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 updatesLabel.TextWrapped = true

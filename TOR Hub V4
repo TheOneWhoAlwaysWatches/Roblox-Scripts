@@ -5,6 +5,7 @@ local player = Players.LocalPlayer
 
 -- Whitelist user IDs allowed to use the hub
 local whitelist = {
+    -- My Accs:
     [3972688973] = true, -- Main Acc
     [2522193455] = true, -- Inf God (Alt)
     [5146822757] = true, -- Monkey (Alt)
@@ -13,17 +14,19 @@ local whitelist = {
     [2647384879] = true, -- Crainer (Alt)
     [8892518697] = true, -- Getoutmywaylillbro (My Alt)
     [8893225109] = true, -- Mr. Fish (My Alt)
+    -- Trusted friends:
     [1548866917] = true, -- Timmy
     [8551057429] = true, -- Timmy Alt
-    [7750010724] = true, -- Alijah
-    [8846161829] = true, -- Alijahs Alt
-    [7891871620] = true, -- Alijahs Other Alt
     [2901968025] = true, -- Eggy Alt
     [1513169967] = true, -- Eggy Main
     [7641469342] = true, -- Eggy Other Alt
     [8695113281] = true, -- Eggy Other Other Alt
-    [8983260988] = true, -- Rat
-    [3816480506] = true, -- Messi
+    -- MPT Members:
+    [7750010724] = true, -- Alijah
+    [8846161829] = true, -- Alijahs Alt
+    [7891871620] = true, -- Alijahs Other Alt
+    [8129415259] = true, -- Troy Main
+    [8764179035] = true, -- Troy Alt
 }
 
 -- Kick player if not whitelisted
@@ -107,7 +110,7 @@ local uiStrokeThirdAccent = Instance.new("UIStroke", thirdFrame)
 uiStrokeThirdAccent.Color = Color3.fromRGB(255, 0, 0)
 uiStrokeThirdAccent.Thickness = 2
 
--- Updates page frame (hidden by default)
+-- Updates page scroll frame
 local updatesFrame = Instance.new("Frame")
 updatesFrame.Size = UDim2.new(0, 370, 0, 280)
 updatesFrame.Position = UDim2.new(0.321, 0, 0.035, 0)
@@ -123,23 +126,53 @@ local uiStrokeUpdates = Instance.new("UIStroke", updatesFrame)
 uiStrokeUpdates.Color = Color3.fromRGB(139, 0, 0)
 uiStrokeUpdates.Thickness = 3
 
+-- ScrollingFrame to allow scrolling through text
+local scrollFrame = Instance.new("ScrollingFrame")
+scrollFrame.Size = UDim2.new(1, -10, 1, -10)
+scrollFrame.Position = UDim2.new(0, 5, 0, 5)
+scrollFrame.BackgroundTransparency = 1
+scrollFrame.BorderSizePixel = 0
+scrollFrame.ScrollBarThickness = 6
+scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0) -- will auto-update
+scrollFrame.Parent = updatesFrame
+
+-- UIListLayout to handle automatic layout of text
+local listLayout = Instance.new("UIListLayout")
+listLayout.Padding = UDim.new(0, 10)
+listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+listLayout.Parent = scrollFrame
+
+-- Automatic CanvasSize update based on content
+local function updateCanvasSize()
+    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y)
+end
+listLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateCanvasSize)
+
+-- Updates label inside scrolling frame
 local updatesLabel = Instance.new("TextLabel")
-updatesLabel.Size = UDim2.new(1, -20, 1, -20)
-updatesLabel.Position = UDim2.new(0, 10, 0, 10)
+updatesLabel.Size = UDim2.new(1, -10, 0, 0) -- height will be auto adjusted by text
 updatesLabel.BackgroundTransparency = 1
 updatesLabel.Text = [[
 📝 Updates:
-- Reworked loopbring a lil bit, brought back distance control!
-- Anti-Anims, OFFICIALLY REMOVES ALL TOOL ANIMS!!! 9this is veru important to use)
-- Insta-Kill, Slowly updating piece by piece, constently under testeing and development until i find the perfect form of the script.
 
+- Reworked loopbring a lil bit, brought back distance control!
+
+- Anti-Anims, OFFICIALLY REMOVES ALL TOOL ANIMS!!! (this is very important to use)
+
+- Insta-Kill, Slowly updating piece by piece, constantly under testing and development until I find the perfect form of the script.
+
+- There are still many features under testing and development, such as Anti-Anim, Insta-Kill, and others. Expect frequent updates and feel free to give suggestions for scripts!
 ]]
 updatesLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 updatesLabel.TextWrapped = true
 updatesLabel.TextYAlignment = Enum.TextYAlignment.Top
 updatesLabel.Font = Enum.Font.Code
 updatesLabel.TextSize = 16
-updatesLabel.Parent = updatesFrame
+updatesLabel.Size = UDim2.new(1, -10, 0, updatesLabel.TextBounds.Y + 10) -- auto size based on text
+updatesLabel.Parent = scrollFrame
+
+-- Update canvas size once initially
+updateCanvasSize()
 
 -- Title label with tweened color animation
 local titleLabel = Instance.new("TextLabel")

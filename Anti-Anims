@@ -1,45 +1,35 @@
 local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
+local lp = Players.LocalPlayer
 
--- Function to disable LocalScripts inside a Tool
-local function disableToolScripts(tool)
-    for _, obj in ipairs(tool:GetChildren()) do
+-- Kill animation LocalScripts inside a tool (after equipped)
+local function nukeAnimScripts(tool)
+    for _, obj in ipairs(tool:GetDescendants()) do
         if obj:IsA("LocalScript") then
-            obj.Disabled = true
-            print("Disabled LocalScript in:", tool.Name)
+            -- Optional: only kill if it looks like a combat/anim script
+            if obj.Name:lower():find("control") or obj.Name:lower():find("anim") then
+                obj.Disabled = true
+                -- or fully destroy: obj:Destroy()
+                print("Disabled anim script:", obj.Name, "in", tool.Name)
+            end
         end
     end
 end
 
--- Hook tools already in backpack
-for _, tool in ipairs(LocalPlayer.Backpack:GetChildren()) do
-    if tool:IsA("Tool") then
-        disableToolScripts(tool)
-    end
+-- Apply when tool is equipped
+local function onCharAdded(char)
+    char.ChildAdded:Connect(function(child)
+        if child:IsA("Tool") then
+            -- Wait a tiny bit so Roblox applies the "tool hold" first
+            task.wait(0.1)
+            nukeAnimScripts(child)
+        end
+    end)
 end
 
--- Watch for new tools added to backpack
-LocalPlayer.Backpack.ChildAdded:Connect(function(tool)
-    if tool:IsA("Tool") then
-        disableToolScripts(tool)
-    end
-end)
+-- Hook respawns
+lp.CharacterAdded:Connect(onCharAdded)
 
--- Watch for tools parented to character (equipped)
-LocalPlayer.CharacterAdded:Connect(function(char)
-    -- Watch tools equipped
-    char.ChildAdded:Connect(function(tool)
-        if tool:IsA("Tool") then
-            disableToolScripts(tool)
-        end
-    end)
-end)
-
--- Also cover first spawn
-if LocalPlayer.Character then
-    LocalPlayer.Character.ChildAdded:Connect(function(tool)
-        if tool:IsA("Tool") then
-            disableToolScripts(tool)
-        end
-    end)
+-- Also run once for current char
+if lp.Character then
+    onCharAdded(lp.Character)
 end

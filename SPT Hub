@@ -38,7 +38,7 @@ end
 -- Notify whitelisted user
 pcall(function()
     StarterGui:SetCore("SendNotification", {
-        Title = "HPT HUB V1",
+        Title = "SPT HUB",
         Text = "(✅ Welcome)",
         Duration = 15,
         Icon = "✅"

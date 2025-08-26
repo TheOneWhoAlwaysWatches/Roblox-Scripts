@@ -132,7 +132,7 @@ local function loopBring(targetPlayer, label)
             if not Players:FindFirstChild(targetPlayer.Name) then break end
             if targetPlayer.Character:FindFirstChild("HumanoidRootPart") and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
                 targetPlayer.Character.HumanoidRootPart.CFrame =
-                    LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(3, 0, -BringDistance)
+                    LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(1.5, 0, -BringDistance)
                 targetPlayer.Character.HumanoidRootPart.Velocity = Vector3.new(0, 0, 0)
             end
             task.wait(0.1)
@@ -194,3 +194,4 @@ end)
 Players.PlayerAdded:Connect(updatePlayerList)
 Players.PlayerRemoving:Connect(updatePlayerList)
 updatePlayerList()
+

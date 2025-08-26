@@ -15,13 +15,14 @@ local whitelist = {
     [8892518697] = true, -- Getoutmywaylillbro (My Alt)
     [8893225109] = true, -- Mr. Fish (My Alt)
     [3816480506] = true, -- Messi
-    -- Trusted friends:
+    -- Trusted People:
     [1548866917] = true, -- Timmy
     [8551057429] = true, -- Timmy Alt
     [2901968025] = true, -- Eggy Alt
     [1513169967] = true, -- Eggy Main
     [7641469342] = true, -- Eggy Other Alt
     [8695113281] = true, -- Eggy Other Other Alt
+    [5068141439] = true, -- Koko
     -- MPT Members:
     [7750010724] = true, -- Alijah
     [8846161829] = true, -- Alijahs Alt

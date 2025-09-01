@@ -24,6 +24,7 @@ local whitelist = {
     [8695113281] = true, -- Eggy Other Other Alt
     [8402211570] = true, -- Aqua
     [3840112050] = true, -- Fang
+    [9290332321] = true, -- Fang Alt
     -- MPT Members:
     [7750010724] = true, -- Alijah
     [8846161829] = true, -- Alijahs Alt

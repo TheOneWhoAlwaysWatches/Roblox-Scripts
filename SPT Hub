@@ -142,6 +142,7 @@ scrollFrame.BackgroundTransparency = 1
 scrollFrame.BorderSizePixel = 0
 scrollFrame.ScrollBarThickness = 6
 scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0) -- will auto-update
+scrollFrame.ZIndex = 100000
 scrollFrame.Parent = updatesFrame
 
 -- UIListLayout to handle automatic layout of text
@@ -179,6 +180,7 @@ updatesLabel.TextSize = 16
 
 -- Automatically grow the label to fit the text
 updatesLabel.AutomaticSize = Enum.AutomaticSize.Y
+updatesLabel.ZIndex = 100001
 updatesLabel.Parent = scrollFrame
 
 -- Update canvas size once initially

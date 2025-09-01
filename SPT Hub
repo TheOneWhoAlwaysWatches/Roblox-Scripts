@@ -62,7 +62,7 @@ mainFrame.Position = UDim2.new(0.31, 0, 0.322, 0)
 mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 mainFrame.BorderSizePixel = 0
 mainFrame.Visible = true
-mainFrame.ZIndex = 9999
+mainFrame.ZIndex = 99999
 mainFrame.Parent = screenGui
 
 -- Rounded corners & neon purple stroke
@@ -81,7 +81,7 @@ secondaryFrame.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
 secondaryFrame.BorderSizePixel = 0
 secondaryFrame.CanvasSize = UDim2.new(0, 0, 0, 0) -- will auto adjust
 secondaryFrame.ScrollBarThickness = 6
-secondaryFrame.ZIndex = 10000
+secondaryFrame.ZIndex = 100000
 secondaryFrame.Parent = mainFrame
 
 local uiCornerSecondary = Instance.new("UICorner", secondaryFrame)
@@ -103,7 +103,7 @@ thirdFrame.Position = UDim2.new(0.321, 0, 0.035, 0)
 thirdFrame.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
 thirdFrame.BorderSizePixel = 0
 thirdFrame.Visible = true
-thirdFrame.ZIndex = 10000
+thirdFrame.ZIndex = 100000
 thirdFrame.Parent = mainFrame
 
 local uiCornerThird = Instance.new("UICorner", thirdFrame)
@@ -124,7 +124,7 @@ updatesFrame.Position = UDim2.new(0.321, 0, 0.035, 0)
 updatesFrame.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
 updatesFrame.BorderSizePixel = 0
 updatesFrame.Visible = false
-updatesFrame.ZIndex = 10000
+updatesFrame.ZIndex = 100000
 updatesFrame.Parent = mainFrame
 
 local uiCornerUpdates = Instance.new("UICorner", updatesFrame)
@@ -196,7 +196,7 @@ titleLabel.TextScaled = true
 titleLabel.TextStrokeTransparency = 0.1
 titleLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
 titleLabel.TextColor3 = Color3.fromRGB(139, 0, 0)
-titleLabel.ZIndex = 10000
+titleLabel.ZIndex = 100000
 titleLabel.Parent = mainFrame
 
 local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1, true)
@@ -222,7 +222,7 @@ toggleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 toggleButton.TextColor3 = Color3.fromRGB(139, 0, 0)
 toggleButton.TextSize = 20
 toggleButton.Font = Enum.Font.SourceSans
-toggleButton.ZIndex = 10000
+toggleButton.ZIndex = 1000000
 toggleButton.Parent = screenGui
 
 local uiCornerToggle = Instance.new("UICorner", toggleButton)
@@ -299,6 +299,7 @@ local function createPageSelectorButton(text, parent)
     button.TextColor3 = Color3.fromRGB(139, 0, 0)
     button.TextSize = 18
     button.Font = Enum.Font.SourceSans
+    button.ZIndex = 100001
     button.Parent = parent
 
     local uiCorner = Instance.new("UICorner", button)
@@ -324,6 +325,7 @@ local function createScriptButton(text, position, scriptLink, parent)
     button.TextColor3 = Color3.fromRGB(139, 0, 0)
     button.TextSize = 14
     button.Font = Enum.Font.Code
+    button.ZIndex = 100001
     button.Parent = parent
 
     local uiCorner = Instance.new("UICorner", button)

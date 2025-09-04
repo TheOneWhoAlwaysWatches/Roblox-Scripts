@@ -3,41 +3,45 @@ local StarterGui = game:GetService("StarterGui")
 local TweenService = game:GetService("TweenService")
 local player = Players.LocalPlayer
 
--- Whitelist user IDs allowed to use the hub
-local whitelist = {
-    -- My Accs:
-    [3972688973] = true, -- Main Acc
-    [2522193455] = true, -- Inf God (Alt)
-    [5146822757] = true, -- Monkey (Alt)
-    [5054998059] = true, -- mjendeub (Alt)
-    [3429553477] = true, -- Dyllan144335 (Alt)
-    [2647384879] = true, -- Crainer (Alt)
-    [8892518697] = true, -- Getoutmywaylillbro (My Alt)
-    [8893225109] = true, -- Mr. Fish (My Alt)
-    [3816480506] = true, -- Messi
-    -- Trusted People:
-    [1548866917] = true, -- Timmy
-    [8551057429] = true, -- Timmy Alt
-    [2901968025] = true, -- Eggy Alt
-    [1513169967] = true, -- Eggy Main
-    [7641469342] = true, -- Eggy Other Alt
-    [8695113281] = true, -- Eggy Other Other Alt
-    [8402211570] = true, -- Aqua
-    [3840112050] = true, -- Fang
-    [9290332321] = true, -- Fang Alt
-    -- MPT Members:
-    [7750010724] = true, -- Alijah
-    [8846161829] = true, -- Alijahs Alt
-    [7891871620] = true, -- Alijahs Other Alt
-    [8129415259] = true, -- Troy Main
-    [8764179035] = true, -- Troy Alt
+-- Backend server URL
+local SERVER = "http://localhost:3000" -- change to your hosted server later
+
+-- Check banlist
+local HttpService = game:GetService("HttpService")
+
+local success, result = pcall(function()
+    return HttpService:GetAsync(SERVER .. "/banlist.json")
+end)
+
+if success then
+    local banlist = HttpService:JSONDecode(result)
+    for _, bannedId in ipairs(banlist) do
+        if tonumber(bannedId) == player.UserId then
+            player:Kick("You are banned from SPT Hub.")
+            return
+        end
+    end
+else
+    warn("Failed to fetch banlist:", result)
+end
+
+-- Only allow admins to use ban/unban commands
+local adminIds = {
+    [3972688973] = true, -- you
 }
 
--- Kick player if not whitelisted
-if not whitelist[player.UserId] then
-    player:Kick("GET OUT.")
-    return
-end
+player.Chatted:Connect(function(msg)
+    if adminIds[player.UserId] then
+        local args = msg:split(" ")
+        if args[1] == "/ban" and args[2] then
+            HttpService:GetAsync(SERVER .. "/ban/" .. args[2])
+            print("Banned user " .. args[2])
+        elseif args[1] == "/unban" and args[2] then
+            HttpService:GetAsync(SERVER .. "/unban/" .. args[2])
+            print("Unbanned user " .. args[2])
+        end
+    end
+end)
 
 -- Notify whitelisted user
 pcall(function()

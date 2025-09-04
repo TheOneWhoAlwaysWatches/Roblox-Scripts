@@ -4,7 +4,7 @@ local TweenService = game:GetService("TweenService")
 local player = Players.LocalPlayer
 
 -- Backend server URL
-local SERVER = "http://localhost:3000" -- change to your hosted server later
+local SERVER = "http://hubbackend.us-3.evennode.com/"
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer

@@ -6,8 +6,6 @@ local player = Players.LocalPlayer
 -- Backend server URL
 local SERVER = "http://hubbackend.us-3.evennode.com/"
 local HttpService = game:GetService("HttpService")
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
 
 -- --- Fetch Banlist safely ---
 local success, result = pcall(function()

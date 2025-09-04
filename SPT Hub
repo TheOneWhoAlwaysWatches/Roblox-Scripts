@@ -5,10 +5,11 @@ local player = Players.LocalPlayer
 
 -- Backend server URL
 local SERVER = "http://localhost:3000" -- change to your hosted server later
-
--- Check banlist
 local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
 
+-- --- Fetch Banlist safely ---
 local success, result = pcall(function()
     return HttpService:GetAsync(SERVER .. "/banlist.json")
 end)
@@ -25,20 +26,46 @@ else
     warn("Failed to fetch banlist:", result)
 end
 
--- Only allow admins to use ban/unban commands
+-- --- Admin IDs for ban/unban commands ---
 local adminIds = {
     [3972688973] = true, -- you
 }
 
+-- --- Listen to chat for ban/unban commands ---
 player.Chatted:Connect(function(msg)
-    if adminIds[player.UserId] then
-        local args = msg:split(" ")
-        if args[1] == "/ban" and args[2] then
-            HttpService:GetAsync(SERVER .. "/ban/" .. args[2])
-            print("Banned user " .. args[2])
-        elseif args[1] == "/unban" and args[2] then
-            HttpService:GetAsync(SERVER .. "/unban/" .. args[2])
-            print("Unbanned user " .. args[2])
+    if not adminIds[player.UserId] then return end
+
+    local args = msg:split(" ")
+    local command = args[1]
+    local targetId = args[2]
+
+    if not targetId then return end
+
+    if command == "/ban" then
+        local ok, err = pcall(function()
+            HttpService:PostAsync(
+                SERVER .. "/ban",
+                HttpService:JSONEncode({ userId = targetId }),
+                Enum.HttpContentType.ApplicationJson
+            )
+        end)
+        if ok then
+            print("Banned user " .. targetId)
+        else
+            warn("Failed to ban user:", err)
+        end
+    elseif command == "/unban" then
+        local ok, err = pcall(function()
+            HttpService:PostAsync(
+                SERVER .. "/unban",
+                HttpService:JSONEncode({ userId = targetId }),
+                Enum.HttpContentType.ApplicationJson
+            )
+        end)
+        if ok then
+            print("Unbanned user " .. targetId)
+        else
+            warn("Failed to unban user:", err)
         end
     end
 end)

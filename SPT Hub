@@ -3,70 +3,41 @@ local StarterGui = game:GetService("StarterGui")
 local TweenService = game:GetService("TweenService")
 local player = Players.LocalPlayer
 
--- Backend server URL
-local SERVER = "http://hubbackend.us-3.evennode.com/"
-local HttpService = game:GetService("HttpService")
-
--- --- Fetch Banlist safely ---
-local success, result = pcall(function()
-    return HttpService:GetAsync(SERVER .. "/banlist.json")
-end)
-
-if success then
-    local banlist = HttpService:JSONDecode(result)
-    for _, bannedId in ipairs(banlist) do
-        if tonumber(bannedId) == player.UserId then
-            player:Kick("You are banned from SPT Hub.")
-            return
-        end
-    end
-else
-    warn("Failed to fetch banlist:", result)
-end
-
--- --- Admin IDs for ban/unban commands ---
-local adminIds = {
-    [3972688973] = true, -- you
+-- Whitelist user IDs allowed to use the hub
+local whitelist = {
+    -- My Accs:
+    [3972688973] = true, -- Main Acc
+    [2522193455] = true, -- Inf God (Alt)
+    [5146822757] = true, -- Monkey (Alt)
+    [5054998059] = true, -- mjendeub (Alt)
+    [3429553477] = true, -- Dyllan144335 (Alt)
+    [2647384879] = true, -- Crainer (Alt)
+    [8892518697] = true, -- Getoutmywaylillbro (My Alt)
+    [8893225109] = true, -- Mr. Fish (My Alt)
+    [3816480506] = true, -- Messi
+    -- Trusted People:
+    [1548866917] = true, -- Timmy
+    [8551057429] = true, -- Timmy Alt
+    [2901968025] = true, -- Eggy Alt
+    [1513169967] = true, -- Eggy Main
+    [7641469342] = true, -- Eggy Other Alt
+    [8695113281] = true, -- Eggy Other Other Alt
+    [8402211570] = true, -- Aqua
+    [3840112050] = true, -- Fang
+    [9290332321] = true, -- Fang Alt
+    -- MPT Members:
+    [7750010724] = true, -- Alijah
+    [8846161829] = true, -- Alijahs Alt
+    [7891871620] = true, -- Alijahs Other Alt
+    [8129415259] = true, -- Troy Main
+    [8764179035] = true, -- Troy Alt
 }
 
--- --- Listen to chat for ban/unban commands ---
-player.Chatted:Connect(function(msg)
-    if not adminIds[player.UserId] then return end
-
-    local args = msg:split(" ")
-    local command = args[1]
-    local targetId = args[2]
-
-    if not targetId then return end
-
-    if command == "/ban" then
-        local ok, err = pcall(function()
-            HttpService:PostAsync(
-                SERVER .. "/ban",
-                HttpService:JSONEncode({ userId = targetId }),
-                Enum.HttpContentType.ApplicationJson
-            )
-        end)
-        if ok then
-            print("Banned user " .. targetId)
-        else
-            warn("Failed to ban user:", err)
-        end
-    elseif command == "/unban" then
-        local ok, err = pcall(function()
-            HttpService:PostAsync(
-                SERVER .. "/unban",
-                HttpService:JSONEncode({ userId = targetId }),
-                Enum.HttpContentType.ApplicationJson
-            )
-        end)
-        if ok then
-            print("Unbanned user " .. targetId)
-        else
-            warn("Failed to unban user:", err)
-        end
-    end
-end)
+-- Kick player if not whitelisted
+if not whitelist[player.UserId] then
+    player:Kick("GET OUT.")
+    return
+end
 
 -- Notify whitelisted user
 pcall(function()

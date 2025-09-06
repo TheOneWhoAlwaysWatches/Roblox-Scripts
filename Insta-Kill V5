@@ -1,0 +1,26 @@
+-- replace remote-first logic with touch-first
+if touchPart and #enemyChars > 0 then
+    local partsInBox = workspace:GetPartBoundsInBox(
+        touchPart.CFrame,
+        touchPart.Size + auraSize,
+        auraParams
+    )
+    for _, part in ipairs(partsInBox) do
+        local model = part:FindFirstAncestorWhichIsA("Model")
+        if model and table.find(enemyChars, model) then
+            -- 10x rapid firetouchinterest
+            for i = 1, 10 do
+                firetouchinterest(touchPart, part, 1)
+                firetouchinterest(touchPart, part, 0)
+            end
+        end
+    end
+end
+
+-- WARNING: This is direct, skips all remotes
+for _, char in ipairs(enemyChars) do
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    if hum then
+        hum.Health = 0
+    end
+end

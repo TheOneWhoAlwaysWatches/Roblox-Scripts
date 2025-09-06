@@ -1,0 +1,161 @@
+-- Services
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+
+-- =========================
+-- GUI Setup
+-- =========================
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "FriendProtectionGUI"
+ScreenGui.Parent = game:GetService("CoreGui")
+
+-- Toggle Button
+local ToggleButton = Instance.new("TextButton")
+ToggleButton.Size = UDim2.new(0, 120, 0, 40)
+ToggleButton.Position = UDim2.new(0, 10, 0.5, -20)
+ToggleButton.BackgroundColor3 = Color3.fromRGB(20,20,20)
+ToggleButton.BorderColor3 = Color3.fromRGB(255,255,255)
+ToggleButton.TextColor3 = Color3.fromRGB(255,255,255)
+ToggleButton.Text = "Protect Friends"
+ToggleButton.Parent = ScreenGui
+
+-- Dropdown Frame
+local Dropdown = Instance.new("ScrollingFrame")
+Dropdown.Size = UDim2.new(0, 200, 0, 300)
+Dropdown.Position = UDim2.new(0, 140, 0.5, -150)
+Dropdown.BackgroundColor3 = Color3.fromRGB(20,20,20)
+Dropdown.BorderColor3 = Color3.fromRGB(255,255,255)
+Dropdown.Visible = false
+Dropdown.ScrollBarThickness = 6
+Dropdown.Parent = ScreenGui
+
+local UIListLayout = Instance.new("UIListLayout")
+UIListLayout.Parent = Dropdown
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout.Padding = UDim.new(0, 2)
+
+-- Table to track protected players
+local protectedPlayers = {}
+
+-- =========================
+-- Helper Functions
+-- =========================
+local function createPlayerButton(player)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, -10, 0, 30)
+    btn.BackgroundColor3 = Color3.fromRGB(50,50,50) -- unprotected color
+    btn.BorderColor3 = Color3.fromRGB(255,255,255)
+    btn.TextColor3 = Color3.fromRGB(255,255,255)
+    btn.Text = player.Name
+    btn.LayoutOrder = #Dropdown:GetChildren()
+    btn.Parent = Dropdown
+
+    local function updateButton()
+        if protectedPlayers[player] then
+            btn.BackgroundColor3 = Color3.fromRGB(0,150,0) -- protected color
+        else
+            btn.BackgroundColor3 = Color3.fromRGB(50,50,50) -- unprotected
+        end
+    end
+
+    btn.MouseButton1Click:Connect(function()
+        protectedPlayers[player] = not protectedPlayers[player]
+        updateButton()
+    end)
+
+    updateButton()
+end
+
+local function refreshDropdown()
+    for _, child in pairs(Dropdown:GetChildren()) do
+        if child:IsA("TextButton") then
+            child:Destroy()
+        end
+    end
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            createPlayerButton(player)
+        end
+    end
+end
+
+ToggleButton.MouseButton1Click:Connect(function()
+    Dropdown.Visible = not Dropdown.Visible
+end)
+
+Players.PlayerAdded:Connect(refreshDropdown)
+Players.PlayerRemoving:Connect(function(player)
+    protectedPlayers[player] = nil
+    refreshDropdown()
+end)
+
+refreshDropdown()
+
+-- =========================
+-- Protection Logic
+-- =========================
+local function isProtected(hit)
+    if not hit then return false end
+    local character = hit.Parent
+    if character and character:FindFirstChild("Humanoid") then
+        local player = Players:GetPlayerFromCharacter(character)
+        if player and protectedPlayers[player] then
+            return true
+        end
+    end
+    return false
+end
+
+-- Block tool hits
+local function hookTool(tool)
+    if not tool:IsA("Tool") then return end
+    local handle = tool:FindFirstChild("Handle")
+    if not handle then return end
+
+    handle.Touched:Connect(function(hit)
+        if isProtected(hit) then
+            -- Prevent local effects (optional: cancel hit animations or damage triggers)
+            pcall(function()
+                tool.Enabled = false
+                wait(0.01)
+                tool.Enabled = true
+            end)
+        end
+    end)
+end
+
+-- Block aura / custom hitboxes
+local function hookCharacter(character)
+    for _, tool in pairs(character:GetChildren()) do
+        if tool:IsA("Tool") then
+            hookTool(tool)
+        end
+    end
+    character.ChildAdded:Connect(function(child)
+        if child:IsA("Tool") then
+            hookTool(child)
+        end
+    end)
+end
+
+-- Initial hook for local player
+hookCharacter(LocalPlayer)
+LocalPlayer.CharacterAdded:Connect(hookCharacter)
+
+-- Automatically hook new tools in backpack
+LocalPlayer.Backpack.ChildAdded:Connect(function(tool)
+    hookTool(tool)
+end)
+
+-- Optional: continuously scan aura scripts / hitboxes
+RunService.RenderStepped:Connect(function()
+    for _, tool in pairs(LocalPlayer.Backpack:GetChildren()) do
+        hookTool(tool)
+    end
+    if LocalPlayer.Character then
+        for _, tool in pairs(LocalPlayer.Character:GetChildren()) do
+            hookTool(tool)
+        end
+    end
+end)

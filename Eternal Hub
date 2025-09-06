@@ -56,7 +56,7 @@ screenGui.Parent = player:WaitForChild("PlayerGui")
 screenGui.ResetOnSpawn = false
 screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
 
--- Main frame (hacker style)
+-- Main frame (Galactic)
 local mainFrame = Instance.new("Frame")
 mainFrame.Size = UDim2.new(0, 550, 0, 300)
 mainFrame.Position = UDim2.new(0.31, 0, 0.322, 0)
@@ -66,21 +66,20 @@ mainFrame.Visible = true
 mainFrame.ZIndex = 99999
 mainFrame.Parent = screenGui
 
--- Rounded corners & neon purple stroke
 local uiCornerMain = Instance.new("UICorner", mainFrame)
 uiCornerMain.CornerRadius = UDim.new(0.2, 0)
 
 local uiStrokeMain = Instance.new("UIStroke", mainFrame)
-uiStrokeMain.Color = Color3.fromRGB(139, 0, 0)
+uiStrokeMain.Color = Color3.fromRGB(255, 255, 255) -- white cosmic glow
 uiStrokeMain.Thickness = 4
 
--- Secondary frame (page selector, now scrollable)
+-- Secondary frame (page selector)
 local secondaryFrame = Instance.new("ScrollingFrame")
 secondaryFrame.Size = UDim2.new(0, 160, 0, 280)
 secondaryFrame.Position = UDim2.new(0.015, 0, 0, 40)
-secondaryFrame.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
+secondaryFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 secondaryFrame.BorderSizePixel = 0
-secondaryFrame.CanvasSize = UDim2.new(0, 0, 0, 0) -- will auto adjust
+secondaryFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
 secondaryFrame.ScrollBarThickness = 6
 secondaryFrame.ZIndex = 100000
 secondaryFrame.Parent = mainFrame
@@ -89,10 +88,9 @@ local uiCornerSecondary = Instance.new("UICorner", secondaryFrame)
 uiCornerSecondary.CornerRadius = UDim.new(0.3, 0)
 
 local uiStrokeSecondary = Instance.new("UIStroke", secondaryFrame)
-uiStrokeSecondary.Color = Color3.fromRGB(139, 0, 0)
+uiStrokeSecondary.Color = Color3.fromRGB(200, 200, 200)
 uiStrokeSecondary.Thickness = 3
 
--- UIListLayout for automatic button placement
 local uiListLayout = Instance.new("UIListLayout", secondaryFrame)
 uiListLayout.Padding = UDim.new(0, 8)
 uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -101,7 +99,7 @@ uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 local thirdFrame = Instance.new("Frame")
 thirdFrame.Size = UDim2.new(0, 370, 0, 280)
 thirdFrame.Position = UDim2.new(0.321, 0, 0.035, 0)
-thirdFrame.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
+thirdFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 thirdFrame.BorderSizePixel = 0
 thirdFrame.Visible = true
 thirdFrame.ZIndex = 100000
@@ -111,18 +109,18 @@ local uiCornerThird = Instance.new("UICorner", thirdFrame)
 uiCornerThird.CornerRadius = UDim.new(0.3, 0)
 
 local uiStrokeThird = Instance.new("UIStroke", thirdFrame)
-uiStrokeThird.Color = Color3.fromRGB(139, 0, 0)
+uiStrokeThird.Color = Color3.fromRGB(255, 255, 255)
 uiStrokeThird.Thickness = 5
 
 local uiStrokeThirdAccent = Instance.new("UIStroke", thirdFrame)
-uiStrokeThirdAccent.Color = Color3.fromRGB(255, 0, 0)
+uiStrokeThirdAccent.Color = Color3.fromRGB(180, 180, 180)
 uiStrokeThirdAccent.Thickness = 2
 
--- Updates page scroll frame
+-- Updates page
 local updatesFrame = Instance.new("Frame")
 updatesFrame.Size = UDim2.new(0, 370, 0, 280)
 updatesFrame.Position = UDim2.new(0.321, 0, 0.035, 0)
-updatesFrame.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
+updatesFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 updatesFrame.BorderSizePixel = 0
 updatesFrame.Visible = false
 updatesFrame.ZIndex = 100000
@@ -132,123 +130,103 @@ local uiCornerUpdates = Instance.new("UICorner", updatesFrame)
 uiCornerUpdates.CornerRadius = UDim.new(0.3, 0)
 
 local uiStrokeUpdates = Instance.new("UIStroke", updatesFrame)
-uiStrokeUpdates.Color = Color3.fromRGB(139, 0, 0)
+uiStrokeUpdates.Color = Color3.fromRGB(200, 200, 200)
 uiStrokeUpdates.Thickness = 3
 
--- ScrollingFrame to allow scrolling through text
 local scrollFrame = Instance.new("ScrollingFrame")
 scrollFrame.Size = UDim2.new(1, -10, 1, -10)
 scrollFrame.Position = UDim2.new(0, 5, 0, 5)
 scrollFrame.BackgroundTransparency = 1
 scrollFrame.BorderSizePixel = 0
 scrollFrame.ScrollBarThickness = 6
-scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0) -- will auto-update
+scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
 scrollFrame.ZIndex = 100000
 scrollFrame.Parent = updatesFrame
 
--- UIListLayout to handle automatic layout of text
-local listLayout = Instance.new("UIListLayout")
-listLayout.Padding = UDim.new(0, 10)
-listLayout.SortOrder = Enum.SortOrder.LayoutOrder
-listLayout.Parent = scrollFrame
-
--- Automatic CanvasSize update based on content
-local function updateCanvasSize()
-    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y)
-end
-listLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateCanvasSize)
-
--- Updates label inside scrolling frame
 local updatesLabel = Instance.new("TextLabel")
-updatesLabel.Size = UDim2.new(1, -10, 0, 0) -- initial height doesn't matter
+updatesLabel.Size = UDim2.new(1, -10, 0, 0)
+updatesLabel.Position = UDim2.new(0, 5, 0, 0)
 updatesLabel.BackgroundTransparency = 1
 updatesLabel.Text = [[
 📝 Updates:
-
-- Reworked loopbring a lil bit, brought back distance control!
-
-- Anti-Anims, OFFICIALLY REMOVES ALL TOOL ANIMS!!! (this is very important to use)
-
-- Insta-Kill, Slowly updating piece by piece, constantly under testing and development until I find the perfect form of the script.
-
-- There are still many features under testing and development, such as Anti-Anim, Insta-Kill, and others. Expect frequent updates and feel free to give suggestions for scripts!
+ - Changed the hub Theme, and name.
+ - Updated No Cooldown to V12
+ - Updated Get Tools to V7
+ - Updated Use Tools to V10
+ - Updated Respawn to V10
+ - Removd Insta Kill.. I found a secret.... :)
 ]]
 updatesLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 updatesLabel.TextWrapped = true
 updatesLabel.TextYAlignment = Enum.TextYAlignment.Top
 updatesLabel.Font = Enum.Font.Code
 updatesLabel.TextSize = 16
-
--- Automatically grow the label to fit the text
 updatesLabel.AutomaticSize = Enum.AutomaticSize.Y
 updatesLabel.ZIndex = 100001
 updatesLabel.Parent = scrollFrame
 
--- Update canvas size once initially
-updateCanvasSize()
+updatesLabel:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, updatesLabel.AbsoluteSize.Y + 20)
+end)
+scrollFrame.CanvasSize = UDim2.new(0, 0, 0, updatesLabel.AbsoluteSize.Y + 20)
 
--- Title label with tweened color animation
+-- Title label with cosmic shimmer
 local titleLabel = Instance.new("TextLabel")
 titleLabel.Size = UDim2.new(0, 160, 0, 30)
 titleLabel.Position = UDim2.new(0, 0, 0.05, 0)
-titleLabel.Text = "SPT Hub V4"
+titleLabel.Text = "Eternal Hub"
 titleLabel.BackgroundTransparency = 1
 titleLabel.TextSize = 40
-titleLabel.Font = Enum.Font.SourceSans
-titleLabel.TextScaled = true
+titleLabel.Font = Enum.Font.GothamBlack
 titleLabel.TextStrokeTransparency = 0.1
 titleLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-titleLabel.TextColor3 = Color3.fromRGB(139, 0, 0)
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleLabel.ZIndex = 100000
 titleLabel.Parent = mainFrame
 
 local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1, true)
-local tweenPurple = TweenService:Create(titleLabel, tweenInfo, {TextColor3 = Color3.fromRGB(139, 0, 0)})
-local tweenCyan = TweenService:Create(titleLabel, tweenInfo, {TextColor3 = Color3.fromRGB(255, 0, 0)})
+local tweenWhite = TweenService:Create(titleLabel, tweenInfo, {TextColor3 = Color3.fromRGB(255, 255, 255)})
+local tweenSilver = TweenService:Create(titleLabel, tweenInfo, {TextColor3 = Color3.fromRGB(200, 200, 200)})
 
--- Loop tween color between purple and cyan
 local function tweenLoop()
-    tweenPurple:Play()
-    tweenPurple.Completed:Connect(function()
-        tweenCyan:Play()
-        tweenCyan.Completed:Connect(tweenLoop)
+    tweenWhite:Play()
+    tweenWhite.Completed:Connect(function()
+        tweenSilver:Play()
+        tweenSilver.Completed:Connect(tweenLoop)
     end)
 end
 tweenLoop()
 
--- Toggle button for showing/hiding main frame
+-- Toggle button
 local toggleButton = Instance.new("TextButton")
 toggleButton.Size = UDim2.new(0, 65, 0, 63)
 toggleButton.Position = UDim2.new(0.5, -32, 0, -10)
 toggleButton.Text = "Open"
-toggleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-toggleButton.TextColor3 = Color3.fromRGB(139, 0, 0)
+toggleButton.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 toggleButton.TextSize = 20
-toggleButton.Font = Enum.Font.SourceSans
+toggleButton.Font = Enum.Font.GothamBold
 toggleButton.ZIndex = 1000000
 toggleButton.Parent = screenGui
 
 local uiCornerToggle = Instance.new("UICorner", toggleButton)
 uiCornerToggle.CornerRadius = UDim.new(1, 0)
 
--- Border frame & stroke around toggle button
 local borderFrame = Instance.new("Frame", toggleButton)
 borderFrame.Size = UDim2.new(1, 0, 1, 0)
 borderFrame.BackgroundTransparency = 1
 borderFrame.Position = UDim2.new(0, 0, 0, 0)
 
 local uiStrokeToggle = Instance.new("UIStroke", borderFrame)
-uiStrokeToggle.Color = Color3.fromRGB(139, 0, 0)
+uiStrokeToggle.Color = Color3.fromRGB(255, 255, 255)
 uiStrokeToggle.Thickness = 3
 
 local uiCornerBorder = Instance.new("UICorner", borderFrame)
 uiCornerBorder.CornerRadius = UDim.new(1, 0)
 
--- Toggle stroke animation (optional)
-local strokeTween = TweenService:Create(uiStrokeToggle, tweenInfo, {Color = Color3.fromRGB(139, 0, 0)})
+local strokeTween = TweenService:Create(uiStrokeToggle, tweenInfo, {Color = Color3.fromRGB(200, 200, 200)})
 strokeTween:Play()
 
--- Toggle visibility of mainFrame
 local isVisible = false
 toggleButton.MouseButton1Click:Connect(function()
     isVisible = not isVisible
@@ -256,7 +234,7 @@ toggleButton.MouseButton1Click:Connect(function()
     toggleButton.Text = isVisible and "Close" or "Open"
 end)
 
--- Universal Draggability
+-- Dragging utility
 local function makeDraggable(gui)
     local dragging, dragStart, startPos
     local function update(input)
@@ -289,19 +267,18 @@ local function makeDraggable(gui)
     end)
 end
 
--- Apply to toggle and main frame
 makeDraggable(toggleButton)
 makeDraggable(mainFrame)
 
--- Helper to create page selector buttons
+-- Page selector button helper
 local function createPageSelectorButton(text, parent)
     local button = Instance.new("TextButton")
     button.Size = UDim2.new(0, 140, 0, 38)
     button.Text = text
     button.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    button.TextColor3 = Color3.fromRGB(139, 0, 0)
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
     button.TextSize = 18
-    button.Font = Enum.Font.SourceSans
+    button.Font = Enum.Font.Gotham
     button.ZIndex = 100001
     button.Parent = parent
 
@@ -311,21 +288,21 @@ local function createPageSelectorButton(text, parent)
     return button
 end
 
--- Create page selector buttons
+-- Page selector buttons
 local button1 = createPageSelectorButton("Main", secondaryFrame)
 local button2 = createPageSelectorButton("Usefull Scripts", secondaryFrame)
 local button3 = createPageSelectorButton("Misc Scripts", secondaryFrame)
 local button4 = createPageSelectorButton("Misc Scripts 2", secondaryFrame)
 local buttonUpdates = createPageSelectorButton("Updates", secondaryFrame)
 
--- Helper to create script buttons
+-- Script button helper
 local function createScriptButton(text, position, scriptLink, parent)
     local button = Instance.new("TextButton")
     button.Size = UDim2.new(0.45, 0, 0, 40)
     button.Position = position
     button.Text = text
     button.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-    button.TextColor3 = Color3.fromRGB(139, 0, 0)
+    button.TextColor3 = Color3.fromRGB(220, 220, 220)
     button.TextSize = 14
     button.Font = Enum.Font.Code
     button.ZIndex = 100001
@@ -346,9 +323,8 @@ local function createScriptButton(text, position, scriptLink, parent)
     return button
 end
 
--- Automatically layout buttons in a neat grid
+-- Page logic
 local function createPageButtons(pageNumber)
-    -- Clear old buttons
     for _, child in pairs(thirdFrame:GetChildren()) do
         if child:IsA("TextButton") then
             child:Destroy()
@@ -358,22 +334,20 @@ local function createPageButtons(pageNumber)
     local buttonsData = {}
     if pageNumber == 1 then
         buttonsData = {
-            {Text = "Get Tools V6", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Tools%20V6.lua"}, -- 1
-            {Text = "Use Tools V9", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Use%20Tools%20V9"}, -- 2
-            {Text = "No Cooldown V11", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V11"}, -- 3
-            {Text = "Insta-Kill V4", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Insta-Kill%20V4"}, -- 4
-            {Text = "Respawn V8", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V8.lua"}, -- 5
-            {Text = "Get Base", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Base%20V3"}, -- 6
-            {Text = "Kill Aura V2", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20Aura%20V2"}, -- 7
-            {Text = "Loopbring", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Loopbring%20V6.lua"}, -- 8
-            {Text = "Damage", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Damage"}, -- 9
-            {Text = "OP Anti-Lag", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Lag%20V3"} -- 10
-
-
+            {Text = "Get Tools V7", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Tools%20V6.lua"}, -- 1
+            {Text = "Use Tools V10", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Use%20Tools%20V9"}, -- 2
+            {Text = "No Cooldown V12", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V11"}, -- 3
+            {Text = "Respawn V9", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V8.lua"}, -- 4
+            {Text = "Get Base", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Base%20V3"}, -- 5
+            {Text = "Kill Aura V2", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20Aura%20V2"}, -- 6
+            {Text = "Loopbring", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Loopbring%20V6.lua"}, -- 7
+            {Text = "Damage", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Damage"}, -- 8
+            {Text = "OP Anti-Lag", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Lag%20V3"}, -- 9
+            {Text = "Infinite Yield", ScriptLink = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"}, -- 3
         }
     elseif pageNumber == 2 then
         buttonsData = {
-            {Text = "Anti-Anims", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Anims"}, -- 1
+            {Text = "Anti-Anims", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Anims"}, -- 
             {Text = "Buy Base", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Buy%20Base"}, -- 2
             {Text = "Reach", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Reach"}, -- 3
             {Text = "Float Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Float%20Tools%20V2"}, -- 4
@@ -390,12 +364,12 @@ local function createPageButtons(pageNumber)
         buttonsData = {
             {Text = "Chat Spy V2", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Chat-Spy"}, -- 1
             {Text = "Anti Chat Spy", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti%20Chat%20Spy"}, -- 2
-            {Text = "Infinite Yield", ScriptLink = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"}, -- 3
-            {Text = "Lag Server", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Lag%20Server"}, -- 4
-            {Text = "Perma-Death", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/God%20Mode.lua"}, -- 5
-            {Text = "Walking God Mode", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Walking%20God%20Mode"}, -- 6
-            {Text = "Super Cool Emotes", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/UGC%20Emotes"}, -- 7
-            {Text = "Emote While Moving", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Emote%20Cancelation%20Remover"}, -- 8
+            {Text = "Lag Server", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Lag%20Server"}, -- 3
+            {Text = "Perma-Death", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/God%20Mode.lua"}, -- 4
+            {Text = "Walking God Mode", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Walking%20God%20Mode"}, -- 5
+            {Text = "Super Cool Emotes", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/UGC%20Emotes"}, -- 6
+            {Text = "Emote While Moving", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Emote%20Cancelation%20Remover"}, -- 7
+            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 8
             {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 9
             {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 10
         }

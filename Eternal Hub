@@ -150,6 +150,7 @@ updatesLabel.BackgroundTransparency = 1
 updatesLabel.Text = [[
 📝 Updates:
  - Changed the hub Theme, and name.
+ - Made the Updates Page Scrollable :)
  - Updated No Cooldown to V12
  - Updated Get Tools to V7
  - Updated Use Tools to V10

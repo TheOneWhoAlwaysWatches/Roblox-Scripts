@@ -148,7 +148,7 @@ updatesLabel.Size = UDim2.new(1, -10, 0, 0)
 updatesLabel.Position = UDim2.new(0, 5, 0, 0)
 updatesLabel.BackgroundTransparency = 1
 updatesLabel.Text = [[
-📝 Updates:
+📝 Updates: 09/06/25
  - Changed the hub Theme, and name.
  - Made the Updates Page Scrollable :)
  - Updated No Cooldown to V12

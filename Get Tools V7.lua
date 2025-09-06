@@ -1,19 +1,20 @@
--- ⚡ DEMONIC INSTANT TOOL GRABBER — Optimized Tick Edition
+-- ⚡ ULTRA-INSTANT TOOL GRABBER v2
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 local Tycoons = workspace:WaitForChild("Tycoons")
 
--- Skip/priority base sets
+-- Exclusions / Allowed sets
 local excludedBases = { "Insanity", "Giant", "Dark", "Spike", "Web", "Strong" }
 local allowedBases = { "Stone", "Magic", "Storm" }
 local excludedBasesSet, allowedBasesSet = {}, {}
 for _, b in ipairs(excludedBases) do excludedBasesSet[b] = true end
 for _, b in ipairs(allowedBases) do allowedBasesSet[b] = true end
 
--- Collect a single tool instantly
+-- Touch helper
 local function CollectTool(root, toolPad)
-    for _ = 1, 4 do
+    -- Spam multiple times to make sure it registers
+    for _ = 1, 8 do
         firetouchinterest(root, toolPad, 0)
         firetouchinterest(root, toolPad, 1)
     end
@@ -36,16 +37,13 @@ local function CollectTools()
     end
 end
 
--- Tick-perfect heartbeat
-RunService.Heartbeat:Connect(CollectTools)
-
--- Respawn catch
+-- 🟢 Instant-grab on respawn
 LocalPlayer.CharacterAdded:Connect(function(char)
-    char:WaitForChild("HumanoidRootPart")
-    CollectTools()
+    char:WaitForChild("HumanoidRootPart") -- wait for root
+    task.defer(CollectTools)              -- collect immediately on next tick
 end)
 
--- Instant after a new pad spawns — only touch the new one
+-- 🟢 Instant-grab when new pad spawns
 Tycoons.DescendantAdded:Connect(function(descendant)
     if descendant:IsA("TouchTransmitter") and descendant.Parent and descendant.Parent.Parent and descendant.Parent.Parent.Name:find("GearGiver1") then
         local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
@@ -54,3 +52,6 @@ Tycoons.DescendantAdded:Connect(function(descendant)
         end
     end
 end)
+
+-- 🟢 Backup loop (keeps tools if you lose them mid-fight)
+RunService.Heartbeat:Connect(CollectTools)

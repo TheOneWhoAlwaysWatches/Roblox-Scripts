@@ -1,126 +1,105 @@
--- Create GUI elements
-local screenGui = Instance.new("ScreenGui")
-local toolButtonFrame = Instance.new("Frame") -- Frame around the button
-local toolButton = Instance.new("TextButton")
-local stroke = Instance.new("UIStroke") -- Border of the button
-local uicorner = Instance.new("UICorner") -- Rounded corners
+-- ⚡ ULTRA INSTANT TOOL SPAMMER
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
 
--- Configure ScreenGui
-screenGui.Parent = game.CoreGui
+-- UI Setup (kept same style as yours)
+local screenGui = Instance.new("ScreenGui", game.CoreGui)
+screenGui.Name = "ToolSpamHub"
 
--- Configure frame around the button
-toolButtonFrame.Name = "ButtonFrame"
-toolButtonFrame.Parent = screenGui
-toolButtonFrame.Position = UDim2.new(0.65, 0, 0.7, 0)  -- Moved to the right
-toolButtonFrame.Size = UDim2.new(0, 70, 0, 40)  -- Size for the button frame
-toolButtonFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)  -- Black background
-toolButtonFrame.BorderSizePixel = 0  -- No border
+local frame = Instance.new("Frame", screenGui)
+frame.Position = UDim2.new(0.65, 0, 0.7, 0)
+frame.Size = UDim2.new(0, 70, 0, 40)
+frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 
--- Configure button
-toolButton.Name = "Usetools"
-toolButton.Parent = toolButtonFrame
-toolButton.Position = UDim2.new(0, 5, 0, 5)  -- Space inside the frame
-toolButton.Size = UDim2.new(1, -10, 1, -10)  -- Fit inside frame
-toolButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)  -- Black background
-toolButton.Font = Enum.Font.Gotham
-toolButton.Text = "spam-off"
-toolButton.TextColor3 = Color3.fromRGB(255, 0, 0)  -- Red hacker-style text
-toolButton.TextScaled = true
-toolButton.TextWrapped = true
-toolButton.Draggable = false
-
--- Configure UIStroke (button border)
-stroke.Parent = toolButton
-stroke.Color = Color3.fromRGB(255, 0, 0)  -- Red hacker-style border
-stroke.Thickness = 0.5
-
--- Add rounded corners to the button
-uicorner.Parent = toolButton
-
--- Add red hacker-style border around the frame
-local frameStroke = Instance.new("UIStroke")
-frameStroke.Parent = toolButtonFrame
-frameStroke.Color = Color3.fromRGB(255, 0, 0)  -- Red hacker-style frame border
+local frameStroke = Instance.new("UIStroke", frame)
+frameStroke.Color = Color3.fromRGB(255, 0, 0)
 frameStroke.Thickness = 2
 
--- Add rounded corners to the frame
-local frameUICorner = Instance.new("UICorner")
-frameUICorner.Parent = toolButtonFrame
+local frameCorner = Instance.new("UICorner", frame)
 
--- State variables
-local clipOn = false
-local noclipConnection = nil
+local button = Instance.new("TextButton", frame)
+button.Size = UDim2.new(1, -10, 1, -10)
+button.Position = UDim2.new(0, 5, 0, 5)
+button.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+button.Font = Enum.Font.Gotham
+button.Text = "Usetools"
+button.TextColor3 = Color3.fromRGB(255, 0, 0)
+button.TextScaled = true
+button.TextWrapped = true
 
--- Function to toggle noclip
-local function toggleNoclip(enabled)
-    if noclipConnection then
-        noclipConnection:Disconnect()
-        noclipConnection = nil
-    end
+local stroke = Instance.new("UIStroke", button)
+stroke.Color = Color3.fromRGB(255, 0, 0)
+stroke.Thickness = 0.5
 
-    if enabled then
-        noclipConnection = game:GetService("RunService").Stepped:Connect(function()
-            local player = game.Players.LocalPlayer
-            if player and player.Character then
-                for _, part in ipairs(player.Character:GetDescendants()) do
-                    if part:IsA("BasePart") and part.CanCollide then
-                        part.CanCollide = false
-                    end
-                end
-            end
-        end)
+local corner = Instance.new("UICorner", button)
+
+-- Spam state
+local spamming = false
+local spamConnection
+
+-- Equip all tools once
+local function equipAllTools()
+    local char = LocalPlayer.Character
+    if not char then return end
+    for _, tool in ipairs(LocalPlayer.Backpack:GetChildren()) do
+        if tool:IsA("Tool") then
+            tool.Parent = char
+        end
     end
 end
 
--- Function to unequip tools
-local function desequipTools()
-    local player = game.Players.LocalPlayer
-    if player and player.Character then
-        for _, tool in ipairs(player.Character:GetChildren()) do
+-- Start tool spam loop
+local function startSpam()
+    if spamConnection then spamConnection:Disconnect() end
+    spamConnection = RunService.Heartbeat:Connect(function()
+        local char = LocalPlayer.Character
+        if not spamming or not char then return end
+
+        -- Auto-equip missing tools
+        for _, tool in ipairs(LocalPlayer.Backpack:GetChildren()) do
             if tool:IsA("Tool") then
-                tool.Parent = player.Backpack
+                tool.Parent = char
+            end
+        end
+
+        -- Activate ALL tools at once
+        for _, tool in ipairs(char:GetChildren()) do
+            if tool:IsA("Tool") then
+                task.defer(function()
+                    pcall(function() tool:Activate() end)
+                end)
+            end
+        end
+    end)
+end
+
+-- Stop spam loop
+local function stopSpam()
+    if spamConnection then
+        spamConnection:Disconnect()
+        spamConnection = nil
+    end
+    -- Unequip tools if desired
+    local char = LocalPlayer.Character
+    if char then
+        for _, tool in ipairs(char:GetChildren()) do
+            if tool:IsA("Tool") then
+                tool.Parent = LocalPlayer.Backpack
             end
         end
     end
 end
 
--- Toggle spam + noclip
-local function toggleSpam(enabled)
-    clipOn = enabled
-    toolButton.Text = clipOn and "spam-off" or "Usetools"
+-- Toggle logic
+button.MouseButton1Click:Connect(function()
+    spamming = not spamming
+    button.Text = spamming and "spam-off" or "Usetools"
 
-    -- Enable/disable noclip
-    toggleNoclip(clipOn)
-
-    -- If turned off, unequip tools
-    if not clipOn then
-        desequipTools()
-    end
-end
-
--- Connect button to toggle function
-toolButton.MouseButton1Click:Connect(function()
-    toggleSpam(not clipOn)
-end)
-
--- Optimized loop to equip & activate tools
-game:GetService("RunService").Heartbeat:Connect(function()
-    if clipOn then
-        local player = game.Players.LocalPlayer
-        if player and player.Character then
-            for _, tool in ipairs(player.Backpack:GetChildren()) do
-                if tool:IsA("Tool") then
-                    tool.Parent = player.Character
-                    task.spawn(function()
-                        while clipOn and tool.Parent == player.Character do
-                            pcall(function()
-                                tool:Activate()
-                            end)
-                            task.wait() -- Max speed
-                        end
-                    end)
-                end
-            end
-        end
+    if spamming then
+        equipAllTools()
+        startSpam()
+    else
+        stopSpam()
     end
 end)

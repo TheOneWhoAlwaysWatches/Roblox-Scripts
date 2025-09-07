@@ -1,4 +1,5 @@
--- Axe Smash Trap v2.2 — Static Hollow Sphere with Persistent Spam & Mobile Toggle
+-- Axe Smash Trap v3.0 — Eternal Theme Edition
+-- Cosmic void UI + Hollow Sphere spam system
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -19,42 +20,56 @@ ScreenGui.Name = "TrapSelectorUI"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = game.CoreGui
 
--- Main player selector frame
+-- Main frame
 local Frame = Instance.new("Frame")
-Frame.Size = UDim2.new(0, 180, 0, 400)
-Frame.Position = UDim2.new(1, -190, 0.2, 0)
-Frame.BackgroundColor3 = Color3.fromRGB(10, 0, 20)
+Frame.Size = UDim2.new(0, 190, 0, 420)
+Frame.Position = UDim2.new(1, -200, 0.2, 0)
+Frame.BackgroundColor3 = Color3.fromRGB(10, 0, 20) -- void background
 Frame.BorderSizePixel = 0
 Frame.Visible = true
 Frame.Parent = ScreenGui
 
-Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 10)
+Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 12)
+local frameStroke = Instance.new("UIStroke", Frame)
+frameStroke.Color = Color3.fromRGB(180, 0, 255)
+frameStroke.Thickness = 2
 
 local UIListLayout = Instance.new("UIListLayout")
-UIListLayout.SortOrder = Enum.SortOrder.Name
-UIListLayout.Padding = UDim.new(0, 4)
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout.Padding = UDim.new(0, 5)
 UIListLayout.Parent = Frame
+
+-- Title
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.BackgroundTransparency = 1
+Title.Text = "⚔ Eternal Trap ⚔"
+Title.TextColor3 = Color3.fromRGB(220, 180, 255)
+Title.Font = Enum.Font.GothamBlack
+Title.TextSize = 18
+Title.TextStrokeTransparency = 0.2
+Title.Parent = Frame
 
 -- Mobile toggle button
 local ToggleButton = Instance.new("TextButton")
-ToggleButton.Size = UDim2.new(0, 40, 0, 40)
-ToggleButton.Position = UDim2.new(0, 10, 1, -50)
-ToggleButton.BackgroundColor3 = Color3.fromRGB(80, 20, 120)
+ToggleButton.Size = UDim2.new(0, 44, 0, 44)
+ToggleButton.Position = UDim2.new(0, 10, 1, -60)
+ToggleButton.BackgroundColor3 = Color3.fromRGB(40, 0, 60)
 ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 ToggleButton.Text = "☰"
-ToggleButton.Font = Enum.Font.Code
+ToggleButton.Font = Enum.Font.GothamBlack
 ToggleButton.TextSize = 22
 ToggleButton.Parent = ScreenGui
 
-Instance.new("UICorner", ToggleButton).CornerRadius = UDim.new(0, 8)
-local stroke = Instance.new("UIStroke", ToggleButton)
-stroke.Color = Color3.fromRGB(200, 0, 255)
+Instance.new("UICorner", ToggleButton).CornerRadius = UDim.new(0, 10)
+local toggleStroke = Instance.new("UIStroke", ToggleButton)
+toggleStroke.Color = Color3.fromRGB(200, 0, 255)
+toggleStroke.Thickness = 2
 
--- UI toggle function
+-- UI toggle
 local function toggleUI()
 	Frame.Visible = not Frame.Visible
 end
-
 ToggleButton.MouseButton1Click:Connect(toggleUI)
 
 UserInputService.InputBegan:Connect(function(input, gpe)
@@ -67,28 +82,36 @@ end)
 -- Create player button
 local function createPlayerButton(player)
 	local btn = Instance.new("TextButton")
-	btn.Size = UDim2.new(1, -10, 0, 30)
-	btn.BackgroundColor3 = Color3.fromRGB(30, 0, 50)
+	btn.Size = UDim2.new(1, -10, 0, 32)
+	btn.BackgroundColor3 = Color3.fromRGB(25, 0, 40)
 	btn.TextColor3 = Color3.fromRGB(255, 255, 255)
 	btn.Text = player.DisplayName
-	btn.Font = Enum.Font.Code
+	btn.Font = Enum.Font.GothamBold
 	btn.TextSize = 14
 	btn.Parent = Frame
 
 	Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
 	local stroke = Instance.new("UIStroke", btn)
-	stroke.Color = Color3.fromRGB(255, 0, 200)
+	stroke.Color = Color3.fromRGB(180, 0, 255)
+	stroke.Thickness = 1.6
 
 	btn.MouseButton1Click:Connect(function()
 		local isSelected = selectedTargets[player] == true
 		selectedTargets[player] = not isSelected
-		btn.TextColor3 = selectedTargets[player] and Color3.fromRGB(0, 255, 100) or Color3.fromRGB(255, 255, 255)
+		if selectedTargets[player] then
+			btn.TextColor3 = Color3.fromRGB(0, 255, 120) -- active neon green
+			btn.BackgroundColor3 = Color3.fromRGB(50, 0, 80)
+		else
+			btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+			btn.BackgroundColor3 = Color3.fromRGB(25, 0, 40)
+		end
 	end)
 
 	player.CharacterAdded:Connect(function()
 		selectedTargets[player] = false
 		trapLocations[player] = nil
 		btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+		btn.BackgroundColor3 = Color3.fromRGB(25, 0, 40)
 	end)
 
 	player.AncestryChanged:Connect(function(_, parent)
@@ -112,7 +135,7 @@ Players.PlayerAdded:Connect(function(p)
 	end
 end)
 
--- Hollow sphere generation
+-- Hollow sphere generator
 local function generateHollowSpherePoints()
 	local all = {}
 	for layer = 1, layers do
@@ -134,14 +157,14 @@ local function generateHollowSpherePoints()
 	return all
 end
 
--- Find tool and remote
+-- Find tool + remote
 local function findToolAndRemote()
 	local tool = LocalPlayer.Backpack:FindFirstChild("Axe Smash") or LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Axe Smash")
 	local remote = tool and tool:FindFirstChild("Remote")
 	return tool, remote
 end
 
--- Spam trap loop
+-- Trap spam loop
 task.spawn(function()
 	while true do
 		local _, remote = findToolAndRemote()
@@ -179,4 +202,4 @@ task.spawn(function()
 	end
 end)
 
-print("✅ Axe Smash Trap v2.2: Static Hollow Sphere active — press [T] or tap ☰")
+print("🌌 Eternal Trap v3.0 — Cosmic Hollow Sphere active. [T] or ☰ to toggle UI")

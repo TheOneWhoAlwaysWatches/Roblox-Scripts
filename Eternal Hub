@@ -157,6 +157,9 @@ updatesLabel.Text = [[
  - Updated Respawn to V10
  - Removd Insta Kill.. I found a secret.... :)
 
+📝 Updates: 09/07/25
+ - Made Anti-Lag a little more reliable
+
 📝 Update Notes:
 - Anti-Anim BREAKS No Cooldown now, DONT USE IT!!
 - Reach may make attackign slightly faster, but im not fully sure.
@@ -354,7 +357,7 @@ local function createPageButtons(pageNumber)
             {Text = "Kill Aura V2", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20Aura%20V2"}, -- 6
             {Text = "Loopbring", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Loopbring%20V6.lua"}, -- 7
             {Text = "Damage", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Damage"}, -- 8
-            {Text = "OP Anti-Lag", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Lag%20V3"}, -- 9
+            {Text = "OP Anti-Lag", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Lag%20V4"}, -- 9
             {Text = "Infinite Yield", ScriptLink = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"}, -- 3
         }
     elseif pageNumber == 2 then

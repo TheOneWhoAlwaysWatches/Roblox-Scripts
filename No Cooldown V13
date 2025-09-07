@@ -1,76 +1,69 @@
---// NoCooldown Ultra Fast Edition (Remote Spam Removed)
-
+-- ⚡ No Cooldown V6 - "Max Power" ⚡
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 
--- Hook wait/task.wait to near-zero throttling
-hookfunction(wait, function(_) return RunService.Heartbeat:Wait() end)
-hookfunction(task.wait, function(_) return RunService.Heartbeat:Wait() end)
+-- 1. Override wait/task/delay/spawn (force instant)
+hookfunction(wait, function() return RunService.PostSimulation:Wait() end)
+hookfunction(task.wait, function() return RunService.PostSimulation:Wait() end)
+hookfunction(delay, function(_, f) task.spawn(f) end)
+hookfunction(spawn, function(f) task.spawn(f) end)
 
---// Config
-local auraRange = 25 -- optional for local targeting visuals, won't fire remote spam
-
---// State
-local running = false
-
---// Helpers
-local function getChar(plr) return plr and plr.Character end
-local function getHRP(plr)
-    local c = getChar(plr)
-    return c and c:FindFirstChild("HumanoidRootPart")
-end
-
-local function getValidTargets()
-    local myHRP = getHRP(LocalPlayer)
-    if not myHRP then return {} end
-    local playersInRange = {}
-    for _, plr in ipairs(Players:GetPlayers()) do
-        if plr ~= LocalPlayer then
-            local hrp = getHRP(plr)
-            if hrp and (hrp.Position - myHRP.Position).Magnitude <= auraRange then
-                table.insert(playersInRange, plr)
+-- 2. Kill all Cooldown/Debounce objects automatically
+local function nukeCooldowns(obj)
+    for _, v in pairs(obj:GetDescendants()) do
+        if v:IsA("BoolValue") or v:IsA("NumberValue") then
+            local n = v.Name:lower()
+            if n:find("cool") or n:find("cd") or n:find("debounce") or n:find("delay") then
+                if v:IsA("BoolValue") then
+                    v.Value = false
+                else
+                    v.Value = 0
+                end
+                v.Changed:Connect(function()
+                    if v:IsA("BoolValue") then
+                        v.Value = false
+                    else
+                        v.Value = 0
+                    end
+                end)
             end
         end
     end
-    return playersInRange
 end
 
---// NoCooldown Loop (local-only tool activation)
-local function startLoop()
-    running = true
-    task.spawn(function()
-        while running do
-            local myChar = getChar(LocalPlayer)
-            if not myChar then task.wait(1) continue end
+nukeCooldowns(LocalPlayer)
+LocalPlayer.DescendantAdded:Connect(nukeCooldowns)
 
-            for _, tool in ipairs(myChar:GetChildren()) do
-                if tool:IsA("Tool") then
-                    -- simulate instant tool activation locally
-                    local handle = tool:FindFirstChild("Handle")
-                    if handle then
-                        -- move or reset hitbox, play animations, etc.
-                        -- ⚡ you can add local-only overpowered effects here
-                    end
+-- 3. Patch tools for instant re-fire
+local function patchTool(tool)
+    if not tool:IsA("Tool") then return end
+    nukeCooldowns(tool)
+
+    -- Hook remote spam on Activated
+    tool.Activated:Connect(function()
+        local remote = tool:FindFirstChildWhichIsA("RemoteEvent") or tool:FindFirstChildWhichIsA("RemoteFunction")
+        if remote then
+            task.spawn(function()
+                while tool.Parent == LocalPlayer.Character do
+                    pcall(function()
+                        if remote:IsA("RemoteEvent") then
+                            remote:FireServer()
+                        else
+                            remote:InvokeServer()
+                        end
+                    end)
+                    RunService.Heartbeat:Wait() -- ~60/sec, fast but won’t kill ping
                 end
-            end
-
-            RunService.Heartbeat:Wait() -- basically uncapped
+            end)
         end
     end)
 end
 
---// Reset Handlers
-LocalPlayer.CharacterAdded:Connect(function(char)
-    running = false
-    task.wait(0.1)
-    local hum = char:WaitForChild("Humanoid", 5)
-    if hum then hum.Died:Connect(function() running = false end) end
-    startLoop()
-end)
-
-if LocalPlayer.Character then
-    startLoop()
+for _, tool in pairs(LocalPlayer.Backpack:GetChildren()) do
+    patchTool(tool)
 end
+LocalPlayer.Backpack.ChildAdded:Connect(patchTool)
+LocalPlayer.Character.ChildAdded:Connect(patchTool)
 
-print("⚡ Ultra NoCooldown Loaded (Network Friendly) ⚡")
+print("⚡ No Cooldowns V6 Loaded - Pure Spam, No Limits ⚡")

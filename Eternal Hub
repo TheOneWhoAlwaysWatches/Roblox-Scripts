@@ -25,6 +25,7 @@ local whitelist = {
     [8402211570] = true, -- Aqua
     [3840112050] = true, -- Fang
     [9290332321] = true, -- Fang Alt
+    [1600669796] = true, -- Marco
     -- ES Members:
     [8129415259] = true, -- Troy Main
     [8764179035] = true, -- Troy Alt

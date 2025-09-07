@@ -1,19 +1,20 @@
---// NoCooldown Core
+--// NoCooldown Maxed Edition
+
+local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local v8 = RunService.PostSimulation
+local LocalPlayer = Players.LocalPlayer
+
+-- Hook wait/task.wait to remove throttling
 local oldWait
-oldWait = hookfunction(wait, function(_)
-    return task.wait(0) or v8:Wait()
-end)
+oldWait = hookfunction(wait, function(_) return task.wait(0) or RunService.Heartbeat:Wait() end)
+hookfunction(task.wait, function(_) return RunService.Heartbeat:Wait() end)
 
 --// Config
 local auraRange = 25
 local auraSize = Vector3.new(25, 25, 25)
-local attackRate = 0.01 -- still here but essentially "uncapped"
+local spamCount = 15 -- per tick, balance between power & lag
 
---// Services
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
+--// State
 local running = false
 local auraParams = OverlapParams.new()
 auraParams.FilterType = Enum.RaycastFilterType.Include
@@ -43,7 +44,7 @@ local function getValidTargets()
     return playersInRange, chars
 end
 
---// Main Kill Loop
+--// Unified Spam Loop
 local function startLoop()
     running = true
     task.spawn(function()
@@ -56,18 +57,23 @@ local function startLoop()
 
             for _, tool in ipairs(myChar:GetChildren()) do
                 if tool:IsA("Tool") then
+                    local fightEvent = tool:FindFirstChild("FightEvent")
                     local touchPart = getTouchPart(tool)
-                    if touchPart and #enemyChars > 0 then
-                        local partsInBox = workspace:GetPartBoundsInBox(
-                            touchPart.CFrame,
-                            touchPart.Size + auraSize,
-                            auraParams
-                        )
-                        for _, part in ipairs(partsInBox) do
-                            local model = part:FindFirstAncestorWhichIsA("Model")
-                            if model and table.find(enemyChars, model) then
-                                -- insane spam
-                                for i = 1, 10 do
+
+                    -- Spam both Remote + Touch per tick
+                    for i = 1, spamCount do
+                        if fightEvent then
+                            fightEvent:FireServer()
+                        end
+                        if touchPart and #enemyChars > 0 then
+                            local partsInBox = workspace:GetPartBoundsInBox(
+                                touchPart.CFrame,
+                                touchPart.Size + auraSize,
+                                auraParams
+                            )
+                            for _, part in ipairs(partsInBox) do
+                                local model = part:FindFirstAncestorWhichIsA("Model")
+                                if model and table.find(enemyChars, model) then
                                     firetouchinterest(touchPart, part, 1)
                                     firetouchinterest(touchPart, part, 0)
                                 end
@@ -77,26 +83,19 @@ local function startLoop()
                 end
             end
 
-            task.wait(attackRate) -- NoCooldown makes this near 0
+            RunService.Heartbeat:Wait() -- near-zero delay due to hook
         end
     end)
 end
 
--- Reset Handlers
+--// Reset Handlers
 LocalPlayer.CharacterAdded:Connect(function(char)
     running = false
     task.wait(0.1)
     local hum = char:WaitForChild("Humanoid", 5)
-    if hum then
-        hum.Died:Connect(function()
-            running = false
-        end)
-    end
+    if hum then hum.Died:Connect(function() running = false end) end
     startLoop()
 end)
+if LocalPlayer.Character then startLoop() end
 
-if LocalPlayer.Character then
-    startLoop()
-end
-
-print("⚡ NoCooldown + FireTouch InstaKill loaded.")
+print("⚡ Ultra NoCooldown + Remote+Touch Spam Loaded ⚡")

@@ -3,7 +3,7 @@ local LocalPlayer = Players.LocalPlayer
 local TweenService = game:GetService("TweenService")
 
 -- SETTINGS
-local DEFAULT_DISTANCE = 5 -- default distance players will be brought behind you
+local DEFAULT_DISTANCE = 5
 local LoopBrings = {}
 local BringDistance = DEFAULT_DISTANCE
 
@@ -23,14 +23,14 @@ local UICorner = Instance.new("UICorner", ToggleFrame)
 UICorner.CornerRadius = UDim.new(0, 6)
 
 local Stroke = Instance.new("UIStroke", ToggleFrame)
-Stroke.Color = Color3.fromRGB(255, 0, 0)
+Stroke.Color = Color3.fromRGB(255, 255, 255)
 Stroke.Thickness = 2
-Stroke.Transparency = 0.2
+Stroke.Transparency = 0.1
 
 local ToggleButton = Instance.new("TextButton", ToggleFrame)
 ToggleButton.Size = UDim2.new(1, 0, 1, 0)
 ToggleButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-ToggleButton.TextColor3 = Color3.fromRGB(255, 0, 0)
+ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 ToggleButton.Text = "LoopBring"
 ToggleButton.Font = Enum.Font.GothamBold
 ToggleButton.TextSize = 14
@@ -44,7 +44,7 @@ local Frame = Instance.new("Frame", ScreenGui)
 Frame.Size = UDim2.new(0, 220, 0, 50)
 Frame.Position = UDim2.new(1, -230, 0, 60)
 Frame.BorderSizePixel = 2
-Frame.BorderColor3 = Color3.fromRGB(255, 0, 0)
+Frame.BorderColor3 = Color3.fromRGB(255, 255, 255)
 Frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 Frame.ClipsDescendants = true
 Frame.Visible = false
@@ -73,7 +73,7 @@ local DistanceLabel = Instance.new("TextLabel", DistanceFrame)
 DistanceLabel.Size = UDim2.new(0.6, 0, 1, 0)
 DistanceLabel.Position = UDim2.new(0, 5, 0, 0)
 DistanceLabel.BackgroundTransparency = 1
-DistanceLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+DistanceLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 DistanceLabel.Font = Enum.Font.GothamBold
 DistanceLabel.TextSize = 14
 DistanceLabel.Text = "Distance: " .. BringDistance
@@ -82,7 +82,7 @@ local IncreaseBtn = Instance.new("TextButton", DistanceFrame)
 IncreaseBtn.Size = UDim2.new(0.15, 0, 1, 0)
 IncreaseBtn.Position = UDim2.new(0.65, 0, 0, 0)
 IncreaseBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-IncreaseBtn.TextColor3 = Color3.fromRGB(255, 0, 0)
+IncreaseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 IncreaseBtn.Text = "+"
 IncreaseBtn.Font = Enum.Font.GothamBold
 IncreaseBtn.TextSize = 20
@@ -91,7 +91,7 @@ local DecreaseBtn = Instance.new("TextButton", DistanceFrame)
 DecreaseBtn.Size = UDim2.new(0.15, 0, 1, 0)
 DecreaseBtn.Position = UDim2.new(0.82, 0, 0, 0)
 DecreaseBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-DecreaseBtn.TextColor3 = Color3.fromRGB(255, 0, 0)
+DecreaseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 DecreaseBtn.Text = "-"
 DecreaseBtn.Font = Enum.Font.GothamBold
 DecreaseBtn.TextSize = 20
@@ -119,13 +119,13 @@ local function loopBring(targetPlayer, label)
     if LoopBrings[targetPlayer.UserId] then
         LoopBrings[targetPlayer.UserId] = nil
         label.Text = targetPlayer.Name
-        label.TextColor3 = Color3.fromRGB(255, 0, 0)
+        label.TextColor3 = Color3.fromRGB(255, 255, 255)
         return
     end
 
     LoopBrings[targetPlayer.UserId] = true
     label.Text = targetPlayer.Name .. " [Looped]"
-    label.TextColor3 = Color3.fromRGB(255, 50, 50)
+    label.TextColor3 = Color3.fromRGB(200, 200, 200)
 
     task.spawn(function()
         while LoopBrings[targetPlayer.UserId] and targetPlayer and targetPlayer.Character and LocalPlayer.Character do
@@ -152,8 +152,8 @@ local function updatePlayerList()
         if player ~= LocalPlayer then
             local playerButton = Instance.new("TextButton", ListFrame)
             playerButton.Size = UDim2.new(1, 0, 0, 30)
-            playerButton.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-            playerButton.TextColor3 = Color3.fromRGB(255, 0, 0)
+            playerButton.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+            playerButton.TextColor3 = Color3.fromRGB(255, 255, 255)
             playerButton.Font = Enum.Font.GothamBold
             playerButton.TextSize = 16
             playerButton.AutoButtonColor = false
@@ -164,7 +164,7 @@ local function updatePlayerList()
 
             if LoopBrings[player.UserId] then
                 playerButton.Text = player.Name .. " [Looped]"
-                playerButton.TextColor3 = Color3.fromRGB(255, 50, 50)
+                playerButton.TextColor3 = Color3.fromRGB(200, 200, 200)
             end
 
             playerButton.MouseButton1Click:Connect(function()
@@ -194,5 +194,3 @@ end)
 Players.PlayerAdded:Connect(updatePlayerList)
 Players.PlayerRemoving:Connect(updatePlayerList)
 updatePlayerList()
-
-

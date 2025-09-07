@@ -188,7 +188,7 @@ scrollFrame.CanvasSize = UDim2.new(0, 0, 0, updatesLabel.AbsoluteSize.Y + 20)
 -- Title label with cosmic shimmer
 local titleLabel = Instance.new("TextLabel")
 titleLabel.Size = UDim2.new(0, 160, 0, 30)
-titleLabel.Position = UDim2.new(0, 10, 0, -10)
+titleLabel.Position = UDim2.new(0, 14, 0, -8)
 titleLabel.Text = " The Eternal Force"
 titleLabel.BackgroundTransparency = 1
 titleLabel.TextSize = 20

@@ -1,0 +1,86 @@
+-- ⚡ Reliable Anti-Lag Script
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Lighting = game:GetService("Lighting")
+local Workspace = game:GetService("Workspace")
+local Terrain = Workspace:FindFirstChildOfClass("Terrain")
+
+-- Core lighting reset (permanent night, no shadows)
+local function optimizeLighting()
+    Lighting.GlobalShadows = false
+    Lighting.FogEnd = 9e9
+    Lighting.Brightness = 0
+    Lighting.OutdoorAmbient = Color3.fromRGB(127,127,127)
+    Lighting.Ambient = Color3.fromRGB(127,127,127)
+    Lighting.ClockTime = 0
+    Lighting.EnvironmentDiffuseScale = 0
+    Lighting.EnvironmentSpecularScale = 0
+end
+optimizeLighting()
+Lighting.ChildAdded:Connect(function(obj) task.defer(optimizeLighting) end)
+
+-- Terrain optimization
+if Terrain then
+    Terrain.WaterWaveSize = 0
+    Terrain.WaterWaveSpeed = 0
+    Terrain.WaterReflectance = 0
+    Terrain.WaterTransparency = 0
+    Terrain.WaterColor = Color3.fromRGB(0,0,0)
+end
+
+-- Function to clean laggy instances
+local function cleanObject(obj)
+    if obj:IsA("BasePart") then
+        obj.Material = Enum.Material.SmoothPlastic
+        obj.Reflectance = 0
+        obj.CastShadow = false
+    elseif obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Beam") then
+        obj.Enabled = false
+    elseif obj:IsA("Fire") or obj:IsA("Smoke") or obj:IsA("Sparkles") then
+        obj.Enabled = false
+    elseif obj:IsA("PointLight") or obj:IsA("SpotLight") or obj:IsA("SurfaceLight") then
+        obj.Enabled = false
+    elseif obj:IsA("Decal") or obj:IsA("Texture") then
+        obj.Texture = ""
+    end
+end
+
+-- Clean existing objects
+for _, obj in ipairs(Workspace:GetDescendants()) do
+    cleanObject(obj)
+end
+
+-- Continuous cleanup for new objects
+Workspace.DescendantAdded:Connect(cleanObject)
+
+-- Remove accessories + clothes continuously
+local function stripCharacter(char)
+    char.DescendantAdded:Connect(function(item)
+        if item:IsA("Accessory") or item:IsA("Hat") or item:IsA("Hair") then
+            item:Destroy()
+        elseif item:IsA("Clothing") or item:IsA("Shirt") or item:IsA("Pants") or item:IsA("ShirtGraphic") then
+            item:Destroy()
+        end
+    end)
+    for _, item in ipairs(char:GetDescendants()) do
+        if item:IsA("Accessory") or item:IsA("Hat") or item:IsA("Hair") then
+            item:Destroy()
+        elseif item:IsA("Clothing") or item:IsA("Shirt") or item:IsA("Pants") or item:IsA("ShirtGraphic") then
+            item:Destroy()
+        end
+    end
+end
+
+-- Apply to all players
+for _, plr in ipairs(Players:GetPlayers()) do
+    if plr.Character then stripCharacter(plr.Character) end
+    plr.CharacterAdded:Connect(stripCharacter)
+end
+Players.PlayerAdded:Connect(function(plr)
+    plr.CharacterAdded:Connect(stripCharacter)
+end)
+
+-- Camera optimization
+local cam = workspace.CurrentCamera
+if cam then cam.FieldOfView = 70 end

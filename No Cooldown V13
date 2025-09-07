@@ -1,50 +1,43 @@
---// NoCooldown Maxed Edition
+--// NoCooldown Maxed Remote Edition
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 
--- Hook wait/task.wait to remove throttling
-local oldWait
-oldWait = hookfunction(wait, function(_) return task.wait(0) or RunService.Heartbeat:Wait() end)
+-- Hook wait/task.wait to near-zero throttling
+hookfunction(wait, function(_) return RunService.Heartbeat:Wait() end)
 hookfunction(task.wait, function(_) return RunService.Heartbeat:Wait() end)
 
 --// Config
 local auraRange = 25
-local auraSize = Vector3.new(25, 25, 25)
-local spamCount = 15 -- per tick, balance between power & lag
+local spamCount = 6 -- per tick, balanced: still insane, less ping abuse
 
 --// State
 local running = false
-local auraParams = OverlapParams.new()
-auraParams.FilterType = Enum.RaycastFilterType.Include
 
 --// Helpers
 local function getChar(plr) return plr and plr.Character end
-local function getHRP(plr) local c = getChar(plr) return c and c:FindFirstChild("HumanoidRootPart") end
-local function getTouchPart(tool)
-    local t = tool and tool:FindFirstChildWhichIsA("TouchTransmitter", true)
-    return t and t.Parent
+local function getHRP(plr)
+    local c = getChar(plr)
+    return c and c:FindFirstChild("HumanoidRootPart")
 end
 
 local function getValidTargets()
     local myHRP = getHRP(LocalPlayer)
     if not myHRP then return {}, {} end
-    local playersInRange, chars = {}, {}
+    local playersInRange = {}
     for _, plr in ipairs(Players:GetPlayers()) do
         if plr ~= LocalPlayer then
             local hrp = getHRP(plr)
             if hrp and (hrp.Position - myHRP.Position).Magnitude <= auraRange then
                 table.insert(playersInRange, plr)
-                local char = getChar(plr)
-                if char then table.insert(chars, char) end
             end
         end
     end
-    return playersInRange, chars
+    return playersInRange
 end
 
---// Unified Spam Loop
+--// Unified Remote Spam Loop
 local function startLoop()
     running = true
     task.spawn(function()
@@ -52,38 +45,21 @@ local function startLoop()
             local myChar = getChar(LocalPlayer)
             if not myChar then task.wait(1) continue end
 
-            local _, enemyChars = getValidTargets()
-            auraParams.FilterDescendantsInstances = enemyChars
-
-            for _, tool in ipairs(myChar:GetChildren()) do
-                if tool:IsA("Tool") then
-                    local fightEvent = tool:FindFirstChild("FightEvent")
-                    local touchPart = getTouchPart(tool)
-
-                    -- Spam both Remote + Touch per tick
-                    for i = 1, spamCount do
+            local enemies = getValidTargets()
+            if #enemies > 0 then
+                for _, tool in ipairs(myChar:GetChildren()) do
+                    if tool:IsA("Tool") then
+                        local fightEvent = tool:FindFirstChild("FightEvent")
                         if fightEvent then
-                            fightEvent:FireServer()
-                        end
-                        if touchPart and #enemyChars > 0 then
-                            local partsInBox = workspace:GetPartBoundsInBox(
-                                touchPart.CFrame,
-                                touchPart.Size + auraSize,
-                                auraParams
-                            )
-                            for _, part in ipairs(partsInBox) do
-                                local model = part:FindFirstAncestorWhichIsA("Model")
-                                if model and table.find(enemyChars, model) then
-                                    firetouchinterest(touchPart, part, 1)
-                                    firetouchinterest(touchPart, part, 0)
-                                end
+                            for i = 1, spamCount do
+                                fightEvent:FireServer()
                             end
                         end
                     end
                 end
             end
 
-            RunService.Heartbeat:Wait() -- near-zero delay due to hook
+            RunService.Heartbeat:Wait() -- basically uncapped
         end
     end)
 end
@@ -96,6 +72,9 @@ LocalPlayer.CharacterAdded:Connect(function(char)
     if hum then hum.Died:Connect(function() running = false end) end
     startLoop()
 end)
-if LocalPlayer.Character then startLoop() end
 
-print("⚡ Ultra NoCooldown + Remote+Touch Spam Loaded ⚡")
+if LocalPlayer.Character then
+    startLoop()
+end
+
+print("⚡ Ultra NoCooldown + Remote Spam Loaded ⚡")

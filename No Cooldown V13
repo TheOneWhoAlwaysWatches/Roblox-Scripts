@@ -1,4 +1,4 @@
---// NoCooldown Maxed Remote Edition
+--// NoCooldown Ultra Fast Edition (Remote Spam Removed)
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -9,8 +9,7 @@ hookfunction(wait, function(_) return RunService.Heartbeat:Wait() end)
 hookfunction(task.wait, function(_) return RunService.Heartbeat:Wait() end)
 
 --// Config
-local auraRange = 25
-local spamCount = 6 -- per tick, balanced: still insane, less ping abuse
+local auraRange = 25 -- optional for local targeting visuals, won't fire remote spam
 
 --// State
 local running = false
@@ -24,7 +23,7 @@ end
 
 local function getValidTargets()
     local myHRP = getHRP(LocalPlayer)
-    if not myHRP then return {}, {} end
+    if not myHRP then return {} end
     local playersInRange = {}
     for _, plr in ipairs(Players:GetPlayers()) do
         if plr ~= LocalPlayer then
@@ -37,7 +36,7 @@ local function getValidTargets()
     return playersInRange
 end
 
---// Unified Remote Spam Loop
+--// NoCooldown Loop (local-only tool activation)
 local function startLoop()
     running = true
     task.spawn(function()
@@ -45,16 +44,13 @@ local function startLoop()
             local myChar = getChar(LocalPlayer)
             if not myChar then task.wait(1) continue end
 
-            local enemies = getValidTargets()
-            if #enemies > 0 then
-                for _, tool in ipairs(myChar:GetChildren()) do
-                    if tool:IsA("Tool") then
-                        local fightEvent = tool:FindFirstChild("FightEvent")
-                        if fightEvent then
-                            for i = 1, spamCount do
-                                fightEvent:FireServer()
-                            end
-                        end
+            for _, tool in ipairs(myChar:GetChildren()) do
+                if tool:IsA("Tool") then
+                    -- simulate instant tool activation locally
+                    local handle = tool:FindFirstChild("Handle")
+                    if handle then
+                        -- move or reset hitbox, play animations, etc.
+                        -- ⚡ you can add local-only overpowered effects here
                     end
                 end
             end
@@ -77,4 +73,4 @@ if LocalPlayer.Character then
     startLoop()
 end
 
-print("⚡ Ultra NoCooldown + Remote Spam Loaded ⚡")
+print("⚡ Ultra NoCooldown Loaded (Network Friendly) ⚡")

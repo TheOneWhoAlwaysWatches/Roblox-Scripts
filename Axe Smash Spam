@@ -28,36 +28,27 @@ local shieldPosY = isMobile and 160 or 250
 local autoPosY = isMobile and 220 or 300
 local nukePosY = isMobile and 280 or 360
 
-local function makeButton(text, yPos, color)
+local function makeButton(text, yPos)
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0, 140, 0, 40)
+    btn.Size = UDim2.new(0, 160, 0, 40)
     btn.Position = UDim2.new(0, 20, 0, yPos)
-    btn.BackgroundColor3 = Color3.fromRGB(10, 0, 20)
-    btn.TextColor3 = color
+    btn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
     btn.Text = text
-    btn.Font = Enum.Font.Code
+    btn.Font = Enum.Font.GothamBold
     btn.TextSize = 16
     btn.Parent = ScreenGui
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
     local stroke = Instance.new("UIStroke", btn)
-    stroke.Color = color
+    stroke.Color = Color3.fromRGB(255, 255, 255)
+    stroke.Thickness = 2
+    stroke.Transparency = 0.1
     return btn
 end
 
-local shieldButton = makeButton("Shield: OFF", shieldPosY, Color3.fromRGB(200, 0, 255))
-local autoButton = makeButton("Auto Attack: ON", autoPosY, Color3.fromRGB(0, 255, 100))
-local nukeButton = makeButton("🔥 NUKE 🔥", nukePosY, Color3.fromRGB(255, 255, 255))
-
-local rainbowGrad = Instance.new("UIGradient", nukeButton:FindFirstChildOfClass("UIStroke"))
-rainbowGrad.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(255,0,0)),
-    ColorSequenceKeypoint.new(0.2, Color3.fromRGB(255,128,0)),
-    ColorSequenceKeypoint.new(0.4, Color3.fromRGB(255,255,0)),
-    ColorSequenceKeypoint.new(0.6, Color3.fromRGB(0,255,0)),
-    ColorSequenceKeypoint.new(0.8, Color3.fromRGB(0,255,255)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(255,0,255)),
-}
-task.spawn(function() while true do rainbowGrad.Rotation += 1; task.wait(0.02) end end)
+local shieldButton = makeButton("Shield: OFF", shieldPosY)
+local autoButton = makeButton("Auto Attack: ON", autoPosY)
+local nukeButton = makeButton("NUKE", nukePosY)
 
 -- === Helpers ===
 local function findToolAndRemote()
@@ -185,4 +176,4 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
-print("✅ Rebuilt: Infinite nukes, re-finding Remote, no breaks!")
+print("✅ Eternal Theme: Unified UI, Infinite nukes ready!")

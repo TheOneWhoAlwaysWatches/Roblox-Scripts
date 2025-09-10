@@ -1,6 +1,7 @@
 -- ⚡ ULTRA INSTANT TOOL SPAMMER
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 
 -- UI Setup (kept same style as yours)
@@ -91,8 +92,8 @@ local function stopSpam()
     end
 end
 
--- Toggle logic
-button.MouseButton1Click:Connect(function()
+-- Shared toggle function
+local function toggleSpam()
     spamming = not spamming
     button.Text = spamming and "spam-off" or "Usetools"
 
@@ -101,5 +102,15 @@ button.MouseButton1Click:Connect(function()
         startSpam()
     else
         stopSpam()
+    end
+end
+
+-- Toggle with button
+button.MouseButton1Click:Connect(toggleSpam)
+
+-- Toggle with Q key
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if not gameProcessed and input.KeyCode == Enum.KeyCode.Q then
+        toggleSpam()
     end
 end)

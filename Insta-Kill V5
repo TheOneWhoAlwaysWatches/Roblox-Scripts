@@ -1,118 +1,97 @@
+-- 🌌 Eternal Ultra Insta-Killer v3.1 — Full Power, Self-Safe 🌌
+
 -- CONFIG
-local auraRange = 25 -- Max distance to enemy
-local auraSize = Vector3.new(25, 25, 25) -- Aura box around tool
-local attackRate = 0.001 -- Ultra speed (careful not to flood)
+local auraSize = Vector3.new(40, 40, 40) -- Aura expansion
+local attackRate = 0 -- Maximum speed (use 0.01 if ping spikes)
+local doubleStrike = true -- Fire remotes twice per tick
 
 -- SERVICES
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
+local Workspace = game:GetService("Workspace")
 
 -- STATE
 local running = false
-local auraParams = OverlapParams.new()
-auraParams.FilterType = Enum.RaycastFilterType.Include
+local myChar, myHRP
 
 -- HELPERS
-local function getChar(plr)
-    return plr and plr.Character
-end
-
-local function getHRP(plr)
-    local char = getChar(plr)
-    return char and char:FindFirstChild("HumanoidRootPart")
-end
-
-local function getValidTargets()
-    local myHRP = getHRP(LocalPlayer)
-    if not myHRP then return {}, {} end
-
-    local playersInRange, chars = {}, {}
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer then
-            local hrp = getHRP(player)
-            if hrp and (hrp.Position - myHRP.Position).Magnitude <= auraRange then
-                table.insert(playersInRange, player)
-                local char = getChar(player)
-                if char then table.insert(chars, char) end
-            end
-        end
-    end
-    return playersInRange, chars
+local function refreshSelf()
+	myChar = LocalPlayer.Character
+	myHRP = myChar and myChar:FindFirstChild("HumanoidRootPart")
 end
 
 local function getTouchPart(tool)
-    local touchTransmitter = tool and tool:FindFirstChildWhichIsA("TouchTransmitter", true)
-    return touchTransmitter and touchTransmitter.Parent
+	local tt = tool and tool:FindFirstChildWhichIsA("TouchTransmitter", true)
+	return tt and tt.Parent
 end
 
-local function autoEquip(tool)
-    local char = getChar(LocalPlayer)
-    if char and tool.Parent ~= char then
-        tool.Parent = char
-    end
-    tool:Activate()
+local function equipAndStrike(tool)
+	if myChar and tool.Parent ~= myChar then
+		tool.Parent = myChar
+	end
+	tool:Activate()
+	local fightEvent = tool:FindFirstChild("FightEvent")
+	if fightEvent then
+		fightEvent:FireServer()
+		if doubleStrike then fightEvent:FireServer() end
+	end
 end
 
 -- MAIN LOOP
 local function startLoop()
-    running = true
-    task.spawn(function()
-        while running do
-            local myChar = getChar(LocalPlayer)
-            if not myChar then task.wait(1) continue end
+	running = true
+	task.spawn(function()
+		while running do
+			refreshSelf()
+			if not myChar or not myHRP then task.wait(0.2) continue end
 
-            local _, enemyChars = getValidTargets()
-            auraParams.FilterDescendantsInstances = enemyChars
+			for _, tool in ipairs(myChar:GetChildren()) do
+				if tool:IsA("Tool") then
+					-- Remote spam
+					equipAndStrike(tool)
 
-            for _, tool in ipairs(myChar:GetChildren()) do
-                if tool:IsA("Tool") then
-                    local fightEvent = tool:FindFirstChild("FightEvent")
-                    local touchPart = getTouchPart(tool)
-
-                    if fightEvent then
-                        autoEquip(tool)
-                        fightEvent:FireServer()
-                        fightEvent:FireServer() -- Double strike = Insta Kill
-                    end
-
-                    if touchPart and #enemyChars > 0 then
-                        local partsInBox = workspace:GetPartBoundsInBox(
-                            touchPart.CFrame,
-                            touchPart.Size + auraSize,
-                            auraParams
-                        )
-                        for _, part in ipairs(partsInBox) do
-                            local model = part:FindFirstAncestorWhichIsA("Model")
-                            if model and table.find(enemyChars, model) then
-                                firetouchinterest(touchPart, part, 1)
-                                firetouchinterest(touchPart, part, 0)
-                            end
-                        end
-                    end
-                end
-            end
-            task.wait(attackRate)
-        end
-    end)
+					-- Touch spam
+					local touchPart = getTouchPart(tool)
+					if touchPart then
+						local partsInBox = Workspace:GetPartBoundsInBox(
+							touchPart.CFrame,
+							touchPart.Size + auraSize
+						)
+						for _, part in ipairs(partsInBox) do
+							-- 🔒 Filter: never hit yourself
+							if not myChar:IsAncestorOf(part) then
+								local model = part:FindFirstAncestorWhichIsA("Model")
+								if model then
+									task.spawn(function()
+										firetouchinterest(touchPart, part, 1)
+										firetouchinterest(touchPart, part, 0)
+									end)
+								end
+							end
+						end
+					end
+				end
+			end
+			task.wait(attackRate)
+		end
+	end)
 end
 
 -- RESET HANDLERS
 LocalPlayer.CharacterAdded:Connect(function(char)
-    running = false -- Kill any old loop
-    task.wait(0.1)
-    local hum = char:WaitForChild("Humanoid", 5)
-    if hum then
-        hum.Died:Connect(function()
-            running = false
-        end)
-    end
-    startLoop()
+	running = false
+	task.wait(0.2)
+	local hum = char:WaitForChild("Humanoid", 5)
+	if hum then
+		hum.Died:Connect(function() running = false end)
+	end
+	startLoop()
 end)
 
 -- INITIAL START
 if LocalPlayer.Character then
-    startLoop()
+	startLoop()
 end
 
-print("🔥 1 Shot Ultra Insta-Killer Loaded & OP 🔥")
+print("⚡ FULL POWER Insta-Killer v3.1 Loaded — Constant Strike Aura (Self-Safe) ⚡")

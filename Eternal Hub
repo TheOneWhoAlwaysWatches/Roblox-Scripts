@@ -30,6 +30,7 @@ local whitelist = {
     -- ES Members:
     [8129415259] = true, -- Troy Main
     [8764179035] = true, -- Troy Alt
+    [5095172041] = true, -- Jack
 }
 
 -- Kick player if not whitelisted

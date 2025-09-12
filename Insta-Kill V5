@@ -1,129 +1,162 @@
--- Adaptive Token-Bucket Insta-Kill Loop (drop-in replacement)
+-- 🔧 Smart Auto-Tuning Insta-Kill (Roblox-safe, maximum effective RPS)
+-- Plug this in alongside your respawn / tool-grab scripts.
 
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 local LocalPlayer = Players.LocalPlayer
 
--- CONFIG (tweak these)
-local auraSize = Vector3.new(40, 40, 40)
-local DOUBLE_STRIKE = true            -- keep redundancy
-local MAX_TOKENS = 40                 -- max burst capacity
-local REFILL_PER_SEC = 40             -- base ops per second
-local LAG_FRAME_THRESHOLD = 0.050     -- if heartbeat delta > this, consider "laggy"
-local LAG_ADJUSTMENT_FACTOR = 0.5     -- reduce refill rate by this factor when laggy
-local TOUCHS_PER_TARGET = 1           -- touches per target per op (1 keeps load low)
-local PREDICT_AHEAD = 0               -- optional: offset for prediction in studs (0 default)
+-- ---------- CONFIG ----------
+local AURA_SIZE = Vector3.new(40, 40, 40)    -- hitbox expansion
+local START_RPS = 30                         -- starting ops per second
+local MAX_RPS = 60                           -- absolute upper bound (don't exceed)
+local MIN_RPS = 10                           -- lower bound
+local RPS_STEP = 5                           -- how much to bump up/down when tuning
+local LAG_FRAME_THRESHOLD = 0.06             -- EMA frame dt > this => consider "lag"
+local LAG_SUSTAIN_SECONDS = 0.6              -- how long lag must persist to trigger backoff
+local STABLE_SECONDS_TO_INCREASE = 2.0       -- seconds stable to try increasing RPS
+local DOUBLE_STRIKE = true                   -- fire remote twice (counts as 2 ops)
+local TOUCHS_PER_TARGET = 1                  -- #touches per target per op (keeps low)
+local PREDICT_AHEAD = 0                      -- optional prediction offset (studs)
 
--- STATE
-local tokens = MAX_TOKENS
+-- ---------- STATE ----------
+local currentRPS = START_RPS
+local tokenBucket = currentRPS               -- starts filled
+local tokenCapacity = MAX_RPS
 local lastTick = tick()
-local running = false
-local myChar, myHRP
+local emaDt = 1/60
+local EMA_ALPHA = 0.08
 
--- smoothing for frame delta to detect sustained lag (exponential moving average)
-local emaDelta = 1/60
-local EMA_ALPHA = 0.1
+-- for tuning decisions
+local lastLagTime = 0
+local lastStableTime = tick()
 
-local function refreshSelf()
-    myChar = LocalPlayer.Character
-    myHRP = myChar and myChar:FindFirstChild("HumanoidRootPart")
-end
+-- per-target last hit time (to avoid overspamming same target)
+local targetLastHit = {} -- [Model] = timestamp
 
-local function getTouchPart(tool)
+-- helper caches
+local getTouchPart = function(tool)
     local tt = tool and tool:FindFirstChildWhichIsA("TouchTransmitter", true)
     return tt and tt.Parent
 end
 
-local function strikeToolRemote(tool)
-    -- fire remote if exists (1 token per remote fire)
+local function refreshSelf()
+    local char = LocalPlayer.Character
+    return char, char and char:FindFirstChild("HumanoidRootPart")
+end
+
+-- basic safe remote fire wrapper (pcall)
+local function fireFightRemote(tool)
     local fightEvent = tool:FindFirstChild("FightEvent")
     if fightEvent then
-        pcall(function()
-            fightEvent:FireServer()
-            if DOUBLE_STRIKE then
-                -- small immediate repeat, but still counts as second token
-                fightEvent:FireServer()
-            end
-        end)
-        return (DOUBLE_STRIKE and 2) or 1
+        pcall(function() fightEvent:FireServer() end)
+        if DOUBLE_STRIKE then
+            pcall(function() fightEvent:FireServer() end)
+            return (DOUBLE_STRIKE and 2) or 1
+        end
+        return 1
     end
     return 0
 end
 
-local function touchTargetOnce(touchPart, part)
-    -- minimal touch spam: just one open/close
+local function touchOnce(touchPart, part)
     firetouchinterest(touchPart, part, 1)
     firetouchinterest(touchPart, part, 0)
 end
 
--- main heartbeat-driven loop with adaptive token bucket
+-- ---------- Adaptive tuner (simple, robust) ----------
+local function updateTuner(dt)
+    -- EMA of dt (smoothed)
+    emaDt = emaDt + (dt - emaDt) * EMA_ALPHA
+
+    local now = tick()
+    -- detect lag sustained
+    if emaDt > LAG_FRAME_THRESHOLD then
+        lastLagTime = now
+        lastStableTime = now
+        -- immediate backoff if we're above min
+        if currentRPS > MIN_RPS then
+            currentRPS = math.max(MIN_RPS, currentRPS - RPS_STEP)
+            tokenCapacity = math.max(tokenCapacity, currentRPS)
+            -- also cap token bucket to the new capacity
+            tokenBucket = math.min(tokenBucket, tokenCapacity)
+        end
+    else
+        -- if stable for a while, try raising RPS a bit
+        if now - lastStableTime >= STABLE_SECONDS_TO_INCREASE then
+            if currentRPS < MAX_RPS then
+                currentRPS = math.min(MAX_RPS, currentRPS + RPS_STEP)
+                tokenCapacity = math.max(tokenCapacity, currentRPS)
+                tokenBucket = math.min(tokenBucket + RPS_STEP, tokenCapacity)
+            end
+            lastStableTime = now
+        end
+    end
+    -- token refill based on currentRPS
+    tokenBucket = math.min(tokenCapacity, tokenBucket + currentRPS * dt)
+end
+
+-- ---------- Main heartbeat loop ----------
 local heartbeatConn
-local function startAdaptiveLoop()
+local running = false
+
+local function startSmartLoop()
     if heartbeatConn then heartbeatConn:Disconnect() end
     running = true
+    emaDt = 1/60
+    tokenBucket = currentRPS
     lastTick = tick()
-    tokens = MAX_TOKENS
-    emaDelta = 1/60
 
     heartbeatConn = RunService.Heartbeat:Connect(function(dt)
         if not running then return end
+        -- update tuner & tokens
+        updateTuner(dt)
 
-        -- update EMA for dt and detect lag
-        emaDelta = emaDelta + (dt - emaDelta) * EMA_ALPHA
-        local isLaggy = emaDelta > LAG_FRAME_THRESHOLD
+        -- refresh self
+        local char, hrp = refreshSelf()
+        if not char or not hrp then return end
 
-        -- compute effective refill rate (reduced if laggy)
-        local effectiveRefill = REFILL_PER_SEC * (isLaggy and LAG_ADJUSTMENT_FACTOR or 1)
-
-        -- refill tokens smoothly
-        tokens = math.min(MAX_TOKENS, tokens + effectiveRefill * dt)
-
-        -- refresh self references
-        refreshSelf()
-        if not myChar or not myHRP then return end
-
-        -- collect candidate tools & targets (do light work first)
-        local toolList = {}
-        for _, tool in ipairs(myChar:GetChildren()) do
-            if tool:IsA("Tool") then
-                table.insert(toolList, tool)
-            end
+        -- gather tools (cheap)
+        local tools = {}
+        for _, v in ipairs(char:GetChildren()) do
+            if v:IsA("Tool") then table.insert(tools, v) end
         end
-        if #toolList == 0 then return end
+        if #tools == 0 then return end
 
-        -- iterate tools, do actions while tokens available
-        for _, tool in ipairs(toolList) do
-            if tokens < 1 then break end
+        -- For each tool, attempt to perform ops while respecting tokens
+        for _, tool in ipairs(tools) do
+            if tokenBucket < 1 then break end
 
-            -- remote strikes (count tokens consumed)
-            local remoteCost = strikeToolRemote(tool)
+            -- 1) Remote firing (costs number of remote calls)
+            local remoteCost = fireFightRemote(tool)
             if remoteCost > 0 then
-                tokens = tokens - math.min(tokens, remoteCost)
+                tokenBucket = tokenBucket - math.min(remoteCost, tokenBucket)
             end
 
-            -- if tokens remain, perform touch-based attempts
+            -- 2) Touch aura (only if tokens remain)
             local touchPart = getTouchPart(tool)
-            if touchPart and tokens >= 1 then
-                -- compute expanded box once
-                local boxSize = touchPart.Size + auraSize
+            if touchPart and tokenBucket >= 1 then
+                -- prepare box (with optional prediction)
                 local boxCFrame = touchPart.CFrame
-                -- optional prediction: offset the box forward in movement dir
-                if PREDICT_AHEAD ~= 0 and myHRP.Velocity.Magnitude > 1 then
-                    local dir = myHRP.Velocity.Unit
-                    boxCFrame = boxCFrame + dir * PREDICT_AHEAD
+                if PREDICT_AHEAD ~= 0 and hrp.Velocity.Magnitude > 1 then
+                    boxCFrame = boxCFrame + hrp.Velocity.Unit * PREDICT_AHEAD
                 end
+                local parts = Workspace:GetPartBoundsInBox(boxCFrame, touchPart.Size + AURA_SIZE)
 
-                -- get parts once
-                local parts = Workspace:GetPartBoundsInBox(boxCFrame, boxSize)
                 for _, part in ipairs(parts) do
-                    if tokens < 1 then break end
-                    if not myChar:IsAncestorOf(part) then
+                    if tokenBucket < 1 then break end
+                    if not char:IsAncestorOf(part) then
                         local model = part:FindFirstAncestorWhichIsA("Model")
                         if model then
-                            -- one touch per target per frame
-                            touchTargetOnce(touchPart, part)
-                            tokens = tokens - 1
+                            -- per-target cooldown: allow hits spaced by (1/currentRPS) roughly
+                            local last = targetLastHit[model] or 0
+                            local minInterval = 1 / math.max(1, currentRPS) -- minimal gap between hits per target
+                            if tick() - last >= minInterval then
+                                -- do one touch (cost 1 token)
+                                touchOnce(touchPart, part)
+                                targetLastHit[model] = tick()
+                                tokenBucket = tokenBucket - 1
+                            end
                         end
                     end
                 end
@@ -132,27 +165,24 @@ local function startAdaptiveLoop()
     end)
 end
 
--- stop function
-local function stopLoop()
+local function stopSmartLoop()
     running = false
-    if heartbeatConn then
-        heartbeatConn:Disconnect()
-        heartbeatConn = nil
-    end
+    if heartbeatConn then heartbeatConn:Disconnect() heartbeatConn = nil end
 end
 
--- hook character events similar to your previous code
+-- Restart on spawn
 LocalPlayer.CharacterAdded:Connect(function(char)
-    stopLoop()
+    stopSmartLoop()
     task.wait(0.05)
     local hum = char:WaitForChild("Humanoid", 5)
-    if hum then
-        hum.Died:Connect(function() stopLoop() end)
-    end
-    startAdaptiveLoop()
+    if hum then hum.Died:Connect(function() stopSmartLoop() end) end
+    startSmartLoop()
 end)
 
 -- start if already present
-if LocalPlayer.Character then
-    startAdaptiveLoop()
-end
+if LocalPlayer.Character then startSmartLoop() end
+
+-- ---------- Debug convenience (optional) ----------
+-- print or display currentRPS and tokenBucket if you want live feedback
+-- For quick testing, uncomment:
+-- RunService.Heartbeat:Connect(function() print("RPS:", currentRPS, "Tokens:", math.floor(tokenBucket)) end)

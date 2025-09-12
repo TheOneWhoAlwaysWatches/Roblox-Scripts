@@ -148,6 +148,15 @@ updatesLabel.Size = UDim2.new(1, -10, 0, 0)
 updatesLabel.Position = UDim2.new(0, 5, 0, 0)
 updatesLabel.BackgroundTransparency = 1
 updatesLabel.Text = [[
+📝 Updates: 09/11/25
+- Added Insta-Kill Back
+- Moved some buttons around, Infinite yeild is on the 2nd page now, Kill aura is on the first page again
+- Made it so that Do Cooldown, and Insta-Kill work together, BUT it may cause ping overflow, use with cation
+- Updated respawn to V10
+- Updated Get Tools to V9
+
+Thats all for now :)
+
 📝 Updates: 09/06/25
  - Changed the hub Theme, and name.
  - Made the Updates Page Scrollable :)
@@ -351,20 +360,20 @@ local function createPageButtons(pageNumber)
     local buttonsData = {}
     if pageNumber == 1 then
         buttonsData = {
-            {Text = "Get Tools V7", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Tools%20V7.lua"}, -- 1
+            {Text = "Get Tools V8", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Tools%20V8.lua"}, -- 1
             {Text = "Use Tools V10", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Use%20Tools%20V10"}, -- 2
             {Text = "No Cooldown V13", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V13"}, -- 3
-            {Text = "Respawn V9", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V9.lua"}, -- 4
-            {Text = "Loopbring", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Loopbring%20V6.lua"}, -- 5
-            {Text = "Reach", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Reach"}, -- 6
-            {Text = "Infinite Yield", ScriptLink = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"}, -- 7
+            {Text = "Insta-Kill V5", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Insta-Kill%20V5"}, -- 4
+            {Text = "Respawn V10", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V10.lua"}, -- 5
+            {Text = "Loopbring", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Loopbring%20V6.lua"}, -- 6
+            {Text = "Reach", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Reach"}, -- 7
             {Text = "Damage", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Damage"}, -- 8
-            {Text = "OP Anti-Lag", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Lag%20V4"}, -- 9
+            {Text = "Kill Aura V2", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20Aura%20V2"}, -- 9
             {Text = "Get Base", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Base%20V3"}, -- 10
         }
     elseif pageNumber == 2 then
         buttonsData = {
-            {Text = "Kill Aura V2", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20Aura%20V2"}, -- 1
+            {Text = "OP Anti-Lag", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Lag%20V4"}, -- 1
             {Text = "Anti-Anims", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Anims"}, -- 2
             {Text = "Buy Base", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Buy%20Base"}, -- 3
             {Text = "Float Tools", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Float%20Tools%20V2"}, -- 4
@@ -373,7 +382,7 @@ local function createPageButtons(pageNumber)
             {Text = "Axe Smash Sheild", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Axe%20Smash%20Spam"}, -- 7
             {Text = "Axe Smash Trap", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Axe%20Smash%20Trap"}, -- 8
             {Text = "Anti-Kick/Ban", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Anti-Kick-Anti-Ban"}, -- 9
-            {Text = "Ping-Stabilizer", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Ping-Stabilizer"}, -- 10
+            {Text = "Infinite Yield", ScriptLink = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"}, -- 19
 
 
         }
@@ -386,7 +395,7 @@ local function createPageButtons(pageNumber)
             {Text = "Walking God Mode", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Walking%20God%20Mode"}, -- 5
             {Text = "Super Cool Emotes", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/UGC%20Emotes"}, -- 6
             {Text = "Emote While Moving", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Emote%20Cancelation%20Remover"}, -- 7
-            {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 8
+            {Text = "Ping-Stabilizer", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Ping-Stabilizer"}, -- 8
             {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 9
             {Text = "Coming Soon", ScriptLink = "https://ExampleScript"}, -- 10
         }

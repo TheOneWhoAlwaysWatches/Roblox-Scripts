@@ -7,7 +7,7 @@ local LocalPlayer = Players.LocalPlayer
 
 -- CONFIG
 local auraSize = Vector3.new(40, 40, 40)
-local DOUBLE_STRIKE = true  -- fire FightEvent twice for redundancy
+local DOUBLE_STRIKE = false  -- fire FightEvent twice for redundancy
 
 -- STATE
 local running = false

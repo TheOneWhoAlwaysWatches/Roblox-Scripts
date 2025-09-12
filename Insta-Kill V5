@@ -1,5 +1,4 @@
--- ⚡ Ultra Insta-Kill Optimized (Stable Ping Edition)
-
+-- ⚡ OPTIMIZED ULTRA INSTA-KILL — Frame-Synced
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -7,96 +6,78 @@ local LocalPlayer = Players.LocalPlayer
 
 -- CONFIG
 local auraSize = Vector3.new(40, 40, 40)
-local DOUBLE_STRIKE = false  -- fire FightEvent twice for redundancy
+local doubleStrike = false
 
 -- STATE
-local running = false
-local heartbeatConn
 local myChar, myHRP
+local running = false
 
+-- Refresh self
 local function refreshSelf()
-	myChar = LocalPlayer.Character
-	myHRP = myChar and myChar:FindFirstChild("HumanoidRootPart")
+    myChar = LocalPlayer.Character
+    myHRP = myChar and myChar:FindFirstChild("HumanoidRootPart")
 end
 
+-- Tool strike
+local function strikeTool(tool)
+    if myChar and tool.Parent ~= myChar then
+        tool.Parent = myChar
+    end
+    tool:Activate()
+    local fightEvent = tool:FindFirstChild("FightEvent")
+    if fightEvent then
+        fightEvent:FireServer()
+        if doubleStrike then fightEvent:FireServer() end
+    end
+end
+
+-- Get touchpart
 local function getTouchPart(tool)
-	local tt = tool and tool:FindFirstChildWhichIsA("TouchTransmitter", true)
-	return tt and tt.Parent
+    local tt = tool and tool:FindFirstChildWhichIsA("TouchTransmitter", true)
+    return tt and tt.Parent
 end
 
-local function strikeRemote(tool)
-	local fightEvent = tool:FindFirstChild("FightEvent")
-	if fightEvent then
-		fightEvent:FireServer()
-		if DOUBLE_STRIKE then
-			fightEvent:FireServer()
-		end
-	end
-end
-
-local function touchTargetOnce(touchPart, part)
-	firetouchinterest(touchPart, part, 1)
-	firetouchinterest(touchPart, part, 0)
-end
-
--- Main loop
+-- Kill loop
 local function startLoop()
-	if heartbeatConn then heartbeatConn:Disconnect() end
-	running = true
+    running = true
+    RunService.Heartbeat:Connect(function()
+        if not running then return end
+        refreshSelf()
+        if not myChar or not myHRP then return end
 
-	heartbeatConn = RunService.Heartbeat:Connect(function()
-		if not running then return end
-		refreshSelf()
-		if not myChar or not myHRP then return end
+        for _, tool in ipairs(myChar:GetChildren()) do
+            if tool:IsA("Tool") then
+                strikeTool(tool)
 
-		for _, tool in ipairs(myChar:GetChildren()) do
-			if tool:IsA("Tool") then
-				-- Remote attack
-				strikeRemote(tool)
-
-				-- Touch aura
-				local touchPart = getTouchPart(tool)
-				if touchPart then
-					local parts = Workspace:GetPartBoundsInBox(
-						touchPart.CFrame,
-						touchPart.Size + auraSize
-					)
-					for _, part in ipairs(parts) do
-						if not myChar:IsAncestorOf(part) then
-							local model = part:FindFirstAncestorWhichIsA("Model")
-							if model then
-								touchTargetOnce(touchPart, part)
-							end
-						end
-					end
-				end
-			end
-		end
-	end)
+                local touchPart = getTouchPart(tool)
+                if touchPart then
+                    local parts = Workspace:GetPartBoundsInBox(
+                        touchPart.CFrame,
+                        touchPart.Size + auraSize
+                    )
+                    for _, part in ipairs(parts) do
+                        if not myChar:IsAncestorOf(part) then
+                            local model = part:FindFirstAncestorWhichIsA("Model")
+                            if model then
+                                firetouchinterest(touchPart, part, 1)
+                                firetouchinterest(touchPart, part, 0)
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end)
 end
 
-local function stopLoop()
-	running = false
-	if heartbeatConn then
-		heartbeatConn:Disconnect()
-		heartbeatConn = nil
-	end
-end
-
--- Reset on death/respawn
+-- Reset handlers
 LocalPlayer.CharacterAdded:Connect(function(char)
-	stopLoop()
-	task.wait(0.05)
-	local hum = char:WaitForChild("Humanoid", 5)
-	if hum then
-		hum.Died:Connect(function() stopLoop() end)
-	end
-	startLoop()
+    running = false
+    task.wait(0.1)
+    char:WaitForChild("Humanoid")
+    startLoop()
 end)
 
--- Start immediately if already spawned
 if LocalPlayer.Character then
-	startLoop()
+    startLoop()
 end
-
-print("✅ Insta-Killer Optimized Loaded — Stable, Still Lethal")

@@ -27,10 +27,6 @@ local whitelist = {
     [9290332321] = true, -- Fang Alt
     [1600669796] = true, -- Marco
     [9407037318] = true, -- Messi
-    -- ES Members:
-    [8129415259] = true, -- Troy Main
-    [8764179035] = true, -- Troy Alt
-    [5095172041] = true, -- Jack
 }
 
 -- Kick player if not whitelisted

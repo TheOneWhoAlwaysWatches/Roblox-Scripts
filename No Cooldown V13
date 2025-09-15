@@ -1,17 +1,11 @@
--- ⚡ No Cooldown V6 - "Max Power" ⚡
+-- ⚡ No Cooldown V14 - Stable Limit ⚡
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 
--- 1. Override wait/task/delay/spawn (force instant)
-hookfunction(wait, function() return RunService.PostSimulation:Wait() end)
-hookfunction(task.wait, function() return RunService.PostSimulation:Wait() end)
-hookfunction(delay, function(_, f) task.spawn(f) end)
-hookfunction(spawn, function(f) task.spawn(f) end)
-
--- 2. Kill all Cooldown/Debounce objects automatically
+-- === Cooldown Nuker ===
 local function nukeCooldowns(obj)
-    for _, v in pairs(obj:GetDescendants()) do
+    for _, v in ipairs(obj:GetDescendants()) do
         if v:IsA("BoolValue") or v:IsA("NumberValue") then
             local n = v.Name:lower()
             if n:find("cool") or n:find("cd") or n:find("debounce") or n:find("delay") then
@@ -35,35 +29,42 @@ end
 nukeCooldowns(LocalPlayer)
 LocalPlayer.DescendantAdded:Connect(nukeCooldowns)
 
--- 3. Patch tools for instant re-fire
+-- === Tool Patcher ===
+local maxPerSecond = 45  -- hard cap on network packets per tool
+local interval = 1 / maxPerSecond
+local runningLoops = {}
+
 local function patchTool(tool)
     if not tool:IsA("Tool") then return end
     nukeCooldowns(tool)
 
-    -- Hook remote spam on Activated
     tool.Activated:Connect(function()
+        if runningLoops[tool] then return end
         local remote = tool:FindFirstChildWhichIsA("RemoteEvent") or tool:FindFirstChildWhichIsA("RemoteFunction")
-        if remote then
-            task.spawn(function()
-                while tool.Parent == LocalPlayer.Character do
-                    pcall(function()
-                        if remote:IsA("RemoteEvent") then
-                            remote:FireServer()
-                        else
-                            remote:InvokeServer()
-                        end
-                    end)
-                    RunService.Heartbeat:Wait() -- ~60/sec, fast but won’t kill ping
-                end
-            end)
-        end
+        if not remote then return end
+
+        runningLoops[tool] = true
+        task.spawn(function()
+            while tool.Parent == LocalPlayer.Character do
+                pcall(function()
+                    if remote:IsA("RemoteEvent") then
+                        remote:FireServer()
+                    else
+                        remote:InvokeServer()
+                    end
+                end)
+                task.wait(interval) -- capped, stable
+            end
+            runningLoops[tool] = nil
+        end)
     end)
 end
 
-for _, tool in pairs(LocalPlayer.Backpack:GetChildren()) do
+-- Patch all current tools
+for _, tool in ipairs(LocalPlayer.Backpack:GetChildren()) do
     patchTool(tool)
 end
 LocalPlayer.Backpack.ChildAdded:Connect(patchTool)
 LocalPlayer.Character.ChildAdded:Connect(patchTool)
 
-print("⚡ No Cooldowns V6 Loaded - Pure Spam, No Limits ⚡")
+print("⚡ No Cooldown V14 Loaded - Stable, Fast, Ping-Safe ⚡")

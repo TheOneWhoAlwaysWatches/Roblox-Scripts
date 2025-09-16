@@ -27,6 +27,10 @@ local whitelist = {
     [9290332321] = true, -- Fang Alt
     [1600669796] = true, -- Marco
     [9407037318] = true, -- Messi
+    -- ES Members:
+    [8129415259] = true, -- Troy Main
+    [8764179035] = true, -- Troy Alt
+    [5095172041] = true, -- Jack
 }
 
 -- Kick player if not whitelisted
@@ -144,42 +148,11 @@ updatesLabel.Size = UDim2.new(1, -10, 0, 0)
 updatesLabel.Position = UDim2.new(0, 5, 0, 0)
 updatesLabel.BackgroundTransparency = 1
 updatesLabel.Text = [[
-📝 Updates: 09/15/25
-- Updated No cooldown to V14, Now peak performance, and no ping spikeage. It may seem like insta-kill, but its not! and yes you still need kill aura with it, so dont forget that!
-
 📝 Updates: 09/11/25
-- Added Insta-Kill Back
-- Moved some buttons around, Infinite yeild is on the 2nd page now, Kill aura is on the first page again
-- Made it so that Do Cooldown, and Insta-Kill work together, BUT it may cause ping overflow, use with cation
-- Updated respawn to V10
-- Updated Get Tools to V9
-
-Thats all for now :)
-
-📝 Updates: 09/06/25
- - Changed the hub Theme, and name.
- - Made the Updates Page Scrollable :)
- - Updated No Cooldown to V12
- - Updated Get Tools to V7
- - Updated Use Tools to V10
- - Updated Respawn to V10
- - Removd Insta Kill.. I found a secret.... :)
-
-📝 Updates: 09/07/25
- - Made Anti-Lag a little more reliable
- - Combined No-Cooldown with the old Insta-Kill CORRECTLY, now they wont conflict, and in one script, OP together
- - Moved Kill aura to "Useful Scripts" Because its not really needed with the new no cooldown
-
-📝 Update Notes:
-- Anti-Anim BREAKS No Cooldown now, DONT USE IT!!
-- Reach may make attackign slightly faster, but im not fully sure.
-- Float Tools is broken right now, dont bother with it
-- Fly Tools is useless
-- Grip tools is also useless
-- Axe Smahs Sheild, Trap, and Loopbring, are getting re-designs soon..
-- Ping Stabilizer position will be moved eventually, sorry for the chat being non-visible because of it
-
-Thats All, Enjoy :)
+- Fixed No-Cooldown breaking on respawn
+- Added a "Info" page, for me to explain some things, not to be confused with this page, this is just to list updates. the "Info" page will be sued to explain things people may not know
+- I believe i made the Nav Bar/Page button bar scrollable, so things SHOULDN'T overlap, ill fix it if it does
+- Removed old update notes
 ]]
 updatesLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 updatesLabel.TextWrapped = true
@@ -194,6 +167,57 @@ updatesLabel:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
     scrollFrame.CanvasSize = UDim2.new(0, 0, 0, updatesLabel.AbsoluteSize.Y + 20)
 end)
 scrollFrame.CanvasSize = UDim2.new(0, 0, 0, updatesLabel.AbsoluteSize.Y + 20)
+
+-- Notes/Info page
+local notesFrame = Instance.new("Frame")
+notesFrame.Size = UDim2.new(0, 370, 0, 280)
+notesFrame.Position = UDim2.new(0.321, 0, 0.035, 0)
+notesFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+notesFrame.BorderSizePixel = 0
+notesFrame.Visible = false
+notesFrame.ZIndex = 100000
+notesFrame.Parent = mainFrame
+
+local uiCornerNotes = Instance.new("UICorner", notesFrame)
+uiCornerNotes.CornerRadius = UDim.new(0.3, 0)
+
+local uiStrokeNotes = Instance.new("UIStroke", notesFrame)
+uiStrokeNotes.Color = Color3.fromRGB(200, 200, 200)
+uiStrokeNotes.Thickness = 3
+
+local notesScroll = Instance.new("ScrollingFrame")
+notesScroll.Size = UDim2.new(1, -10, 1, -10)
+notesScroll.Position = UDim2.new(0, 5, 0, 5)
+notesScroll.BackgroundTransparency = 1
+notesScroll.BorderSizePixel = 0
+notesScroll.ScrollBarThickness = 6
+notesScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+notesScroll.ZIndex = 100000
+notesScroll.Parent = notesFrame
+
+local notesLabel = Instance.new("TextLabel")
+notesLabel.Size = UDim2.new(1, -10, 0, 0)
+notesLabel.Position = UDim2.new(0, 5, 0, 0)
+notesLabel.BackgroundTransparency = 1
+notesLabel.Text = [[
+📘 Notes & Info:
+- Sometimes using no cooldown, resetting, then using INsta-Kill, will prevent ping over flow, idk how, it just works
+
+                                    More notes coming soon, im just lazy :)
+]]
+notesLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+notesLabel.TextWrapped = true
+notesLabel.TextYAlignment = Enum.TextYAlignment.Top
+notesLabel.Font = Enum.Font.Code
+notesLabel.TextSize = 16
+notesLabel.AutomaticSize = Enum.AutomaticSize.Y
+notesLabel.ZIndex = 100001
+notesLabel.Parent = notesScroll
+
+notesLabel:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+    notesScroll.CanvasSize = UDim2.new(0, 0, 0, notesLabel.AbsoluteSize.Y + 20)
+end)
+notesScroll.CanvasSize = UDim2.new(0, 0, 0, notesLabel.AbsoluteSize.Y + 20)
 
 -- Title label with cosmic shimmer
 local titleLabel = Instance.new("TextLabel")
@@ -319,6 +343,7 @@ local button2 = createPageSelectorButton("Usefull Scripts", secondaryFrame)
 local button3 = createPageSelectorButton("Misc Scripts", secondaryFrame)
 local button4 = createPageSelectorButton("Misc Scripts 2", secondaryFrame)
 local buttonUpdates = createPageSelectorButton("Updates", secondaryFrame)
+local buttonNotes = createPageSelectorButton("Info", secondaryFrame)
 
 -- Script button helper
 local function createScriptButton(text, position, scriptLink, parent)
@@ -361,13 +386,13 @@ local function createPageButtons(pageNumber)
         buttonsData = {
             {Text = "Get Tools V8", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Tools%20V8.lua"}, -- 1
             {Text = "Use Tools V10", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Use%20Tools%20V10"}, -- 2
-            {Text = "No Cooldown V14", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V14"}, -- 3
-            {Text = "Kill Aura V2", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20Aura%20V2"}, -- 4
-            {Text = "Insta-Kill V5", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Insta-Kill%20V5"}, -- 5
-            {Text = "Respawn V10", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V10.lua"}, -- 6
-            {Text = "Loopbring", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Loopbring%20V6.lua"}, -- 7
-            {Text = "Reach", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Reach"}, -- 8
-            {Text = "Damage", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Damage"}, -- 9
+            {Text = "No Cooldown V13", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V13"}, -- 3
+            {Text = "Insta-Kill V5", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Insta-Kill%20V5"}, -- 4
+            {Text = "Respawn V10", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V10.lua"}, -- 5
+            {Text = "Loopbring", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Loopbring%20V6.lua"}, -- 6
+            {Text = "Reach", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Reach"}, -- 7
+            {Text = "Damage", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Damage"}, -- 8
+            {Text = "Kill Aura V2", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Kill%20Aura%20V2"}, -- 9
             {Text = "Get Base", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Base%20V3"}, -- 10
         }
     elseif pageNumber == 2 then
@@ -425,9 +450,12 @@ end
 local function showPage(pageName)
     thirdFrame.Visible = false
     updatesFrame.Visible = false
+    notesFrame.Visible = false
 
     if pageName == "Updates" then
         updatesFrame.Visible = true
+    elseif pageName == "Notes" then
+        notesFrame.Visible = true
     else
         thirdFrame.Visible = true
         if pageName == "Main" then
@@ -448,6 +476,7 @@ button2.MouseButton1Click:Connect(function() showPage("Usefull Scripts") end)
 button3.MouseButton1Click:Connect(function() showPage("Misc Scripts") end)
 button4.MouseButton1Click:Connect(function() showPage("Misc Scripts 2") end)
 buttonUpdates.MouseButton1Click:Connect(function() showPage("Updates") end)
+buttonNotes.MouseButton1Click:Connect(function() showPage("Info") end)
 
 -- Update the CanvasSize of secondaryFrame automatically
 local function updateCanvas()

@@ -1,51 +1,79 @@
--- ⚡ No Cooldown V14 - Stable Limit ⚡
+-- ⚡ No Cooldown V14 - Stable Limit (Respawn-proof) ⚡
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 
 -- === Cooldown Nuker ===
 local function nukeCooldowns(obj)
+    if not obj or not obj.GetDescendants then return end
     for _, v in ipairs(obj:GetDescendants()) do
         if v:IsA("BoolValue") or v:IsA("NumberValue") then
-            local n = v.Name:lower()
-            if n:find("cool") or n:find("cd") or n:find("debounce") or n:find("delay") then
-                if v:IsA("BoolValue") then
-                    v.Value = false
-                else
-                    v.Value = 0
-                end
-                v.Changed:Connect(function()
+            local nameLower = tostring(v.Name):lower()
+            if nameLower:find("cool") or nameLower:find("cd") or nameLower:find("debounce") or nameLower:find("delay") then
+                pcall(function()
                     if v:IsA("BoolValue") then
                         v.Value = false
                     else
                         v.Value = 0
                     end
                 end)
+                -- keep it nuked if some code tries to re-set it
+                v.Changed:Connect(function()
+                    pcall(function()
+                        if v:IsA("BoolValue") then
+                            v.Value = false
+                        else
+                            v.Value = 0
+                        end
+                    end)
+                end)
             end
         end
     end
 end
 
-nukeCooldowns(LocalPlayer)
-LocalPlayer.DescendantAdded:Connect(nukeCooldowns)
+-- initial nuke and watch for new descs on player object
+pcall(function() nukeCooldowns(LocalPlayer) end)
+LocalPlayer.DescendantAdded:Connect(function(desc)
+    pcall(function() nukeCooldowns(desc) end)
+end)
 
--- === Tool Patcher ===
+-- === Tool Patcher (respawn-safe) ===
 local maxPerSecond = 45  -- hard cap on network packets per tool
 local interval = 1 / maxPerSecond
-local runningLoops = {}
+
+-- keep track of patched tools to avoid duplicate connections
+local patchedTools = setmetatable({}, { __mode = "k" }) -- weak keys
+local runningLoops = setmetatable({}, { __mode = "k" })
+
+local function stopToolLoop(tool)
+    if runningLoops[tool] then
+        runningLoops[tool] = false
+    end
+end
 
 local function patchTool(tool)
-    if not tool:IsA("Tool") then return end
-    nukeCooldowns(tool)
+    if not tool or not tool:IsA("Tool") then return end
+    if patchedTools[tool] then return end
+    patchedTools[tool] = true
 
-    tool.Activated:Connect(function()
+    -- try to clear cooldown-like values in the tool itself immediately
+    pcall(function() nukeCooldowns(tool) end)
+
+    -- If tool moves around, we must stop loops when it's not in the character, handled below.
+    local activatedConn
+    local ancestryConn
+
+    local function onActivated()
         if runningLoops[tool] then return end
+        -- find remote
         local remote = tool:FindFirstChildWhichIsA("RemoteEvent") or tool:FindFirstChildWhichIsA("RemoteFunction")
         if not remote then return end
 
         runningLoops[tool] = true
+        -- spawn the capped spam loop
         task.spawn(function()
-            while tool.Parent == LocalPlayer.Character do
+            while runningLoops[tool] and tool.Parent == LocalPlayer.Character do
                 pcall(function()
                     if remote:IsA("RemoteEvent") then
                         remote:FireServer()
@@ -53,18 +81,77 @@ local function patchTool(tool)
                         remote:InvokeServer()
                     end
                 end)
-                task.wait(interval) -- capped, stable
+                task.wait(interval)
             end
             runningLoops[tool] = nil
         end)
+    end
+
+    activatedConn = tool.Activated:Connect(onActivated)
+
+    ancestryConn = tool.AncestryChanged:Connect(function(_, parent)
+        -- if the tool is moved out of our character, stop any running loop for it
+        if not tool.Parent or tool.Parent ~= LocalPlayer.Character then
+            stopToolLoop(tool)
+        end
+    end)
+
+    -- When the tool is destroyed, clean up connections
+    tool.Destroying:Connect(function()
+        stopToolLoop(tool)
+        if activatedConn and activatedConn.Connected then activatedConn:Disconnect() end
+        if ancestryConn and ancestryConn.Connected then ancestryConn:Disconnect() end
+        patchedTools[tool] = nil
     end)
 end
 
--- Patch all current tools
-for _, tool in ipairs(LocalPlayer.Backpack:GetChildren()) do
-    patchTool(tool)
+-- patch tools from both backpack and character
+local function patchAllCurrentTools()
+    pcall(function()
+        local backpack = LocalPlayer:FindFirstChild("Backpack")
+        if backpack then
+            for _, t in ipairs(backpack:GetChildren()) do
+                pcall(function() patchTool(t) end)
+            end
+        end
+    end)
+    pcall(function()
+        local char = LocalPlayer.Character
+        if char then
+            for _, t in ipairs(char:GetChildren()) do
+                pcall(function() patchTool(t) end)
+            end
+        end
+    end)
 end
-LocalPlayer.Backpack.ChildAdded:Connect(patchTool)
-LocalPlayer.Character.ChildAdded:Connect(patchTool)
 
-print("⚡ No Cooldown V14 Loaded - Stable, Fast, Ping-Safe ⚡")
+-- initial patch
+patchAllCurrentTools()
+
+-- watch for new tools in Backpack or Character (works across respawns)
+LocalPlayer.Backpack.ChildAdded:Connect(function(child)
+    task.delay(0.05, function() -- tiny delay to let the instance fully initialize
+        pcall(function() patchTool(child) end)
+    end)
+end)
+LocalPlayer.CharacterAdded:Connect(function(char)
+    -- when character spawns, re-nuke cooldowns for new descs, re-patch tools
+    task.wait(0.1)
+    pcall(function() nukeCooldowns(char) end)
+    patchAllCurrentTools()
+end)
+-- also patch tools if they appear directly under the character after respawn
+LocalPlayer.Character.ChildAdded:Connect(function(child)
+    task.delay(0.05, function()
+        pcall(function() patchTool(child) end)
+    end)
+end)
+
+-- Safety: watch Backpack removal/reparenting (clean patch if tool is removed)
+LocalPlayer.Backpack.ChildRemoved:Connect(function(child)
+    stopToolLoop(child)
+    patchedTools[child] = nil
+end)
+
+-- Print status
+print("⚡ No Cooldown V14 (respawn-proof) Loaded - Stable, Fast, Ping-Safe ⚡")

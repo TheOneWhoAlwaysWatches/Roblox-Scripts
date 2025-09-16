@@ -1,7 +1,13 @@
--- ⚡ No Cooldown V14 - Stable Limit (Respawn-proof) ⚡
+-- ⚡ No Cooldown V14 - Respawn-Proof (Global Manager version) ⚡
+-- Keeps your original behavior but will NOT break on respawn
+
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
+
+-- === CONFIG (same idea as before) ===
+local maxPerSecondPerTool = 45      -- cap per tool (you had 45)
+local interval = 1 / maxPerSecondPerTool
 
 -- === Cooldown Nuker ===
 local function nukeCooldowns(obj)
@@ -17,7 +23,7 @@ local function nukeCooldowns(obj)
                         v.Value = 0
                     end
                 end)
-                -- keep it nuked if some code tries to re-set it
+                -- keep nuked if something tries to change it
                 v.Changed:Connect(function()
                     pcall(function()
                         if v:IsA("BoolValue") then
@@ -32,86 +38,104 @@ local function nukeCooldowns(obj)
     end
 end
 
--- initial nuke and watch for new descs on player object
+-- initial nuke on player and watch future descendants
 pcall(function() nukeCooldowns(LocalPlayer) end)
 LocalPlayer.DescendantAdded:Connect(function(desc)
     pcall(function() nukeCooldowns(desc) end)
 end)
 
--- === Tool Patcher (respawn-safe) ===
-local maxPerSecond = 45  -- hard cap on network packets per tool
-local interval = 1 / maxPerSecond
+-- === Manager state ===
+local patchedTools = setmetatable({}, { __mode = "k" })     -- weak-key set of patched tool => true
+local activeTools = setmetatable({}, { __mode = "k" })      -- weak-key set of tools currently "Activated" by player clicks
+local toolConns = setmetatable({}, { __mode = "k" })        -- tool -> table of connections for cleanup
 
--- keep track of patched tools to avoid duplicate connections
-local patchedTools = setmetatable({}, { __mode = "k" }) -- weak keys
-local runningLoops = setmetatable({}, { __mode = "k" })
-
-local function stopToolLoop(tool)
-    if runningLoops[tool] then
-        runningLoops[tool] = false
+-- Helper: safe find remote under tool (like before)
+local function findToolRemote(tool)
+    if not tool or not tool.GetDescendants then return nil end
+    for _, d in ipairs(tool:GetDescendants()) do
+        if d:IsA("RemoteEvent") or d:IsA("RemoteFunction") then
+            return d
+        end
     end
+    -- fallback: name "FightEvent" deep search
+    local fe = tool:FindFirstChild("FightEvent", true)
+    if fe and (fe:IsA("RemoteEvent") or fe:IsA("RemoteFunction")) then return fe end
+    return nil
 end
 
+-- Stop tracking tool (clean loops)
+local function unpatchTool(tool)
+    if not tool then return end
+    local conns = toolConns[tool]
+    if conns then
+        for _, c in ipairs(conns) do
+            if c and c.Connected then
+                pcall(function() c:Disconnect() end)
+            end
+        end
+    end
+    toolConns[tool] = nil
+    patchedTools[tool] = nil
+    activeTools[tool] = nil
+end
+
+-- Patch a tool (idempotent)
 local function patchTool(tool)
     if not tool or not tool:IsA("Tool") then return end
     if patchedTools[tool] then return end
     patchedTools[tool] = true
 
-    -- try to clear cooldown-like values in the tool itself immediately
+    -- try to clear cooldown-like values inside tool
     pcall(function() nukeCooldowns(tool) end)
 
-    -- If tool moves around, we must stop loops when it's not in the character, handled below.
-    local activatedConn
-    local ancestryConn
+    -- keep track of connections for cleanup
+    local conns = {}
+    toolConns[tool] = conns
 
-    local function onActivated()
-        if runningLoops[tool] then return end
-        -- find remote
-        local remote = tool:FindFirstChildWhichIsA("RemoteEvent") or tool:FindFirstChildWhichIsA("RemoteFunction")
-        if not remote then return end
-
-        runningLoops[tool] = true
-        -- spawn the capped spam loop
-        task.spawn(function()
-            while runningLoops[tool] and tool.Parent == LocalPlayer.Character do
-                pcall(function()
-                    if remote:IsA("RemoteEvent") then
-                        remote:FireServer()
-                    else
-                        remote:InvokeServer()
-                    end
-                end)
-                task.wait(interval)
-            end
-            runningLoops[tool] = nil
+    -- When player activates the tool (mouse click / button), mark it active
+    local ok, activatedConn = pcall(function()
+        return tool.Activated:Connect(function()
+            -- mark active; global loop will handle firing at capped rate
+            activeTools[tool] = true
         end)
-    end
-
-    activatedConn = tool.Activated:Connect(onActivated)
-
-    ancestryConn = tool.AncestryChanged:Connect(function(_, parent)
-        -- if the tool is moved out of our character, stop any running loop for it
-        if not tool.Parent or tool.Parent ~= LocalPlayer.Character then
-            stopToolLoop(tool)
-        end
     end)
+    if ok and activatedConn then table.insert(conns, activatedConn) end
 
-    -- When the tool is destroyed, clean up connections
-    tool.Destroying:Connect(function()
-        stopToolLoop(tool)
-        if activatedConn and activatedConn.Connected then activatedConn:Disconnect() end
-        if ancestryConn and ancestryConn.Connected then ancestryConn:Disconnect() end
-        patchedTools[tool] = nil
+    -- Use Unequipped to stop auto-firing if the tool was unequipped
+    local ok2, unequipConn = pcall(function()
+        return tool.Unequipped:Connect(function()
+            activeTools[tool] = nil
+        end)
     end)
+    if ok2 and unequipConn then table.insert(conns, unequipConn) end
+
+    -- If tool gets destroyed / removed, cleanup
+    local ok3, destroyedConn = pcall(function()
+        return tool.Destroying:Connect(function()
+            activeTools[tool] = nil
+            unpatchTool(tool)
+        end)
+    end)
+    if ok3 and destroyedConn then table.insert(conns, destroyedConn) end
+
+    -- Also monitor ancestry changes - if tool leaves character/backpack we stop it
+    local ok4, ancestryConn = pcall(function()
+        return tool.AncestryChanged:Connect(function(_, parent)
+            if not parent then
+                activeTools[tool] = nil
+            end
+        end)
+    end)
+    if ok4 and ancestryConn then table.insert(conns, ancestryConn) end
 end
 
--- patch tools from both backpack and character
+-- Patch everything currently in backpack and character (safe)
 local function patchAllCurrentTools()
     pcall(function()
         local backpack = LocalPlayer:FindFirstChild("Backpack")
         if backpack then
             for _, t in ipairs(backpack:GetChildren()) do
-                pcall(function() patchTool(t) end)
+                pcall(patchTool, t)
             end
         end
     end)
@@ -119,39 +143,96 @@ local function patchAllCurrentTools()
         local char = LocalPlayer.Character
         if char then
             for _, t in ipairs(char:GetChildren()) do
-                pcall(function() patchTool(t) end)
+                pcall(patchTool, t)
             end
         end
     end)
 end
 
+-- Watch for tools added to Backpack or Character (respawn & pickups)
+LocalPlayer.Backpack.ChildAdded:Connect(function(child)
+    task.delay(0.05, function() patchTool(child) end)
+end)
+LocalPlayer.Backpack.ChildRemoved:Connect(function(child)
+    -- if removed (dropped), ensure cleanup
+    task.delay(0.05, function() unpatchTool(child) end)
+end)
+
+-- CharacterAdded patching (respawn safe)
+LocalPlayer.CharacterAdded:Connect(function(char)
+    -- wait a touch for objects to initialize
+    task.wait(0.05)
+    -- nuke cooldowns under new character
+    pcall(function() nukeCooldowns(char) end)
+    -- patch tools in Backpack and Character after respawn
+    patchAllCurrentTools()
+    -- when new tools are parented to Character
+    char.ChildAdded:Connect(function(child)
+        task.delay(0.05, function() patchTool(child) end)
+    end)
+end)
+
 -- initial patch
 patchAllCurrentTools()
 
--- watch for new tools in Backpack or Character (works across respawns)
-LocalPlayer.Backpack.ChildAdded:Connect(function(child)
-    task.delay(0.05, function() -- tiny delay to let the instance fully initialize
-        pcall(function() patchTool(child) end)
-    end)
+-- === Global persistent firing loop ===
+-- This loop lives across respawns and services all active tools.
+-- It respects the per-tool interval that you wanted (interval variable).
+local firing = true
+task.spawn(function()
+    -- safety: small sleep to allow startup
+    task.wait(0.05)
+    while firing do
+        -- iterate snapshot of active tools (to avoid mutation issues)
+        local toolsSnapshot = {}
+        for t, _ in pairs(activeTools) do
+            if t and t.Parent then
+                table.insert(toolsSnapshot, t)
+            else
+                activeTools[t] = nil
+            end
+        end
+
+        -- for each tool in snapshot, attempt one capped fire (one token consumed per call)
+        for _, tool in ipairs(toolsSnapshot) do
+            if tool and tool.Parent and tool:IsA("Tool") then
+                -- ensure cooldowns nuked on the tool (defensive)
+                pcall(function() nukeCooldowns(tool) end)
+
+                -- find remote (if any) and fire it safely
+                local remote = findToolRemote(tool)
+                if remote then
+                    pcall(function()
+                        if remote:IsA("RemoteEvent") then
+                            remote:FireServer()
+                        else
+                            remote:InvokeServer()
+                        end
+                    end)
+                end
+                -- small wait between each tool fire to respect per-tool caps
+                task.wait(interval)
+            end
+        end
+
+        -- if we had no active tools this cycle, wait a frame to avoid tight spinning
+        if #toolsSnapshot == 0 then
+            RunService.Heartbeat:Wait()
+        end
+    end
 end)
+
+-- Safety hook: if player dies we clear active tools (prevents leftover loops)
 LocalPlayer.CharacterAdded:Connect(function(char)
-    -- when character spawns, re-nuke cooldowns for new descs, re-patch tools
-    task.wait(0.1)
-    pcall(function() nukeCooldowns(char) end)
-    patchAllCurrentTools()
-end)
--- also patch tools if they appear directly under the character after respawn
-LocalPlayer.Character.ChildAdded:Connect(function(child)
-    task.delay(0.05, function()
-        pcall(function() patchTool(child) end)
-    end)
+    -- when character spawns we clear activeTools briefly (they'll re-add when activated)
+    for t, _ in pairs(activeTools) do activeTools[t] = nil end
 end)
 
--- Safety: watch Backpack removal/reparenting (clean patch if tool is removed)
-LocalPlayer.Backpack.ChildRemoved:Connect(function(child)
-    stopToolLoop(child)
-    patchedTools[child] = nil
-end)
+-- Optional: cleanup function (not necessary but handy)
+local function shutdown()
+    firing = false
+    for t, _ in pairs(activeTools) do activeTools[t] = nil end
+    for t, _ in pairs(patchedTools) do unpatchTool(t) end
+end
 
--- Print status
-print("⚡ No Cooldown V14 (respawn-proof) Loaded - Stable, Fast, Ping-Safe ⚡")
+print("⚡ No Cooldown V14 - Respawn-Proof (Global Manager) Loaded - Stable & Fast ⚡")

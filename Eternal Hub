@@ -386,7 +386,7 @@ local function createPageButtons(pageNumber)
         buttonsData = {
             {Text = "Get Tools V8", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Tools%20V8.lua"}, -- 1
             {Text = "Use Tools V10", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Use%20Tools%20V10"}, -- 2
-            {Text = "No Cooldown V13", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V13"}, -- 3
+            {Text = "No Cooldown V14", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V14"}, -- 3
             {Text = "Insta-Kill V5", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Insta-Kill%20V5"}, -- 4
             {Text = "Respawn V10", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V10.lua"}, -- 5
             {Text = "Loopbring", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Loopbring%20V6.lua"}, -- 6
@@ -454,7 +454,7 @@ local function showPage(pageName)
 
     if pageName == "Updates" then
         updatesFrame.Visible = true
-    elseif pageName == "Notes" then
+    elseif pageName == "Info" then
         notesFrame.Visible = true
     else
         thirdFrame.Visible = true

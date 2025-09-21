@@ -1,0 +1,109 @@
+-- ⚡ Ultra Anti-Lag Script (FPS MAXIMIZED) ⚡
+local Players = game:GetService("Players")
+local Lighting = game:GetService("Lighting")
+local Workspace = game:GetService("Workspace")
+local Terrain = Workspace:FindFirstChildOfClass("Terrain")
+local LocalPlayer = Players.LocalPlayer
+
+-- 🌑 Lighting kill
+local function optimizeLighting()
+    Lighting.GlobalShadows = false
+    Lighting.Brightness = 0
+    Lighting.OutdoorAmbient = Color3.new(0.5, 0.5, 0.5)
+    Lighting.Ambient = Color3.new(0.5, 0.5, 0.5)
+    Lighting.ClockTime = 0
+    Lighting.EnvironmentDiffuseScale = 0
+    Lighting.EnvironmentSpecularScale = 0
+    Lighting.FogEnd = 9e9
+    -- Kill effects
+    for _, v in ipairs(Lighting:GetChildren()) do
+        if v:IsA("PostEffect") then v.Enabled = false end
+    end
+end
+optimizeLighting()
+Lighting.ChildAdded:Connect(function(obj)
+    if obj:IsA("PostEffect") then task.defer(function() obj.Enabled = false end) end
+end)
+
+-- 🌊 Terrain
+if Terrain then
+    Terrain.WaterWaveSize = 0
+    Terrain.WaterWaveSpeed = 0
+    Terrain.WaterReflectance = 0
+    Terrain.WaterTransparency = 0
+    Terrain.WaterColor = Color3.new(0,0,0)
+end
+
+-- 🧹 Object cleaner
+local function cleanObject(obj)
+    if obj:IsA("BasePart") then
+        obj.Material = Enum.Material.SmoothPlastic
+        obj.Reflectance = 0
+        obj.CastShadow = false
+        obj.CustomPhysicalProperties = PhysicalProperties.new(0.7, 0.3, 0.5) -- cheap physics
+    elseif obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Beam") then
+        obj.Enabled = false
+    elseif obj:IsA("Fire") or obj:IsA("Smoke") or obj:IsA("Sparkles") then
+        obj.Enabled = false
+    elseif obj:IsA("PointLight") or obj:IsA("SpotLight") or obj:IsA("SurfaceLight") then
+        obj.Enabled = false
+    elseif obj:IsA("Decal") or obj:IsA("Texture") then
+        obj.Texture = ""
+    elseif obj:IsA("UnionOperation") then
+        obj.CollisionFidelity = Enum.CollisionFidelity.Box -- less lag
+    elseif obj:IsA("MeshPart") then
+        obj.RenderFidelity = Enum.RenderFidelity.Automatic -- simplify render
+    end
+end
+
+-- Apply cleanup on all
+for _, obj in ipairs(Workspace:GetDescendants()) do cleanObject(obj) end
+Workspace.DescendantAdded:Connect(cleanObject)
+
+-- 🚹 Strip characters
+local function stripCharacter(char)
+    for _, item in ipairs(char:GetDescendants()) do
+        if item:IsA("Accessory") or item:IsA("Hat") or item:IsA("Hair") then
+            item:Destroy()
+        elseif item:IsA("Clothing") or item:IsA("Shirt") or item:IsA("Pants") or item:IsA("ShirtGraphic") then
+            item:Destroy()
+        elseif item:IsA("Decal") or item:IsA("Texture") then
+            item:Destroy()
+        end
+    end
+    char.DescendantAdded:Connect(function(item)
+        if item:IsA("Accessory") or item:IsA("Hat") or item:IsA("Hair") 
+        or item:IsA("Clothing") or item:IsA("Shirt") or item:IsA("Pants") or item:IsA("ShirtGraphic")
+        or item:IsA("Decal") or item:IsA("Texture") then
+            item:Destroy()
+        end
+    end)
+end
+for _, plr in ipairs(Players:GetPlayers()) do
+    if plr.Character then stripCharacter(plr.Character) end
+    plr.CharacterAdded:Connect(stripCharacter)
+end
+Players.PlayerAdded:Connect(function(plr)
+    plr.CharacterAdded:Connect(stripCharacter)
+end)
+
+-- 📷 Camera optimization
+local cam = workspace.CurrentCamera
+if cam then
+    cam.FieldOfView = 70
+end
+
+-- ⚙️ Workspace performance knobs
+Workspace.InterpolationThrottling = Enum.InterpolationThrottlingMode.Disabled
+Workspace.StreamingEnabled = true
+Workspace.StreamingMinRadius = 64
+Workspace.StreamingTargetRadius = 128
+
+-- 🗑️ Garbage collector (helps memory cleanup on long sessions)
+task.spawn(function()
+    while task.wait(30) do
+        collectgarbage("collect")
+    end
+end)
+
+print("⚡ Ultra Anti-Lag Loaded: FPS maximized, effects stripped.")

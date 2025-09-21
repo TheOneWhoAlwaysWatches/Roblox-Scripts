@@ -1,0 +1,109 @@
+-- ⚡ No Cooldown V15 - Hybrid Frame-Based, Respawn-Proof ⚡
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+
+-- === CONFIG ===
+local maxPerSecond = 50 -- adaptive cap, keeps it strong without ping flood
+local interval = 1 / maxPerSecond
+
+-- === Cooldown Nuker ===
+local function nukeCooldowns(obj)
+    if not obj or not obj.GetDescendants then return end
+    for _, v in ipairs(obj:GetDescendants()) do
+        if v:IsA("BoolValue") or v:IsA("NumberValue") then
+            local n = v.Name:lower()
+            if n:find("cool") or n:find("cd") or n:find("debounce") or n:find("delay") then
+                pcall(function()
+                    if v:IsA("BoolValue") then v.Value = false else v.Value = 0 end
+                end)
+                v.Changed:Connect(function()
+                    pcall(function()
+                        if v:IsA("BoolValue") then v.Value = false else v.Value = 0 end
+                    end)
+                end)
+            end
+        end
+    end
+end
+
+-- === Remote Finder ===
+local function findRemote(tool)
+    if not tool or not tool.GetDescendants then return nil end
+    for _, d in ipairs(tool:GetDescendants()) do
+        if d:IsA("RemoteEvent") or d:IsA("RemoteFunction") then
+            return d
+        end
+    end
+    local fe = tool:FindFirstChild("FightEvent", true)
+    if fe and (fe:IsA("RemoteEvent") or fe:IsA("RemoteFunction")) then return fe end
+    return nil
+end
+
+-- === Tool Manager ===
+local activeTools = {}
+local patchedTools = {}
+local function patchTool(tool)
+    if not tool or not tool:IsA("Tool") or patchedTools[tool] then return end
+    patchedTools[tool] = true
+    nukeCooldowns(tool)
+
+    tool.Activated:Connect(function()
+        activeTools[tool] = findRemote(tool)
+    end)
+    tool.Unequipped:Connect(function()
+        activeTools[tool] = nil
+    end)
+    tool.Destroying:Connect(function()
+        activeTools[tool] = nil
+        patchedTools[tool] = nil
+    end)
+end
+
+-- Patch backpack + char on start
+local function patchAll()
+    local backpack = LocalPlayer:FindFirstChild("Backpack")
+    if backpack then
+        for _, t in ipairs(backpack:GetChildren()) do
+            patchTool(t)
+        end
+    end
+    local char = LocalPlayer.Character
+    if char then
+        for _, t in ipairs(char:GetChildren()) do
+            patchTool(t)
+        end
+    end
+end
+
+-- Respawn safe
+LocalPlayer.CharacterAdded:Connect(function(char)
+    task.wait(0.25)
+    nukeCooldowns(char)
+    patchAll()
+    char.ChildAdded:Connect(patchTool)
+end)
+LocalPlayer.Backpack.ChildAdded:Connect(patchTool)
+
+-- Initial patch
+patchAll()
+
+-- === Global Heartbeat Loop (frame-based, efficient) ===
+RunService.Heartbeat:Connect(function(dt)
+    for tool, remote in pairs(activeTools) do
+        if tool and tool.Parent and remote then
+            -- fire once per frame
+            pcall(function()
+                if remote:IsA("RemoteEvent") then
+                    remote:FireServer()
+                else
+                    remote:InvokeServer()
+                end
+            end)
+        else
+            activeTools[tool] = nil
+        end
+    end
+end)
+
+print("⚡ No Cooldown V15 Loaded - Hybrid Frame-Based, Respawn-Proof ⚡")

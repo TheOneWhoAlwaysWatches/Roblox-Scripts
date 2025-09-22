@@ -1,0 +1,55 @@
+-- Dual Strike Engine v1.0
+-- Optimized for max safe speed (~60 hits/sec)
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local rootPart = character:WaitForChild("HumanoidRootPart")
+
+local fightRemote = ReplicatedStorage:WaitForChild("FightEvent")
+
+-- Config
+local attackRate = 0.016  -- ~60 hits/sec
+local hitboxRadius = 6    -- adjustable range
+
+-- Keep track of already hit parts each tick
+local alreadyHit = {}
+
+-- Utility to get nearby enemies
+local function getEnemies()
+    local enemies = {}
+    for _, plr in pairs(Players:GetPlayers()) do
+        if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+            table.insert(enemies, plr.Character)
+        end
+    end
+    return enemies
+end
+
+-- Main attack loop
+RunService.Heartbeat:Connect(function(dt)
+    local enemies = getEnemies()
+    alreadyHit = {}  -- reset each frame
+
+    for _, enemy in pairs(enemies) do
+        if enemy:FindFirstChild("HumanoidRootPart") then
+            local distance = (rootPart.Position - enemy.HumanoidRootPart.Position).Magnitude
+            if distance <= hitboxRadius then
+                -- Fire TouchInterest for parts
+                for _, part in pairs(enemy:GetChildren()) do
+                    if part:IsA("BasePart") and not alreadyHit[part] then
+                        firetouchinterest(rootPart, part, 0)
+                        firetouchinterest(rootPart, part, 1)
+                        alreadyHit[part] = true
+                    end
+                end
+
+                -- Fire FightEvent remote
+                fightRemote:FireServer(enemy)
+            end
+        end
+    end
+end)

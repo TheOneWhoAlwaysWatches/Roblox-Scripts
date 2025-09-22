@@ -154,6 +154,13 @@ updatesLabel.Size = UDim2.new(1, -10, 0, 0)
 updatesLabel.Position = UDim2.new(0, 5, 0, 0)
 updatesLabel.BackgroundTransparency = 1
 updatesLabel.Text = [[
+📝 Updates: 09/21/25
+- No-Cooldown V15, faster, no ping spikes
+- Insta-Kill V6, Stronger, faster, No Ping Spikes
+- Anti-Lag, Better FPS boost
+
+                        More Coming Soon :)
+
 📝 Updates: 09/11/25
 - Fixed No-Cooldown breaking on respawn
 - Added a "Info" page, for me to explain some things, not to be confused with this page, this is just to list updates. the "Info" page will be sued to explain things people may not know

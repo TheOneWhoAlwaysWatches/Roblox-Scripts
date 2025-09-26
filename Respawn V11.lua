@@ -1,9 +1,14 @@
--- ⚡ ULTRA-INSTANT RESPAWN
+-- ⚡ ULTRA-INSTANT RESPAWN v2 ⚡
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 
+local respawned = false
+
 local function forceRespawn()
+    if respawned then return end
+    respawned = true
     if LocalPlayer:FindFirstChild("LoadCharacter") then
         LocalPlayer:LoadCharacter() -- fastest native respawn
     elseif ReplicatedStorage:FindFirstChild("Guide") then
@@ -12,28 +17,33 @@ local function forceRespawn()
 end
 
 local function onCharacterAdded(char)
+    respawned = false
     local humanoid = char:WaitForChild("Humanoid", 1)
-    if not humanoid then return end
-    local respawned = false
 
-    humanoid.HealthChanged:Connect(function(health)
-        if health <= 0.1 and not respawned then
-            respawned = true
+    -- Frame-perfect check
+    local conn
+    conn = RunService.Stepped:Connect(function()
+        if humanoid and humanoid.Health <= 0.01 then
             forceRespawn()
+            conn:Disconnect()
         end
     end)
 
-    humanoid.Died:Connect(function()
-        if not respawned then
-            respawned = true
+    -- Extra safety: also listen to Humanoid removal (instant respawn if Humanoid disappears)
+    char.ChildRemoved:Connect(function(child)
+        if child == humanoid then
             forceRespawn()
         end
     end)
 end
 
 LocalPlayer.CharacterAdded:Connect(onCharacterAdded)
+
+-- Initial load
 if LocalPlayer.Character then
     onCharacterAdded(LocalPlayer.Character)
 else
     forceRespawn()
 end
+
+print("⚡ ULTRA-INSTANT RESPAWN v11 loaded ⚡")

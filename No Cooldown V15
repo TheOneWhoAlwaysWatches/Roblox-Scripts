@@ -1,13 +1,12 @@
--- ⚡ Ultimate No Cooldown + Remote Spammer ⚡
-local Players = game:GetService("Players")
+-- ⚡ Ultimate Full-Throttle No Cooldown ⚡
 local RunService = game:GetService("RunService")
-local LocalPlayer = Players.LocalPlayer
 
 -- ✅ Overridden Yielders (max speed)
 local function fastWait()
     return RunService.PostSimulation:Wait()
 end
 
+-- Overriding standard wait functions
 hookfunction(wait, fastWait)
 hookfunction(task.wait, fastWait)
 
@@ -27,42 +26,19 @@ hookfunction(task.defer, function(func)
     task.spawn(func)
 end)
 
--- (Optional) Override frame waiters too
-hookfunction(RunService.Heartbeat.Wait, fastWait)
-hookfunction(RunService.RenderStepped.Wait, fastWait)
-
--- ✅ Remote Spam Setup
-local attackRate = 0.03 -- tweak for ping (lower = faster, higher = safer)
-local doubleStrike = true
-
-local myChar
-local function refreshChar()
-    myChar = LocalPlayer.Character
+-- Optional frame wait overrides
+if RunService.Heartbeat.Wait then
+    hookfunction(RunService.Heartbeat.Wait, fastWait)
+end
+if RunService.RenderStepped.Wait then
+    hookfunction(RunService.RenderStepped.Wait, fastWait)
 end
 
-local function spamFightEvents()
-    refreshChar()
-    if not myChar then return end
-
-    for _, tool in ipairs(myChar:GetChildren()) do
-        if tool:IsA("Tool") then
-            local fightEvent = tool:FindFirstChild("FightEvent")
-            if fightEvent then
-                fightEvent:FireServer()
-                if doubleStrike then
-                    fightEvent:FireServer()
-                end
-            end
-        end
-    end
-end
-
--- ✅ Damage Loop
+-- ✅ Continuous No-Cooldown Loop
 task.spawn(function()
     while true do
-        spamFightEvents()
-        task.wait(attackRate)
+        task.wait(0) -- constantly yield minimally to max out speed
     end
 end)
 
-print("⚡ ULTIMATE No Cooldown + FightEvent Remote Spammer Loaded ⚡")
+print("⚡ ULTIMATE FULL-THROTTLE No Cooldown Loaded ⚡")

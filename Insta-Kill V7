@@ -1,0 +1,67 @@
+-- ⚡ Dual Strike Engine v2.0 ⚡
+-- Max safe speed (~60 hits/sec) with ping protection
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local rootPart = character:WaitForChild("HumanoidRootPart")
+
+local fightRemote = ReplicatedStorage:WaitForChild("FightEvent")
+
+-- Config
+local attackRate = 0.016  -- ~60 hits/sec
+local hitboxRadius = 6    -- adjustable range
+local doubleStrike = true -- optional extra hit per tick
+
+-- Track already hit parts per frame
+local alreadyHit = {}
+
+-- Utility to get nearby enemies
+local function getEnemies()
+    local enemies = {}
+    for _, plr in pairs(Players:GetPlayers()) do
+        if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+            table.insert(enemies, plr.Character)
+        end
+    end
+    return enemies
+end
+
+-- Fire safe hit on a single enemy
+local function hitEnemy(enemy)
+    if not enemy:FindFirstChild("HumanoidRootPart") then return end
+
+    for _, part in pairs(enemy:GetChildren()) do
+        if part:IsA("BasePart") and not alreadyHit[part] then
+            firetouchinterest(rootPart, part, 0)
+            firetouchinterest(rootPart, part, 1)
+            alreadyHit[part] = true
+        end
+    end
+
+    -- Safe FightEvent firing
+    task.spawn(function()
+        fightRemote:FireServer(enemy)
+        if doubleStrike then
+            task.wait(attackRate / 2)
+            fightRemote:FireServer(enemy)
+        end
+    end)
+end
+
+-- Main loop
+RunService.Heartbeat:Connect(function(dt)
+    alreadyHit = {} -- reset per frame
+    local enemies = getEnemies()
+    for _, enemy in pairs(enemies) do
+        local distance = (rootPart.Position - enemy.HumanoidRootPart.Position).Magnitude
+        if distance <= hitboxRadius then
+            hitEnemy(enemy)
+        end
+    end
+end)
+
+print("⚡ Dual Strike Engine v7.0 Loaded ⚡")

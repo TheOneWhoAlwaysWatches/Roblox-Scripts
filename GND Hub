@@ -33,7 +33,7 @@ screenGui.Parent = player:WaitForChild("PlayerGui")
 local mainFrame = Instance.new("Frame")
 mainFrame.Size = UDim2.new(0, 476, 0, 230)
 mainFrame.Position = UDim2.new(0.31, 0, 0.322, 0)
-mainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15) -- dark gray
+mainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 mainFrame.BorderSizePixel = 0
 mainFrame.Visible = true
 mainFrame.ZIndex = 1
@@ -153,8 +153,12 @@ end
 local function updateHubDrag(input)
     if dragging then
         local delta = input.Position - dragStart
-        mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
-                                       startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        mainFrame.Position = UDim2.new(
+            startPos.X.Scale,
+            startPos.X.Offset + delta.X,
+            startPos.Y.Scale,
+            startPos.Y.Offset + delta.Y
+        )
     end
 end
 
@@ -205,39 +209,39 @@ local function createPageButtons(pageNumber)
 
     local buttonsData = {}
 
-	if pageNumber == 1 then
-		buttonsData = {
-			{Text = "Spam tools", ScriptLink = "https://pastebin.com/raw/q81GEhK8", Position = UDim2.new(0.03, 0, 0.074, 0)},
-			{Text = "Respawn", ScriptLink = "https://pastebin.com/raw/0brjHFjT", Position = UDim2.new(0.51, 0, 0.074, 0)},
-			{Text = "get tools", ScriptLink = "https://pastebin.com/raw/H8M5b0pR", Position = UDim2.new(0.03, 0, 0.287, 0)},
-			{Text = "get basé", ScriptLink = "https://pastebin.com/raw/MaRv6QyM", Position = UDim2.new(0.51, 0, 0.287, 0)},
-			{Text = "cooldown move", ScriptLink = "https://pastefy.app/rPDiQ9sT/raw", Position = UDim2.new(0.03, 0, 0.5, 0)},
-			{Text = "Damage", ScriptLink = "https://pastefy.app/GXzHKg3s/raw", Position = UDim2.new(0.51, 0, 0.5, 0)},
-			{Text = "hitbox", ScriptLink = "https://pastebin.com/raw/0aGGgGsa", Position = UDim2.new(0.03, 0, 0.7, 0)},
-			{Text = "kill aura", ScriptLink = "https://pastebin.com/raw/qWmPN4f5", Position = UDim2.new(0.51, 0, 0.7, 0)}
-		}
-	if pageNumber == 2 then
-		buttonsData = {
-			{Text = "Reach", ScriptLink = "https://pastefy.app/rNQ6FvYC/raw", Position = UDim2.new(0.03, 0, 0.074, 0)},
-			{Text = "reach ball", ScriptLink = "https://pastefy.app/wMjvlIQh/raw", Position = UDim2.new(0.51, 0, 0.074, 0)},
-			{Text = "float tools", ScriptLink = "https://pastebin.com/raw/1kPQEkLG", Position = UDim2.new(0.03, 0, 0.287, 0)},
-			{Text = "cooldown no move", ScriptLink = "https://pastebin.com/raw/5SSHDEc6", Position = UDim2.new(0.51, 0, 0.287, 0)},
-			{Text = "loopbring", ScriptLink = "https://pastebin.com/raw/W5iRiWyG", Position = UDim2.new(0.03, 0, 0.5, 0)},
-			{Text = "fly tools", ScriptLink = "https://pastebin.com/raw/jj8R5BGr", Position = UDim2.new(0.51, 0, 0.5, 0)},
-			{Text = "Antilag", ScriptLink = "https://pastebin.com/raw/bCGNs6ZU", Position = UDim2.new(0.03, 0, 0.7, 0)},
-			{Text = "Grip tools", ScriptLink = "https://pastebin.com/raw/jJQgNbXa", Position = UDim2.new(0.51, 0, 0.7, 0)}
-		}
-	if pageNumber == 3 then
-		buttonsData = {
-			{Text = "buy base", ScriptLink = "https://pastebin.com/raw/XqF6uqet", Position = UDim2.new(0.03, 0, 0.074, 0)},
-			{Text = "chat spy", ScriptLink = "https://pastebin.com/raw/VTW84YTh", Position = UDim2.new(0.51, 0, 0.074, 0)},
-			{Text = "Anty chat spy", ScriptLink = "https://pastebin.com/raw/6B0tf7Ys", Position = UDim2.new(0.03, 0, 0.287, 0)},
-			{Text = "Ghost hub", ScriptLink = "https://rawscripts.net/raw/Universal-Script-Ghost-hub-22779", Position = UDim2.new(0.51, 0, 0.287, 0)},
-			{Text = "Infinity yield", ScriptLink = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source", Position = UDim2.new(0.03, 0, 0.5, 0)},
-			{Text = "lag server 100%", ScriptLink = "https://pastebin.com/raw/QW1hZXcC", Position = UDim2.new(0.51, 0, 0.5, 0)},
-			{Text = "kill counter", ScriptLink = "https://pastebin.com/raw/jHjFv4fc", Position = UDim2.new(0.03, 0, 0.7, 0)},
-			{Text = "spawnpoint", ScriptLink = "https://pastefy.app/RwHIt6uY/raw", Position = UDim2.new(0.51, 0, 0.7, 0)}
-		}
+    if pageNumber == 1 then
+        buttonsData = {
+            {Text = "Spam tools", ScriptLink = "https://pastebin.com/raw/q81GEhK8", Position = UDim2.new(0.03, 0, 0.074, 0)},
+            {Text = "Respawn", ScriptLink = "https://pastebin.com/raw/0brjHFjT", Position = UDim2.new(0.51, 0, 0.074, 0)},
+            {Text = "get tools", ScriptLink = "https://pastebin.com/raw/H8M5b0pR", Position = UDim2.new(0.03, 0, 0.287, 0)},
+            {Text = "get basé", ScriptLink = "https://pastebin.com/raw/MaRv6QyM", Position = UDim2.new(0.51, 0, 0.287, 0)},
+            {Text = "cooldown move", ScriptLink = "https://pastefy.app/rPDiQ9sT/raw", Position = UDim2.new(0.03, 0, 0.5, 0)},
+            {Text = "Damage", ScriptLink = "https://pastefy.app/GXzHKg3s/raw", Position = UDim2.new(0.51, 0, 0.5, 0)},
+            {Text = "hitbox", ScriptLink = "https://pastebin.com/raw/0aGGgGsa", Position = UDim2.new(0.03, 0, 0.7, 0)},
+            {Text = "kill aura", ScriptLink = "https://pastebin.com/raw/qWmPN4f5", Position = UDim2.new(0.51, 0, 0.7, 0)}
+        }
+    elseif pageNumber == 2 then
+        buttonsData = {
+            {Text = "Reach", ScriptLink = "https://pastefy.app/rNQ6FvYC/raw", Position = UDim2.new(0.03, 0, 0.074, 0)},
+            {Text = "reach ball", ScriptLink = "https://pastefy.app/wMjvlIQh/raw", Position = UDim2.new(0.51, 0, 0.074, 0)},
+            {Text = "float tools", ScriptLink = "https://pastebin.com/raw/1kPQEkLG", Position = UDim2.new(0.03, 0, 0.287, 0)},
+            {Text = "cooldown no move", ScriptLink = "https://pastebin.com/raw/5SSHDEc6", Position = UDim2.new(0.51, 0, 0.287, 0)},
+            {Text = "loopbring", ScriptLink = "https://pastebin.com/raw/W5iRiWyG", Position = UDim2.new(0.03, 0, 0.5, 0)},
+            {Text = "fly tools", ScriptLink = "https://pastebin.com/raw/jj8R5BGr", Position = UDim2.new(0.51, 0, 0.5, 0)},
+            {Text = "Antilag", ScriptLink = "https://pastebin.com/raw/bCGNs6ZU", Position = UDim2.new(0.03, 0, 0.7, 0)},
+            {Text = "Grip tools", ScriptLink = "https://pastebin.com/raw/jJQgNbXa", Position = UDim2.new(0.51, 0, 0.7, 0)}
+        }
+    elseif pageNumber == 3 then
+        buttonsData = {
+            {Text = "buy base", ScriptLink = "https://pastebin.com/raw/XqF6uqet", Position = UDim2.new(0.03, 0, 0.074, 0)},
+            {Text = "chat spy", ScriptLink = "https://pastebin.com/raw/VTW84YTh", Position = UDim2.new(0.51, 0, 0.074, 0)},
+            {Text = "Anty chat spy", ScriptLink = "https://pastebin.com/raw/6B0tf7Ys", Position = UDim2.new(0.03, 0, 0.287, 0)},
+            {Text = "Ghost hub", ScriptLink = "https://rawscripts.net/raw/Universal-Script-Ghost-hub-22779", Position = UDim2.new(0.51, 0, 0.287, 0)},
+            {Text = "Infinity yield", ScriptLink = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source", Position = UDim2.new(0.03, 0, 0.5, 0)},
+            {Text = "lag server 100%", ScriptLink = "https://pastebin.com/raw/QW1hZXcC", Position = UDim2.new(0.51, 0, 0.5, 0)},
+            {Text = "kill counter", ScriptLink = "https://pastebin.com/raw/jHjFv4fc", Position = UDim2.new(0.03, 0, 0.7, 0)},
+            {Text = "spawnpoint", ScriptLink = "https://pastefy.app/RwHIt6uY/raw", Position = UDim2.new(0.51, 0, 0.7, 0)}
+        }
     end
 
     for _, data in ipairs(buttonsData) do

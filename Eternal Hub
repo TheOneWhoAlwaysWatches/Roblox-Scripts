@@ -14,7 +14,7 @@ local whitelist = {
     [2647384879] = true, -- Crainer (Alt)
     [8892518697] = true, -- Getoutmywaylillbro (My Alt)
     [8893225109] = true, -- Mr. Fish (My Alt)
-    [2491782832] = true, -- Nightmare (My Alt)
+    [3816480506] = true, -- 04ktVamp (My Alt)
     -- Trusted People:
     [1548866917] = true, -- Timmy
     [8551057429] = true, -- Timmy Alt
@@ -154,6 +154,14 @@ updatesLabel.Size = UDim2.new(1, -10, 0, 0)
 updatesLabel.Position = UDim2.new(0, 5, 0, 0)
 updatesLabel.BackgroundTransparency = 1
 updatesLabel.Text = [[
+📝 Updates: 09/26/25
+- No-Cooldown V16, Faster, Stronger, Ping resisant (i hope)
+- Insta-Kill V7, Stronger, Faster, Ping Resistant (i hope)
+- Get Tools V9, faster
+= Respawn V11, Faster
+
+                    :)
+
 📝 Updates: 09/21/25
 - No-Cooldown V15, faster, no ping spikes
 - Insta-Kill V6, Stronger, faster, No Ping Spikes
@@ -214,9 +222,7 @@ notesLabel.Position = UDim2.new(0, 5, 0, 0)
 notesLabel.BackgroundTransparency = 1
 notesLabel.Text = [[
 📘 Notes & Info:
-- Sometimes using no cooldown, resetting, then using INsta-Kill, will prevent ping over flow, idk how, it just works
-
-                                    More notes coming soon, im just lazy :)
+- No more Ping burst, unless ur wifi sucks fr
 ]]
 notesLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 notesLabel.TextWrapped = true
@@ -397,11 +403,11 @@ local function createPageButtons(pageNumber)
     local buttonsData = {}
     if pageNumber == 1 then
         buttonsData = {
-            {Text = "Get Tools V8", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Tools%20V8.lua"}, -- 1
+            {Text = "Get Tools V9", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Tools%20V9.lua"}, -- 1
             {Text = "Use Tools V10", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Use%20Tools%20V10"}, -- 2
-            {Text = "No Cooldown V15", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V15"}, -- 3
-            {Text = "Insta-Kill V6", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Insta-Kill%20V6"}, -- 4
-            {Text = "Respawn V10", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V10.lua"}, -- 5
+            {Text = "No Cooldown V16", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V16"}, -- 3
+            {Text = "Insta-Kill V7", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Insta-Kill%20V7"}, -- 4
+            {Text = "Respawn V11", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V11.lua"}, -- 5
             {Text = "Loopbring", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Loopbring%20V6.lua"}, -- 6
             {Text = "Reach", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Reach"}, -- 7
             {Text = "Damage", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Damage"}, -- 8

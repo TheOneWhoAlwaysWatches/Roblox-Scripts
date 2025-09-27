@@ -405,7 +405,7 @@ local function createPageButtons(pageNumber)
         buttonsData = {
             {Text = "Get Tools V9", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Get%20Tools%20V9.lua"}, -- 1
             {Text = "Use Tools V10", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Use%20Tools%20V10"}, -- 2
-            {Text = "No Cooldown V16", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/No%20Cooldown%20V16"}, -- 3
+            {Text = "No Cooldown V16", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Another%20No%20Cooldown"}, -- 3
             {Text = "Insta-Kill V7", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Insta-Kill%20V7"}, -- 4
             {Text = "Respawn V11", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Respawn%20V11.lua"}, -- 5
             {Text = "Loopbring", ScriptLink = "https://raw.githubusercontent.com/TheOneWhoAlwaysWatches/Roblox-Scripts/refs/heads/main/Loopbring%20V6.lua"}, -- 6

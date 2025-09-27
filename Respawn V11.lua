@@ -1,6 +1,4 @@
--- ⚡ ULTRA-INSTANT RESPAWN v12 ⚡
--- Aggressive frame-perfect respawn for 1v1s
-
+-- ⚡ ULTRA-INSTANT RESPAWN v12 FIXED ⚡
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -18,8 +16,8 @@ end
 -- track character
 local function onCharacterAdded(char)
     local humanoid = char:FindFirstChildOfClass("Humanoid")
+
     if not humanoid then
-        -- if humanoid hasn’t spawned yet, retry ASAP without yielding
         char.ChildAdded:Connect(function(c)
             if c:IsA("Humanoid") then
                 humanoid = c
@@ -27,9 +25,11 @@ local function onCharacterAdded(char)
         end)
     end
 
-    -- frame-perfect death detection
-    RunService.Heartbeat:Connect(function()
+    -- Death detection — run once
+    local heartbeatConnection
+    heartbeatConnection = RunService.Heartbeat:Connect(function()
         if humanoid and humanoid.Health <= 0 then
+            heartbeatConnection:Disconnect() -- stop loop
             forceRespawn()
         end
     end)
@@ -37,6 +37,7 @@ local function onCharacterAdded(char)
     -- instant fallback: if humanoid is destroyed
     char.ChildRemoved:Connect(function(c)
         if c == humanoid then
+            heartbeatConnection:Disconnect()
             forceRespawn()
         end
     end)
@@ -51,4 +52,4 @@ else
     forceRespawn()
 end
 
-print("⚡ ULTRA-INSTANT RESPAWN v12 loaded ⚡")
+print("⚡ ULTRA-INSTANT RESPAWN v12 FIXED loaded ⚡")

@@ -1,44 +1,67 @@
--- ⚡ Ultimate Full-Throttle No Cooldown ⚡
 local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local LocalPlayer = Players.LocalPlayer
 
--- ✅ Overridden Yielders (max speed)
-local function fastWait()
-    return RunService.PostSimulation:Wait()
+-- ⚡ SAFE HIGH-SPEED LOOP FUNCTION ⚡
+local function fastLoop(func, delayTime)
+    -- Runs func every frame using RenderStepped or Heartbeat
+    task.spawn(function()
+        while true do
+            local start = tick()
+            func()
+            local dt = tick() - start
+            if delayTime and delayTime > dt then
+                task.wait(delayTime - dt)
+            else
+                task.wait(0) -- minimal wait, lets other Roblox internals run
+            end
+        end
+    end)
 end
 
--- Overriding standard wait functions
-hookfunction(wait, fastWait)
-hookfunction(task.wait, fastWait)
-
-hookfunction(delay, function(_, func)
-    task.spawn(func)
-end)
-
-hookfunction(spawn, function(func)
-    task.spawn(func)
-end)
-
-hookfunction(task.delay, function(_, func)
-    task.spawn(func)
-end)
-
-hookfunction(task.defer, function(func)
-    task.spawn(func)
-end)
-
--- Optional frame wait overrides
-if RunService.Heartbeat.Wait then
-    hookfunction(RunService.Heartbeat.Wait, fastWait)
-end
-if RunService.RenderStepped.Wait then
-    hookfunction(RunService.RenderStepped.Wait, fastWait)
-end
-
--- ✅ Continuous No-Cooldown Loop
-task.spawn(function()
-    while true do
-        task.wait(0) -- constantly yield minimally to max out speed
+-- Example: FightEvent spam (safe)
+local function spamFightEvent()
+    local char = LocalPlayer.Character
+    if not char then return end
+    for _, tool in ipairs(char:GetChildren()) do
+        if tool:IsA("Tool") then
+            local fightEvent = tool:FindFirstChild("FightEvent")
+            if fightEvent then
+                pcall(function() fightEvent:FireServer() end)
+            end
+        end
     end
-end)
+end
 
-print("⚡ ULTIMATE FULL-THROTTLE No Cooldown Loaded ⚡")
+-- Example: Insta-Kill (safe)
+local function instaKillLoop()
+    local char = LocalPlayer.Character
+    if not char then return end
+    local root = char:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+    local fightRemote = ReplicatedStorage:FindFirstChild("FightEvent")
+    if not fightRemote then return end
+
+    for _, enemy in ipairs(Players:GetPlayers()) do
+        if enemy ~= LocalPlayer and enemy.Character and enemy.Character:FindFirstChild("HumanoidRootPart") then
+            local dist = (root.Position - enemy.Character.HumanoidRootPart.Position).Magnitude
+            if dist <= 6 then
+                pcall(function()
+                    -- Fire TouchInterest safely
+                    for _, part in ipairs(enemy.Character:GetChildren()) do
+                        if part:IsA("BasePart") then
+                            firetouchinterest(root, part, 0)
+                            firetouchinterest(root, part, 1)
+                        end
+                    end
+                    fightRemote:FireServer(enemy)
+                end)
+            end
+        end
+    end
+end
+
+-- Start loops
+fastLoop(spamFightEvent, 0.03)  -- ~30ms per attack
+fastLoop(instaKillLoop, 0.016)  -- ~60 hits/sec

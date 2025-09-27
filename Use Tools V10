@@ -1,10 +1,16 @@
--- ⚡ ULTRA INSTANT TOOL SPAMMER
+-- ⚡ ULTRA-INSTANT TOOL SPAMMER v6 ⚡
+-- Fastest possible mass tool activation with ping efficiency
+
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 
--- UI Setup (kept same style as yours)
+-- CONFIG
+local activationsPerFrame = 3 -- how many times to fire each tool per frame
+local toggleKey = Enum.KeyCode.Q
+
+-- UI Setup
 local screenGui = Instance.new("ScreenGui", game.CoreGui)
 screenGui.Name = "ToolSpamHub"
 
@@ -12,12 +18,11 @@ local frame = Instance.new("Frame", screenGui)
 frame.Position = UDim2.new(0.65, 0, 0.7, 0)
 frame.Size = UDim2.new(0, 70, 0, 40)
 frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Instance.new("UICorner", frame)
 
 local frameStroke = Instance.new("UIStroke", frame)
 frameStroke.Color = Color3.fromRGB(255, 0, 0)
 frameStroke.Thickness = 2
-
-local frameCorner = Instance.new("UICorner", frame)
 
 local button = Instance.new("TextButton", frame)
 button.Size = UDim2.new(1, -10, 1, -10)
@@ -27,13 +32,11 @@ button.Font = Enum.Font.Gotham
 button.Text = "Usetools"
 button.TextColor3 = Color3.fromRGB(255, 0, 0)
 button.TextScaled = true
-button.TextWrapped = true
+Instance.new("UICorner", button)
 
 local stroke = Instance.new("UIStroke", button)
 stroke.Color = Color3.fromRGB(255, 0, 0)
 stroke.Thickness = 0.5
-
-local corner = Instance.new("UICorner", button)
 
 -- Spam state
 local spamming = false
@@ -50,49 +53,42 @@ local function equipAllTools()
     end
 end
 
--- Start tool spam loop
+-- Spam loop
 local function startSpam()
     if spamConnection then spamConnection:Disconnect() end
     spamConnection = RunService.Heartbeat:Connect(function()
+        if not spamming then return end
         local char = LocalPlayer.Character
-        if not spamming or not char then return end
+        if not char then return end
 
-        -- Auto-equip missing tools
+        -- Re-equip instantly if tools drop on death
         for _, tool in ipairs(LocalPlayer.Backpack:GetChildren()) do
             if tool:IsA("Tool") then
                 tool.Parent = char
             end
         end
 
-        -- Activate ALL tools at once
+        -- Activate tools multiple times per frame
         for _, tool in ipairs(char:GetChildren()) do
             if tool:IsA("Tool") then
-                task.defer(function()
-                    pcall(function() tool:Activate() end)
-                end)
+                for i = 1, activationsPerFrame do
+                    task.spawn(function()
+                        pcall(function() tool:Activate() end)
+                    end)
+                end
             end
         end
     end)
 end
 
--- Stop spam loop
 local function stopSpam()
     if spamConnection then
         spamConnection:Disconnect()
         spamConnection = nil
     end
-    -- Unequip tools if desired
-    local char = LocalPlayer.Character
-    if char then
-        for _, tool in ipairs(char:GetChildren()) do
-            if tool:IsA("Tool") then
-                tool.Parent = LocalPlayer.Backpack
-            end
-        end
-    end
 end
 
--- Shared toggle function
+-- Toggle
 local function toggleSpam()
     spamming = not spamming
     button.Text = spamming and "spam-off" or "Usetools"
@@ -105,12 +101,10 @@ local function toggleSpam()
     end
 end
 
--- Toggle with button
 button.MouseButton1Click:Connect(toggleSpam)
 
--- Toggle with Q key
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if not gameProcessed and input.KeyCode == Enum.KeyCode.Q then
+UserInputService.InputBegan:Connect(function(input, gp)
+    if not gp and input.KeyCode == toggleKey then
         toggleSpam()
     end
 end)

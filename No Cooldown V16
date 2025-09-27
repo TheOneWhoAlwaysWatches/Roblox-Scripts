@@ -1,67 +1,30 @@
+-- ⚡ No Cooldown MAX ⚡
+
 local RunService = game:GetService("RunService")
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local LocalPlayer = Players.LocalPlayer
 
--- ⚡ SAFE HIGH-SPEED LOOP FUNCTION ⚡
-local function fastLoop(func, delayTime)
-    -- Runs func every frame using RenderStepped or Heartbeat
-    task.spawn(function()
-        while true do
-            local start = tick()
-            func()
-            local dt = tick() - start
-            if delayTime and delayTime > dt then
-                task.wait(delayTime - dt)
-            else
-                task.wait(0) -- minimal wait, lets other Roblox internals run
-            end
-        end
-    end)
-end
+-- Override wait/task.wait to do *almost no yield*
+hookfunction(wait, function()
+    -- Minimal yield: allows script to run multiple times per frame
+    task.wait(0) -- smallest safe yield Roblox allows
+end)
 
--- Example: FightEvent spam (safe)
-local function spamFightEvent()
-    local char = LocalPlayer.Character
-    if not char then return end
-    for _, tool in ipairs(char:GetChildren()) do
-        if tool:IsA("Tool") then
-            local fightEvent = tool:FindFirstChild("FightEvent")
-            if fightEvent then
-                pcall(function() fightEvent:FireServer() end)
-            end
-        end
+hookfunction(task.wait, function()
+    task.wait(0)
+end)
+
+-- Override delay to immediate spawn
+hookfunction(delay, function(_, func)
+    task.spawn(func)
+end)
+
+-- Override spawn to immediate spawn
+hookfunction(spawn, function(func)
+    task.spawn(func)
+end)
+
+-- Optional: Loop for maximum speed
+task.spawn(function()
+    while true do
+        RunService.Heartbeat:Wait() -- fastest safe loop in Roblox
     end
-end
-
--- Example: Insta-Kill (safe)
-local function instaKillLoop()
-    local char = LocalPlayer.Character
-    if not char then return end
-    local root = char:FindFirstChild("HumanoidRootPart")
-    if not root then return end
-    local fightRemote = ReplicatedStorage:FindFirstChild("FightEvent")
-    if not fightRemote then return end
-
-    for _, enemy in ipairs(Players:GetPlayers()) do
-        if enemy ~= LocalPlayer and enemy.Character and enemy.Character:FindFirstChild("HumanoidRootPart") then
-            local dist = (root.Position - enemy.Character.HumanoidRootPart.Position).Magnitude
-            if dist <= 6 then
-                pcall(function()
-                    -- Fire TouchInterest safely
-                    for _, part in ipairs(enemy.Character:GetChildren()) do
-                        if part:IsA("BasePart") then
-                            firetouchinterest(root, part, 0)
-                            firetouchinterest(root, part, 1)
-                        end
-                    end
-                    fightRemote:FireServer(enemy)
-                end)
-            end
-        end
-    end
-end
-
--- Start loops
-fastLoop(spamFightEvent, 0.03)  -- ~30ms per attack
-fastLoop(instaKillLoop, 0.016)  -- ~60 hits/sec
+end)
